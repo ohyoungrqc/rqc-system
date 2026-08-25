@@ -378,15 +378,16 @@
 </head>
 <body>
 
-<div id="login-gate" style="position:fixed;inset:0;background:#f0f4f9;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:#fff;border-radius:14px;padding:32px 28px;max-width:340px;width:100%;box-shadow:0 8px 30px rgba(0,0,0,0.12);text-align:center;">
-    <div style="font-size:20px;font-weight:700;color:#2a5298;margin-bottom:6px;">🔒 반응QC 설비관리시스템</div>
-    <div style="font-size:13px;color:#64748b;margin-bottom:20px;">팀 비밀번호를 입력해주세요</div>
-    <input id="login-pw-input" type="password" placeholder="비밀번호" autocomplete="off"
-      style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;margin-bottom:10px;"
+<div id="login-gate" style="position:fixed;inset:0;background:linear-gradient(135deg,#f0f4f9 0%,#e8edf7 100%);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:18px;padding:40px 32px 32px;max-width:360px;width:100%;box-shadow:0 12px 40px rgba(42,82,152,0.15);text-align:center;">
+    <img src="https://drive.google.com/thumbnail?id=1z6L5wiLkMBe6KH6GBW1UmvgHipi-vWEw&sz=w96" alt="오영 로고" style="width:56px;height:56px;object-fit:contain;margin-bottom:14px;">
+    <div style="font-size:23px;font-weight:800;color:#1e293b;letter-spacing:0.5px;margin-bottom:4px;">OHYOUNG</div>
+    <div style="font-size:14px;font-weight:600;color:#2a5298;margin-bottom:28px;">품질관리부 반응QC 시스템</div>
+    <input id="login-pw-input" type="password" placeholder="비밀번호를 입력하세요" autocomplete="off"
+      style="width:100%;box-sizing:border-box;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;margin-bottom:10px;text-align:center;"
       onkeydown="if(event.key==='Enter') tryLogin()">
     <div id="login-error" style="color:#dc2626;font-size:12px;margin-bottom:10px;display:none;">비밀번호가 틀렸습니다</div>
-    <button onclick="tryLogin()" style="width:100%;padding:10px;background:#2a5298;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">입장하기</button>
+    <button onclick="tryLogin()" style="width:100%;padding:12px;background:#2a5298;color:white;border:none;border-radius:9px;font-size:14px;font-weight:700;letter-spacing:0.5px;cursor:pointer;">Login</button>
   </div>
 </div>
 
