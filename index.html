@@ -217,9 +217,9 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbzJDpUSKclNi-umnbO3uaSaU1QHAG28eGvqkkQyTvxhjBiWKZmpCd4xcXCIEKcmJNcY/exec';
 const PW_KEY = 'qc_pw';
-function getSavedPw() { try { return localStorage.getItem(PW_KEY) || ''; } catch(e) { return ''; } }
-function savePw(pw) { try { localStorage.setItem(PW_KEY, pw); } catch(e) {} }
-function clearPw() { try { localStorage.removeItem(PW_KEY); } catch(e) {} }
+function getSavedPw() { try { return sessionStorage.getItem(PW_KEY) || ''; } catch(e) { return ''; } }
+function savePw(pw) { try { sessionStorage.setItem(PW_KEY, pw); } catch(e) {} }
+function clearPw() { try { sessionStorage.removeItem(PW_KEY); } catch(e) {} }
 
 async function apiGet(params) {
   const url = API + '?' + new URLSearchParams({ ...params, pw: getSavedPw() });

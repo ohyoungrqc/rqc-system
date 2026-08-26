@@ -89,6 +89,9 @@
   .header-divider { width: 1px; height: 42px; background: #e0e0e0; flex-shrink: 0; }
   .header-title { font-size: 22px; font-weight: 700; letter-spacing: 3px; color: #2a5298; white-space: nowrap; }
   .header-sub { font-size: 12px; color: #999; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* 포털(index.html) 안에 iframe으로 들어있을 때는 위쪽 로고/이름을 숨겨서 중복을 줄임 */
+  body.embedded .header-brand { display: none; }
+  body.embedded .app-header { justify-content: center; }
 
   .nav-tabs { display: flex; gap: 2px; background: #f0f4f9; border-radius: 10px; padding: 3px; }
   .nav-tab {
@@ -696,9 +699,9 @@ let editingEqId = null;
 
 // ===== 접속 비밀번호 =====
 const PW_KEY = 'qc_pw';
-function getSavedPw() { try { return localStorage.getItem(PW_KEY) || ''; } catch(e) { return ''; } }
-function savePw(pw) { try { localStorage.setItem(PW_KEY, pw); } catch(e) {} }
-function clearPw() { try { localStorage.removeItem(PW_KEY); } catch(e) {} }
+function getSavedPw() { try { return sessionStorage.getItem(PW_KEY) || ''; } catch(e) { return ''; } }
+function savePw(pw) { try { sessionStorage.setItem(PW_KEY, pw); } catch(e) {} }
+function clearPw() { try { sessionStorage.removeItem(PW_KEY); } catch(e) {} }
 
 // ===== API =====
 async function apiGet(params) {
@@ -731,6 +734,7 @@ async function tryLogin() {
 }
 
 async function startApp() {
+  try { if (window.self !== window.top) document.body.classList.add('embedded'); } catch (e) { document.body.classList.add('embedded'); }
   const urlPw = new URLSearchParams(location.search).get('pw');
   if (urlPw) savePw(urlPw);
   const saved = getSavedPw();
