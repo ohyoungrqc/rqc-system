@@ -25,19 +25,20 @@
   #login-gate button { width:100%; padding:12px; background:#2a5298; color:#fff; border:none; border-radius:9px; font-size:14px; font-weight:700; letter-spacing:0.5px; cursor:pointer; }
 
   /* ===== 상단 헤더 / 네비게이션 ===== */
-  .portal-header { background:#fff; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; padding:0 24px; height:60px; position:sticky; top:0; z-index:200; flex-wrap:wrap; }
-  .brand-wrap { display:flex; align-items:center; gap:10px; padding:8px 0; }
-  .brand-wrap img { width:30px; height:30px; object-fit:contain; }
-  .brand-wrap .name { font-weight:800; font-size:15px; letter-spacing:0.3px; }
-  .brand-wrap .name small { display:block; font-weight:500; font-size:11px; color:#64748b; letter-spacing:0; }
+  .portal-header { background:#fff; border-bottom:1px solid #e2e8f0; position:sticky; top:0; z-index:200; }
+  .header-top { display:flex; align-items:center; padding:14px 24px; }
+  .brand-wrap { display:flex; align-items:center; gap:16px; }
+  .brand-wrap img { width:48px; height:48px; object-fit:contain; }
+  .brand-wrap .name { font-weight:800; font-size:24px; letter-spacing:0.3px; line-height:1.25; }
+  .brand-wrap .name small { display:block; font-weight:600; font-size:14px; color:#64748b; letter-spacing:0; margin-top:2px; }
 
-  .nav { display:flex; height:60px; }
+  .nav { display:flex; height:52px; padding:0 24px; border-top:1px solid #eef2f7; }
   .nav-item { position:relative; }
-  .nav-btn { background:none; border:none; height:60px; padding:0 16px; font-size:13.5px; font-weight:600; color:#64748b; cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; font-family:inherit; }
+  .nav-btn { background:none; border:none; height:52px; padding:0 18px; font-size:14px; font-weight:600; color:#64748b; cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; font-family:inherit; }
   .nav-btn:hover { color:#2a5298; }
   .nav-item.active > .nav-btn { color:#2a5298; border-bottom-color:#2a5298; }
 
-  .dropdown { position:absolute; top:60px; left:0; background:#fff; border:1px solid #e2e8f0; border-radius:0 0 10px 10px; box-shadow:0 10px 24px rgba(0,0,0,0.1); min-width:170px; display:none; flex-direction:column; padding:6px; }
+  .dropdown { position:absolute; top:52px; left:0; background:#fff; border:1px solid #e2e8f0; border-radius:0 0 10px 10px; box-shadow:0 10px 24px rgba(0,0,0,0.1); min-width:170px; display:none; flex-direction:column; padding:6px; }
   .nav-item:hover .dropdown, .nav-item.open .dropdown { display:flex; }
   .dropdown button { background:none; border:none; text-align:left; padding:11px 12px; border-radius:7px; font-size:13px; color:#1e293b; cursor:pointer; font-family:inherit; }
   .dropdown button:hover { background:#e8edf7; color:#2a5298; }
@@ -46,7 +47,7 @@
   /* ===== 콘텐츠 영역 ===== */
   .content-section { display:none; }
   .content-section.active { display:block; }
-  .content-section iframe { width:100%; height:calc(100vh - 61px); border:none; display:block; background:#fff; }
+  .content-section iframe { width:100%; height:calc(100vh - 130px); border:none; display:block; background:#fff; }
 
   .page-wrap { max-width:1000px; margin:0 auto; padding:32px 24px 60px; }
   .page-title { font-size:20px; font-weight:800; margin-bottom:4px; }
@@ -99,9 +100,11 @@
 </div>
 
 <header class="portal-header">
-  <div class="brand-wrap">
-    <img src="https://drive.google.com/thumbnail?id=1z6L5wiLkMBe6KH6GBW1UmvgHipi-vWEw&sz=w48" alt="오영 로고">
-    <div class="name">OHYOUNG<small>반응QC 통합관리시스템</small></div>
+  <div class="header-top">
+    <div class="brand-wrap">
+      <img src="https://drive.google.com/thumbnail?id=1z6L5wiLkMBe6KH6GBW1UmvgHipi-vWEw&sz=w96" alt="오영 로고">
+      <div class="name">OHYOUNG<small>품질관리부 반응QC 통합관리시스템</small></div>
+    </div>
   </div>
   <nav class="nav" id="nav">
     <div class="nav-item active" data-key="equipment">
@@ -256,6 +259,7 @@ function enterPortal() {
   const pw = getSavedPw();
   document.getElementById('frame-equipment').src = 'equipment.html?pw=' + encodeURIComponent(pw);
   document.getElementById('frame-products').src = 'products.html';
+  switchTab('equipment');
   renderCalendar();
 }
 
