@@ -43,8 +43,8 @@
   .nav-btn:hover { color:#2a5298; }
   .nav-item.active > .nav-btn { color:#2a5298; border-bottom-color:#2a5298; }
 
-  .dropdown { position:absolute; top:52px; left:0; background:#fff; border:1px solid #e2e8f0; border-radius:0 0 10px 10px; box-shadow:0 10px 24px rgba(0,0,0,0.1); min-width:170px; display:none; flex-direction:column; padding:6px; }
-  .nav-item:hover .dropdown, .nav-item.open .dropdown { display:flex; }
+  .dropdown { position:fixed; background:#fff; border:1px solid #e2e8f0; border-radius:0 0 10px 10px; box-shadow:0 10px 24px rgba(0,0,0,0.1); min-width:170px; display:none; flex-direction:column; padding:6px; z-index:300; }
+  .nav-item.open .dropdown, .nav-item.hover-open .dropdown { display:flex; }
   .dropdown button { background:none; border:none; text-align:left; padding:11px 12px; border-radius:7px; font-size:13px; color:#1e293b; cursor:pointer; font-family:inherit; }
   .dropdown button:hover { background:#e8edf7; color:#2a5298; }
   .dropdown button.active { color:#2a5298; font-weight:700; }
@@ -599,13 +599,46 @@ function enterPortal() {
 }
 
 // ===== 탭 전환 =====
+// 상단 메뉴(nav)는 모바일에서 좌우로 스크롤되게 overflow-x:auto가 걸려있는데,
+// 이러면 그 안의 드롭다운(제품조회▾ 등 눌렀을 때 나오는 메뉴)이 화면에 안 보이고 잘려버려요.
+// 그래서 드롭다운은 position:fixed로 빼두고, 버튼 위치를 계산해서 화면 좌표로 직접 옮겨줘요.
+function positionDropdown(item) {
+  const btn = item.querySelector('.nav-btn');
+  const dropdown = item.querySelector('.dropdown');
+  if (!btn || !dropdown) return;
+  const rect = btn.getBoundingClientRect();
+  dropdown.style.top = rect.bottom + 'px';
+  dropdown.style.left = rect.left + 'px';
+}
+
 function toggleOrSwitch(btn, defaultTab) {
   const item = btn.closest('.nav-item');
   const isOpen = item.classList.contains('open');
   document.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
-  if (!isOpen) { item.classList.add('open'); }
+  if (!isOpen) {
+    positionDropdown(item);
+    item.classList.add('open');
+  }
   switchTab(defaultTab);
 }
+
+// 데스크톱에서는 마우스를 올리기만 해도 드롭다운이 보이도록(예전과 동일한 사용성)
+document.querySelectorAll('.nav-item').forEach(item => {
+  if (!item.querySelector('.dropdown')) return;
+  item.addEventListener('mouseenter', () => {
+    positionDropdown(item);
+    item.classList.add('hover-open');
+  });
+  item.addEventListener('mouseleave', () => {
+    item.classList.remove('hover-open');
+  });
+});
+window.addEventListener('scroll', () => {
+  document.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
+}, true);
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
+});
 
 function switchTab(key) {
   document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
