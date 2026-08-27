@@ -125,13 +125,14 @@
   .notice-toolbar { display:flex; gap:10px; margin-bottom:14px; }
   .notice-toolbar input { flex:1; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; font-family:inherit; }
   .notice-toolbar button { flex-shrink:0; }
-  table.notice-table { width:100%; border-collapse:collapse; font-size:13px; }
-  table.notice-table th { text-align:left; padding:10px 14px; background:#f7f9fc; color:#64748b; font-weight:600; border-bottom:1px solid #e2e8f0; }
+  table.notice-table { width:100%; border-collapse:collapse; font-size:13px; table-layout:fixed; }
+  table.notice-table th, table.notice-table td { padding:10px 14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  table.notice-table th { text-align:left; background:#f7f9fc; color:#64748b; font-weight:600; border-bottom:1px solid #e2e8f0; }
   table.notice-table td { padding:12px 14px; border-bottom:1px solid #eef2f7; }
   table.notice-table tr.notice-row-clickable { cursor:pointer; }
   table.notice-table tr.notice-row-clickable:hover td { background:#f7f9fc; }
   table.notice-table td.nt-title { font-weight:600; color:#1e293b; }
-  table.notice-table td.nt-meta { color:#94a3b8; white-space:nowrap; width:1%; }
+  table.notice-table td.nt-meta { color:#94a3b8; }
   #notice-list-empty { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
   #notice-loading { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
 
@@ -255,12 +256,14 @@
     <!-- 목록 뷰 -->
     <div id="notice-view-list">
       <div class="notice-toolbar">
-        <input id="notice-search" type="text" placeholder="제목·작성자로 검색" oninput="renderNotice()">
+        <input id="notice-search" type="text" placeholder="제목·작성자로 검색" onkeydown="if(event.key==='Enter') renderNotice()">
+        <button class="btn-primary" onclick="renderNotice()" style="background:#64748b;">검색</button>
         <button class="btn-primary" onclick="openNoticeWrite()">＋ 글쓰기</button>
       </div>
       <div id="notice-loading">불러오는 중...</div>
       <div class="card" style="padding:0;overflow:hidden;display:none;" id="notice-list-card">
         <table class="notice-table">
+          <colgroup><col style="width:60%"><col style="width:20%"><col style="width:20%"></colgroup>
           <thead><tr><th>제목</th><th>작성자</th><th>작성일</th></tr></thead>
           <tbody id="notice-table-body"></tbody>
         </table>
@@ -297,7 +300,6 @@
       </div>
     </div>
 
-    <div style="margin-top:10px;font-size:12px;color:#94a3b8;">※ 등록한 공지는 구글시트에 저장돼요. 첨부파일은 5MB 이하로 올려주세요 (너무 크면 느려질 수 있어요).</div>
   </div>
 </div>
 
