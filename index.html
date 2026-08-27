@@ -84,6 +84,32 @@
   .ot-form input, .ot-form textarea { width:100%; box-sizing:border-box; padding:9px 11px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; font-family:inherit; }
   .btn-primary { background:#2a5298; color:#fff; border:none; border-radius:8px; padding:10px 18px; font-size:13px; font-weight:700; cursor:pointer; }
   #ot-list-empty { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
+
+  /* ===== 홈 ===== */
+  .home-hero { padding:4px 0 22px; }
+  .home-hero h1 { font-size:20px; font-weight:800; margin:0 0 4px; }
+  .home-hero p { font-size:13px; color:#64748b; margin:0; }
+
+  .home-notice-card { margin-bottom:26px; }
+  .home-notice-card .card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:2px; }
+  .home-notice-card .card-head .title { font-size:14px; font-weight:800; }
+  .home-notice-card .card-head a { font-size:12px; color:#2a5298; font-weight:600; text-decoration:none; cursor:pointer; }
+
+  .quick-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; }
+  .quick-card { -webkit-appearance:none; appearance:none; background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:box-shadow .15s,border-color .15s; text-align:left; font-family:inherit; font-size:inherit; width:100%; }
+  .quick-card:hover { border-color:#2a5298; box-shadow:0 4px 14px rgba(42,82,152,0.12); }
+  .quick-card .icon { font-size:20px; width:40px; height:40px; background:#eaf1f8; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .quick-card .title { font-size:13.5px; font-weight:700; color:#1e293b; }
+  .quick-card .sub { font-size:11.5px; color:#94a3b8; margin-top:2px; }
+
+  /* ===== 공지사항 ===== */
+  .notice-item { padding:14px 0; border-bottom:1px solid #eef2f7; }
+  .notice-item:last-child { border-bottom:none; }
+  .notice-item .notice-top { display:flex; align-items:baseline; gap:8px; margin-bottom:4px; }
+  .notice-item .notice-title { font-size:13.5px; font-weight:700; color:#1e293b; }
+  .notice-item .notice-meta { font-size:11px; color:#94a3b8; }
+  .notice-item .notice-body { font-size:12.5px; color:#475569; white-space:pre-wrap; }
+  #notice-list-empty, #notice-home-empty { text-align:center; color:#94a3b8; font-size:13px; padding:24px 0; }
 </style>
 </head>
 <body>
@@ -107,7 +133,13 @@
     </div>
   </div>
   <nav class="nav" id="nav">
-    <div class="nav-item active" data-key="equipment">
+    <div class="nav-item active" data-key="home">
+      <button class="nav-btn" onclick="switchTab('home')">홈</button>
+    </div>
+    <div class="nav-item" data-key="notice">
+      <button class="nav-btn" onclick="switchTab('notice')">공지사항</button>
+    </div>
+    <div class="nav-item" data-key="equipment">
       <button class="nav-btn" onclick="switchTab('equipment')">설비관리</button>
     </div>
     <div class="nav-item" data-key="products">
@@ -130,12 +162,60 @@
     <div class="nav-item" data-key="calendar">
       <button class="nav-btn" onclick="toggleOrSwitch(this,'calendar')">일정관리 ▾</button>
       <div class="dropdown">
-        <button class="active" data-tab="calendar" onclick="switchTab('calendar')">달력</button>
+        <button class="active" data-tab="calendar" onclick="switchTab('calendar')">업무일정</button>
         <button data-tab="overtime" onclick="switchTab('overtime')">잔업관리</button>
       </div>
     </div>
   </nav>
 </header>
+
+<!-- 홈 -->
+<div class="content-section" id="section-home">
+  <div class="page-wrap">
+    <div class="home-hero">
+      <h1>안녕하세요, 반응QC 통합관리시스템입니다</h1>
+      <p id="home-date"></p>
+    </div>
+
+    <div class="card home-notice-card">
+      <div class="card-head">
+        <div class="title">📢 공지사항</div>
+        <a onclick="switchTab('notice')">더보기 →</a>
+      </div>
+      <div id="notice-home-list"></div>
+      <div id="notice-home-empty" style="display:none;">등록된 공지사항이 없어요</div>
+    </div>
+
+    <div class="quick-grid">
+      <button class="quick-card" onclick="switchTab('equipment')"><div class="icon">🔧</div><div><div class="title">설비관리</div><div class="sub">점검 · QR · 이력 관리</div></div></button>
+      <button class="quick-card" onclick="switchTab('products')"><div class="icon">🧪</div><div><div class="title">제품조회</div><div class="sub">Lot 이력 · QC 자료</div></div></button>
+      <button class="quick-card" onclick="switchTab('monitor')"><div class="icon">📊</div><div><div class="title">생산현황 모니터링</div><div class="sub">준비중</div></div></button>
+      <button class="quick-card" onclick="switchTab('shipping')"><div class="icon">📦</div><div><div class="title">샘플발송현황</div><div class="sub">발송현황 · 라벨인쇄</div></div></button>
+      <button class="quick-card" onclick="switchTab('calendar')"><div class="icon">📅</div><div><div class="title">일정관리</div><div class="sub">일정 · 잔업관리</div></div></button>
+    </div>
+  </div>
+</div>
+
+<!-- 공지사항 -->
+<div class="content-section" id="section-notice">
+  <div class="page-wrap">
+    <div class="page-title">공지사항</div>
+    <div class="page-sub">팀에 공유할 소식이나 안내를 등록하는 곳이에요.</div>
+    <div class="card">
+      <div class="ot-form">
+        <div><label>작성자</label><input id="notice-writer" type="text" placeholder="이름"></div>
+        <div><label>제목</label><input id="notice-title" type="text" placeholder="공지 제목"></div>
+        <div class="full"><label>내용</label><textarea id="notice-body" rows="3" placeholder="공지 내용"></textarea></div>
+      </div>
+      <button class="btn-primary" onclick="addNotice()">＋ 공지 등록</button>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <div id="notice-full-list"></div>
+      <div id="notice-list-empty">아직 등록된 공지사항이 없어요</div>
+    </div>
+    <div style="margin-top:10px;font-size:12px;color:#94a3b8;">※ 지금은 화면에서만 확인되는 임시 버전이에요. 새로고침하면 목록이 사라져요 — 실제로 저장되게 하려면 구글시트 연결이 필요해요.</div>
+  </div>
+</div>
 
 <!-- 설비관리: 기존 앱 그대로 iframe으로 -->
 <div class="content-section" id="section-equipment">
@@ -206,7 +286,7 @@
 <!-- 달력 -->
 <div class="content-section" id="section-calendar">
   <div class="page-wrap">
-    <div class="page-title">일정관리 · 달력</div>
+    <div class="page-title">업무일정</div>
     <div class="page-sub">팀 일정을 한눈에 보는 달력이에요.</div>
     <div class="card">
       <div class="cal-head">
@@ -290,22 +370,29 @@ async function tryLogin() {
 async function startApp() {
   const saved = getSavedPw();
   if (!saved) { document.getElementById('login-pw-input')?.focus(); return; }
+  // 저장된 비번이 있으면 화면 깜빡임 없이 바로 들어가고, 서버 확인은 뒤에서 조용히 진행
+  enterPortal();
   try {
     const res = await apiGet({ action: 'ping' });
-    if (!res || res.error === 'unauthorized') throw new Error('bad pw');
-    enterPortal();
+    if (res && res.error === 'unauthorized') {
+      // 비번이 실제로 틀렸을 때만 로그인 화면으로 되돌림 (팀 비번이 바뀐 경우 등)
+      clearPw();
+      location.reload();
+    }
   } catch (e) {
-    clearPw();
-    document.getElementById('login-pw-input')?.focus();
+    // 네트워크 오류(일시적 통신 지연 등)는 무시하고 저장된 로그인 상태를 유지
   }
 }
 
 function enterPortal() {
   document.getElementById('login-gate').style.display = 'none';
   const pw = getSavedPw();
-  document.getElementById('frame-equipment').src = 'equipment.html?pw=' + encodeURIComponent(pw);
-  document.getElementById('frame-products').src = 'products.html';
-  switchTab('equipment');
+  const v = Date.now(); // 캐시 방지: 매번 새 파일을 받아오도록 함 (파일을 새로 업데이트해도 옛날 화면이 계속 보이는 문제 방지)
+  document.getElementById('frame-equipment').src = 'equipment.html?pw=' + encodeURIComponent(pw) + '&v=' + v;
+  document.getElementById('frame-products').src = 'products.html?v=' + v;
+  switchTab('home');
+  renderHomeDate();
+  renderNotice();
   renderCalendar();
 }
 
@@ -325,7 +412,7 @@ function switchTab(key) {
   document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
   document.querySelectorAll('.dropdown button').forEach(b => b.classList.remove('active'));
 
-  const parentMap = { products:'products', lots:'products', calendar:'calendar', overtime:'calendar', equipment:'equipment', monitor:'monitor', shipping:'sample', labels:'sample' };
+  const parentMap = { home:'home', notice:'notice', products:'products', lots:'products', calendar:'calendar', overtime:'calendar', equipment:'equipment', monitor:'monitor', shipping:'sample', labels:'sample' };
   const parentKey = parentMap[key] || key;
   const item = document.querySelector('.nav-item[data-key="' + parentKey + '"]');
   if (item) item.classList.add('active');
@@ -386,6 +473,58 @@ function renderOvertime() {
   if (overtimeList.length === 0) { table.style.display = 'none'; empty.style.display = 'block'; return; }
   table.style.display = 'table'; empty.style.display = 'none';
   tbody.innerHTML = overtimeList.map(o => `<tr><td>${o.date}</td><td>${o.name}</td><td>${o.time}</td><td>${o.reason}</td></tr>`).join('');
+}
+
+// ===== 홈 화면 날짜 =====
+function renderHomeDate() {
+  const el = document.getElementById('home-date');
+  if (!el) return;
+  const dows = ['일','월','화','수','목','금','토'];
+  const now = new Date();
+  el.textContent = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${dows[now.getDay()]}요일`;
+}
+
+// ===== 공지사항 (임시, 새로고침시 초기화) =====
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+const noticeList = [];
+function addNotice() {
+  const writer = document.getElementById('notice-writer').value.trim();
+  const title = document.getElementById('notice-title').value.trim();
+  const body = document.getElementById('notice-body').value.trim();
+  if (!title || !body) { alert('제목과 내용을 입력해주세요.'); return; }
+  const now = new Date();
+  const date = `${now.getMonth()+1}.${now.getDate()}`;
+  noticeList.unshift({ writer: writer || '익명', title, body, date });
+  renderNotice();
+  document.getElementById('notice-writer').value = '';
+  document.getElementById('notice-title').value = '';
+  document.getElementById('notice-body').value = '';
+}
+function renderNotice() {
+  const homeList = document.getElementById('notice-home-list');
+  const homeEmpty = document.getElementById('notice-home-empty');
+  const fullList = document.getElementById('notice-full-list');
+  const fullEmpty = document.getElementById('notice-list-empty');
+  if (!homeList || !fullList) return;
+
+  if (noticeList.length === 0) {
+    homeList.innerHTML = ''; homeEmpty.style.display = 'block';
+    fullList.innerHTML = ''; fullEmpty.style.display = 'block';
+    return;
+  }
+  homeEmpty.style.display = 'none';
+  fullEmpty.style.display = 'none';
+
+  const itemHtml = n => `
+    <div class="notice-item">
+      <div class="notice-top"><div class="notice-title">${escapeHtml(n.title)}</div><div class="notice-meta">${escapeHtml(n.writer)} · ${n.date}</div></div>
+      <div class="notice-body">${escapeHtml(n.body)}</div>
+    </div>`;
+
+  homeList.innerHTML = noticeList.slice(0, 3).map(itemHtml).join('');
+  fullList.innerHTML = noticeList.map(itemHtml).join('');
 }
 
 startApp();
