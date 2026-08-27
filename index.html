@@ -120,7 +120,6 @@
   table.ship-table td.sp-actions { display:flex; gap:6px; }
   table.ship-table td.sp-actions button { background:none; border:1px solid #e2e8f0; border-radius:7px; padding:4px 9px; font-size:11px; color:#64748b; cursor:pointer; font-family:inherit; }
   table.ship-table td.sp-actions button:hover { background:#fff; color:#2a5298; border-color:#c7d7ee; }
-  .qty-badge { display:inline-flex; align-items:center; justify-content:center; min-width:22px; height:20px; padding:0 6px; border-radius:10px; background:#eaf1f8; color:#2a5298; font-weight:700; font-size:11.5px; }
   .method-pill { display:inline-block; padding:3px 10px; border-radius:20px; font-weight:700; font-size:10.5px; white-space:nowrap; }
   #ship-list-empty { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
 
@@ -137,7 +136,7 @@
   .home-hero h1 { font-size:20px; font-weight:800; margin:0 0 4px; }
   .home-hero p { font-size:13px; color:#64748b; margin:0; }
 
-  .home-notice-card { margin-bottom:26px; padding:16px 0; max-width:640px; }
+  .home-notice-card { margin-bottom:26px; padding:16px 0; }
   .home-notice-card .card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; padding:0 18px; }
   .home-notice-card .card-head .title { font-size:14px; font-weight:800; }
   .home-notice-card .card-head a { font-size:12px; color:#2a5298; font-weight:600; text-decoration:none; cursor:pointer; }
@@ -157,17 +156,19 @@
   .notice-toolbar input { flex:1; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; font-family:inherit; }
   .notice-toolbar button { flex-shrink:0; }
 
-  .notice-list-head { display:flex; align-items:center; gap:14px; padding:12px 22px; background:#f7f9fc; color:#64748b; font-weight:600; font-size:12px; border-bottom:1px solid #e2e8f0; }
-  .notice-list-head .nt-num { flex-shrink:0; width:24px; text-align:center; }
-  .notice-list-head .nt-title { flex:1; }
-  .notice-list-head .nt-meta { flex-shrink:0; width:150px; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .notice-list-head { display:flex; align-items:center; gap:10px; padding:12px 22px; background:#f7f9fc; color:#64748b; font-weight:600; font-size:12px; border-bottom:1px solid #e2e8f0; }
+  .notice-list-head .nt-num { flex:10 1 0; min-width:0; text-align:center; }
+  .notice-list-head .nt-title { flex:40 1 0; min-width:0; }
+  .notice-list-head .nt-writer { flex:20 1 0; min-width:0; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .notice-list-head .nt-date { flex:20 1 0; min-width:0; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
-  .notice-row-item { display:flex; align-items:center; gap:14px; padding:13px 22px; border-bottom:1px solid #eef2f7; cursor:pointer; }
+  .notice-row-item { display:flex; align-items:center; gap:10px; padding:13px 22px; border-bottom:1px solid #eef2f7; cursor:pointer; }
   .notice-row-item:last-child { border-bottom:none; }
   .notice-row-item:hover { background:#f7f9fc; }
-  .notice-row-item .nt-num { flex-shrink:0; width:24px; text-align:center; font-size:12px; color:#94a3b8; }
-  .notice-row-item .nt-title { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13.5px; font-weight:600; color:#1e293b; }
-  .notice-row-item .nt-meta { flex-shrink:0; width:150px; text-align:right; font-size:12.5px; color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .notice-row-item .nt-num { flex:10 1 0; min-width:0; text-align:center; font-size:12px; color:#94a3b8; }
+  .notice-row-item .nt-title { flex:40 1 0; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13.5px; font-weight:600; color:#1e293b; }
+  .notice-row-item .nt-writer { flex:20 1 0; min-width:0; text-align:center; font-size:12.5px; color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .notice-row-item .nt-date { flex:20 1 0; min-width:0; text-align:right; font-size:12.5px; color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   #notice-list-empty { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
   #notice-loading { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
 
@@ -195,8 +196,9 @@
     .ot-form { grid-template-columns:1fr; }
     #login-gate .card { padding:32px 22px 26px; }
     .content-section iframe { height:calc(100vh - 103px); }
-    .notice-list-head, .notice-row-item { padding-left:14px; padding-right:14px; gap:8px; }
-    .notice-list-head .nt-meta, .notice-row-item .nt-meta { width:120px; font-size:10.5px; }
+    .notice-list-head, .notice-row-item { padding-left:14px; padding-right:14px; gap:6px; }
+    .notice-list-head .nt-writer, .notice-row-item .nt-writer,
+    .notice-list-head .nt-date, .notice-row-item .nt-date { font-size:10.5px; }
     .cal-day { min-height:56px; padding:4px 3px; }
     .cal-evt-chip, .cal-evt-more { font-size:9px; }
   }
@@ -300,11 +302,12 @@
         <button class="btn-primary" onclick="openNoticeWrite()">＋ 글쓰기</button>
       </div>
       <div id="notice-loading">불러오는 중...</div>
-      <div class="card" style="padding:0;overflow:hidden;display:none;max-width:640px;" id="notice-list-card">
+      <div class="card" style="padding:0;overflow:hidden;display:none;" id="notice-list-card">
         <div class="notice-list-head">
           <div class="nt-num">No</div>
           <div class="nt-title">제목</div>
-          <div class="nt-meta">작성자 · 작성일</div>
+          <div class="nt-writer">작성자</div>
+          <div class="nt-date">작성일</div>
         </div>
         <div id="notice-table-body"></div>
         <div id="notice-list-empty" style="display:none;">등록된 공지사항이 없어요</div>
@@ -417,7 +420,7 @@
     <div class="ot-form">
       <div><label>신청일</label><input id="sf-requestDate" type="date"></div>
       <div><label>신청자</label><input id="sf-requester" type="text" placeholder="이름"></div>
-      <div><label>수신처</label><input id="sf-recipient" type="text" placeholder="예: 서울사무소 이준성계장"></div>
+      <div><label>수신처</label><input id="sf-recipient" type="text"></div>
       <div><label>발송일</label><input id="sf-shipDate" type="date"></div>
       <div class="full"><label>제품명</label><input id="sf-productName" type="text" list="ship-product-list" placeholder="제품명을 입력하면 후보가 아래에 떠요" autocomplete="off" onchange="onShipProductNameChange()"></div>
       <div><label>Lot No.</label><input id="sf-lotNo" type="text" list="ship-lot-list" placeholder="예: 2PSFHP1-003" autocomplete="off"></div>
@@ -918,7 +921,7 @@ function renderShipments() {
       <td class="sp-product">${escapeHtml(s.productName || '')}</td>
       <td>${escapeHtml(s.lotNo || '')}</td>
       <td>${escapeHtml(String(s.container ?? ''))}</td>
-      <td>${qty !== '' ? `<span class="qty-badge">${escapeHtml(String(qty))}</span>` : ''}</td>
+      <td>${escapeHtml(String(qty))}</td>
       <td>${method ? `<span class="method-pill" style="background:${methodColor}20;color:${methodColor};">${escapeHtml(method)}</span>` : ''}</td>
       <td>${escapeHtml(s.manager || '')}</td>
       <td class="sp-actions">
@@ -1244,7 +1247,8 @@ function renderNotice() {
         <div class="notice-row-item" onclick="switchTab('notice')">
           <div class="nt-num">${idx + 1}</div>
           <div class="nt-title">${escapeHtml(n.title)}${n.fileUrl ? ' 📎' : ''}</div>
-          <div class="nt-meta">${escapeHtml(n.writer)} ${n.date}</div>
+          <div class="nt-writer">${escapeHtml(n.writer)}</div>
+          <div class="nt-date">${escapeHtml(shortDate(n.date))}</div>
         </div>`;
       homeList.innerHTML = noticeList.slice(0, 3).map(homeItemHtml).join('');
     }
@@ -1270,7 +1274,8 @@ function renderNotice() {
     <div class="notice-row-item" onclick="openNoticeDetail(${n.id})">
       <div class="nt-num">${idx + 1}</div>
       <div class="nt-title">${escapeHtml(n.title)}${n.fileUrl ? ' 📎' : ''}</div>
-      <div class="nt-meta">${escapeHtml(n.writer)} ${n.date}</div>
+      <div class="nt-writer">${escapeHtml(n.writer)}</div>
+      <div class="nt-date">${escapeHtml(shortDate(n.date))}</div>
     </div>`).join('');
 }
 
