@@ -78,9 +78,47 @@
   .cal-head button { background:#f7f9fc; border:1px solid #e2e8f0; border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:14px; color:#2a5298; }
   .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
   .cal-dow { text-align:center; font-size:11px; font-weight:700; color:#94a3b8; padding-bottom:6px; }
-  .cal-day { aspect-ratio:1; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:13px; color:#1e293b; background:#f7f9fc; }
-  .cal-day.empty { background:none; }
-  .cal-day.today { background:#2a5298; color:#fff; font-weight:800; }
+  .cal-day { min-height:78px; border-radius:8px; padding:6px 5px; background:#f7f9fc; color:#1e293b; display:flex; flex-direction:column; align-items:flex-start; gap:3px; cursor:pointer; transition:background .12s; }
+  .cal-day:hover { background:#eef2f7; }
+  .cal-day.empty { background:none; cursor:default; }
+  .cal-day-num { font-size:12px; font-weight:700; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .cal-day.today .cal-day-num { background:#2a5298; color:#fff; }
+  .cal-evt-chip { width:100%; box-sizing:border-box; font-size:10px; font-weight:600; padding:2px 5px; border-radius:5px; background:#dbe6f5; color:#1e4884; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cal-evt-more { font-size:10px; color:#94a3b8; padding-left:4px; }
+
+  /* ===== 업무일정 등록/수정 모달 ===== */
+  .app-modal-backdrop { display:none; position:fixed; inset:0; background:rgba(15,23,42,0.45); z-index:500; align-items:center; justify-content:center; padding:20px; }
+  .app-modal-backdrop .card { width:100%; max-width:380px; max-height:85vh; overflow-y:auto; }
+  .app-modal-backdrop .card.wide { max-width:560px; }
+  .cal-modal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .cal-modal-head .title { font-size:15px; font-weight:800; }
+  .cal-modal-head button { background:none; border:none; font-size:20px; line-height:1; color:#94a3b8; cursor:pointer; padding:0; }
+  .cal-evt-row { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 0; border-bottom:1px solid #eef2f7; }
+  .cal-evt-row:last-child { border-bottom:none; }
+  .cal-evt-row .et-title { font-size:13.5px; font-weight:700; color:#1e293b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cal-evt-row .et-date { font-size:11px; color:#94a3b8; margin-top:2px; }
+  .cal-evt-row .et-actions { display:flex; gap:6px; flex-shrink:0; }
+  .cal-evt-row .et-actions button { background:none; border:1px solid #e2e8f0; border-radius:7px; padding:4px 9px; font-size:11px; color:#64748b; cursor:pointer; font-family:inherit; }
+  .cal-evt-row .et-actions button:hover { background:#f7f9fc; color:#2a5298; }
+  #cal-modal-empty { text-align:center; color:#94a3b8; font-size:13px; padding:18px 0; }
+  .cal-form-actions { display:flex; gap:8px; margin-top:14px; }
+  .cal-form-actions button { flex:1; }
+  .cal-form-actions .btn-cancel { background:none; border:1px solid #e2e8f0; border-radius:8px; padding:9px; font-size:13px; color:#64748b; cursor:pointer; font-family:inherit; }
+
+  /* ===== 샘플발송현황 ===== */
+  .ship-toolbar { display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+  .ship-toolbar input { flex:1; min-width:180px; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; font-family:inherit; }
+  .ship-toolbar button { flex-shrink:0; }
+  .ship-table-wrap { overflow-x:auto; }
+  table.ship-table { width:100%; min-width:900px; border-collapse:collapse; font-size:12.5px; }
+  table.ship-table th, table.ship-table td { padding:9px 10px; white-space:nowrap; border-bottom:1px solid #eef2f7; }
+  table.ship-table th { text-align:left; background:#f7f9fc; color:#64748b; font-weight:600; font-size:11.5px; border-bottom:1px solid #e2e8f0; }
+  table.ship-table td.sp-product { font-weight:600; color:#1e293b; white-space:normal; min-width:170px; }
+  table.ship-table tr:hover td { background:#fafbfc; }
+  table.ship-table td.sp-actions { display:flex; gap:6px; }
+  table.ship-table td.sp-actions button { background:none; border:1px solid #e2e8f0; border-radius:7px; padding:4px 9px; font-size:11px; color:#64748b; cursor:pointer; font-family:inherit; }
+  table.ship-table td.sp-actions button:hover { background:#f7f9fc; color:#2a5298; }
+  #ship-list-empty { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
 
   /* ===== 잔업관리 ===== */
   .ot-form { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
@@ -95,7 +133,7 @@
   .home-hero h1 { font-size:20px; font-weight:800; margin:0 0 4px; }
   .home-hero p { font-size:13px; color:#64748b; margin:0; }
 
-  .home-notice-card { margin-bottom:26px; padding:16px 0; }
+  .home-notice-card { margin-bottom:26px; padding:16px 0; max-width:640px; }
   .home-notice-card .card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; padding:0 18px; }
   .home-notice-card .card-head .title { font-size:14px; font-weight:800; }
   .home-notice-card .card-head a { font-size:12px; color:#2a5298; font-weight:600; text-decoration:none; cursor:pointer; }
@@ -115,17 +153,17 @@
   .notice-toolbar input { flex:1; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; font-family:inherit; }
   .notice-toolbar button { flex-shrink:0; }
 
-  .notice-list-head { display:flex; align-items:center; gap:10px; padding:10px 18px; background:#f7f9fc; color:#64748b; font-weight:600; font-size:12px; border-bottom:1px solid #e2e8f0; }
-  .notice-list-head .nt-num { flex-shrink:0; width:26px; text-align:center; }
+  .notice-list-head { display:flex; align-items:center; gap:14px; padding:12px 22px; background:#f7f9fc; color:#64748b; font-weight:600; font-size:12px; border-bottom:1px solid #e2e8f0; }
+  .notice-list-head .nt-num { flex-shrink:0; width:24px; text-align:center; }
   .notice-list-head .nt-title { flex:1; }
-  .notice-list-head .nt-meta { flex-shrink:0; width:150px; text-align:right; }
+  .notice-list-head .nt-meta { flex-shrink:0; width:150px; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
-  .notice-row-item { display:flex; align-items:center; gap:10px; padding:12px 18px; border-bottom:1px solid #eef2f7; cursor:pointer; }
+  .notice-row-item { display:flex; align-items:center; gap:14px; padding:13px 22px; border-bottom:1px solid #eef2f7; cursor:pointer; }
   .notice-row-item:last-child { border-bottom:none; }
   .notice-row-item:hover { background:#f7f9fc; }
-  .notice-row-item .nt-num { flex-shrink:0; width:26px; text-align:center; font-size:12px; color:#94a3b8; }
+  .notice-row-item .nt-num { flex-shrink:0; width:24px; text-align:center; font-size:12px; color:#94a3b8; }
   .notice-row-item .nt-title { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13.5px; font-weight:600; color:#1e293b; }
-  .notice-row-item .nt-meta { flex-shrink:0; width:150px; text-align:right; font-size:12px; color:#94a3b8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .notice-row-item .nt-meta { flex-shrink:0; width:150px; text-align:right; font-size:12.5px; color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   #notice-list-empty { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
   #notice-loading { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
 
@@ -153,8 +191,10 @@
     .ot-form { grid-template-columns:1fr; }
     #login-gate .card { padding:32px 22px 26px; }
     .content-section iframe { height:calc(100vh - 103px); }
-    .notice-list-head, .notice-row-item { padding-left:12px; padding-right:12px; }
-    .notice-list-head .nt-meta, .notice-row-item .nt-meta { width:88px; font-size:11px; }
+    .notice-list-head, .notice-row-item { padding-left:14px; padding-right:14px; gap:8px; }
+    .notice-list-head .nt-meta, .notice-row-item .nt-meta { width:120px; font-size:10.5px; }
+    .cal-day { min-height:56px; padding:4px 3px; }
+    .cal-evt-chip, .cal-evt-more { font-size:9px; }
   }
 </style>
 </head>
@@ -256,7 +296,7 @@
         <button class="btn-primary" onclick="openNoticeWrite()">＋ 글쓰기</button>
       </div>
       <div id="notice-loading">불러오는 중...</div>
-      <div class="card" style="padding:0;overflow:hidden;display:none;" id="notice-list-card">
+      <div class="card" style="padding:0;overflow:hidden;display:none;max-width:640px;" id="notice-list-card">
         <div class="notice-list-head">
           <div class="nt-num">No</div>
           <div class="nt-title">제목</div>
@@ -343,14 +383,51 @@
 <!-- 샘플발송현황: 발송현황 -->
 <div class="content-section" id="section-shipping">
   <div class="page-wrap">
-    <div class="badge-soon">준비중</div>
     <div class="page-title">샘플발송현황</div>
-    <div class="page-sub">고객사에 보낸 샘플의 발송 상태를 한눈에 보는 화면이에요. 곧 만들어질 예정이에요.</div>
-    <div class="card">
-      <table class="mock">
-        <tr><th>발송일</th><th>고객사</th><th>제품명</th><th>상태</th></tr>
-        <tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:24px 0;">데이터 연결 예정</td></tr>
+    <div class="page-sub">신청자·수신처·제품명·Lot No. 중 무엇으로 검색해도 찾을 수 있어요.</div>
+    <div class="ship-toolbar">
+      <input id="ship-search" type="text" placeholder="신청자·수신처·제품명·Lot No.로 검색" onkeydown="if(event.key==='Enter') renderShipments()">
+      <button class="btn-primary" onclick="renderShipments()" style="background:#64748b;">검색</button>
+      <button class="btn-primary" onclick="openShipForm()">＋ 등록</button>
+    </div>
+    <div id="ship-loading">불러오는 중...</div>
+    <div class="card ship-table-wrap" style="padding:0;display:none;" id="ship-list-card">
+      <table class="ship-table">
+        <thead><tr>
+          <th>신청일</th><th>신청자</th><th>수신처</th><th>발송일</th><th>제품명</th><th>Lot No.</th><th>용기(g)</th><th>수량</th><th>전달방법</th><th>담당자</th><th></th>
+        </tr></thead>
+        <tbody id="ship-table-body"></tbody>
       </table>
+      <div id="ship-list-empty" style="display:none;">등록된 발송 기록이 없어요</div>
+    </div>
+  </div>
+</div>
+
+<!-- 샘플발송현황 등록/수정 모달 -->
+<div id="ship-modal-backdrop" class="app-modal-backdrop" onclick="if(event.target===this) closeShipForm()">
+  <div class="card wide">
+    <div class="cal-modal-head">
+      <div class="title" id="ship-form-title-label">발송 등록</div>
+      <button onclick="closeShipForm()">×</button>
+    </div>
+    <div class="ot-form">
+      <div><label>신청일</label><input id="sf-requestDate" type="date"></div>
+      <div><label>신청자</label><input id="sf-requester" type="text" placeholder="이름"></div>
+      <div><label>수신처</label><input id="sf-recipient" type="text" placeholder="예: 서울사무소 이준성계장"></div>
+      <div><label>발송일</label><input id="sf-shipDate" type="date"></div>
+      <div class="full"><label>제품명</label><input id="sf-productName" type="text" list="ship-product-list" placeholder="제품명을 입력하면 후보가 아래에 떠요" autocomplete="off" onchange="onShipProductNameChange()"></div>
+      <div><label>Lot No.</label><input id="sf-lotNo" type="text" list="ship-lot-list" placeholder="예: 2PSFHP1-003" autocomplete="off"></div>
+      <div><label>용기(g)</label><input id="sf-container" type="text" placeholder="예: 100 또는 5kg"></div>
+      <div><label>수량</label><input id="sf-qty" type="number" placeholder="예: 2"></div>
+      <div><label>전달방법</label><input id="sf-method" type="text" list="ship-method-list" placeholder="예: 물류과 전달" autocomplete="off"></div>
+      <div><label>담당자</label><input id="sf-manager" type="text" placeholder="이름"></div>
+    </div>
+    <datalist id="ship-product-list"></datalist>
+    <datalist id="ship-lot-list"></datalist>
+    <datalist id="ship-method-list"></datalist>
+    <div class="cal-form-actions">
+      <button class="btn-cancel" onclick="closeShipForm()">취소</button>
+      <button class="btn-primary" id="ship-form-save-btn" onclick="saveShipment()">저장</button>
     </div>
   </div>
 </div>
@@ -369,7 +446,7 @@
 <div class="content-section" id="section-calendar">
   <div class="page-wrap">
     <div class="page-title">업무일정</div>
-    <div class="page-sub">팀 일정을 한눈에 보는 달력이에요.</div>
+    <div class="page-sub">날짜를 클릭하면 그날의 일정을 보거나 새 일정을 등록할 수 있어요.</div>
     <div class="card">
       <div class="cal-head">
         <button onclick="calShift(-1)">‹</button>
@@ -378,7 +455,34 @@
       </div>
       <div class="cal-grid" id="cal-grid"></div>
     </div>
-    <div style="margin-top:10px;font-size:12px;color:#94a3b8;">※ 지금은 날짜만 보이는 상태예요. 일정 등록 기능은 곧 추가할게요.</div>
+  </div>
+</div>
+
+<!-- 업무일정 등록/수정 모달 -->
+<div id="cal-modal-backdrop" class="app-modal-backdrop" onclick="if(event.target===this) closeCalModal()">
+  <div class="card">
+    <div id="cal-modal-day-view">
+      <div class="cal-modal-head">
+        <div class="title" id="cal-modal-date-title"></div>
+        <button onclick="closeCalModal()">×</button>
+      </div>
+      <div id="cal-modal-event-list"></div>
+      <button class="btn-primary" style="width:100%;margin-top:12px;" onclick="openScheduleForm()">＋ 일정 추가</button>
+    </div>
+    <div id="cal-modal-form-view" style="display:none;">
+      <div class="cal-modal-head">
+        <div class="title" id="cal-form-title-label">일정 추가</div>
+      </div>
+      <div class="ot-form" style="grid-template-columns:1fr;">
+        <div><label>제목</label><input id="cal-form-title" type="text" placeholder="예: 정기 검교정"></div>
+        <div><label>시작일</label><input id="cal-form-start" type="date"></div>
+        <div><label>종료일 (여러 날짜에 걸치면 마지막 날짜)</label><input id="cal-form-end" type="date"></div>
+      </div>
+      <div class="cal-form-actions">
+        <button class="btn-cancel" onclick="closeScheduleForm()">취소</button>
+        <button class="btn-primary" id="cal-form-save-btn" onclick="saveSchedule()">저장</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -483,7 +587,8 @@ function enterPortal() {
   switchTab('home');
   renderHomeDate();
   loadNotices();
-  renderCalendar();
+  loadSchedules();
+  loadShipments();
 }
 
 // ===== 탭 전환 =====
@@ -511,6 +616,7 @@ function switchTab(key) {
 
   if (key === 'calendar') renderCalendar();
   if (key === 'notice') resetNoticeBoard();
+  if (key === 'shipping') renderShipments();
 }
 
 document.addEventListener('click', (e) => {
@@ -519,9 +625,29 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// ===== 달력 =====
+// ===== 업무일정(달력) =====
 let calDate = new Date();
 calDate = new Date(calDate.getFullYear(), calDate.getMonth(), 1);
+let scheduleList = [];
+let calModalDate = null;
+let editingScheduleId = null;
+
+function pad2(n) { return String(n).padStart(2, '0'); }
+function toDateStr(y, m, d) { return `${y}-${pad2(m + 1)}-${pad2(d)}`; }
+function eventsOnDate(dateStr) {
+  return scheduleList.filter(ev => dateStr >= ev.startDate && dateStr <= (ev.endDate || ev.startDate));
+}
+
+async function loadSchedules() {
+  try {
+    const res = await apiGet({ action: 'getSchedules' });
+    scheduleList = Array.isArray(res) ? res : [];
+  } catch (e) {
+    scheduleList = [];
+  }
+  renderCalendar();
+}
+
 function renderCalendar() {
   const y = calDate.getFullYear(), m = calDate.getMonth();
   document.getElementById('cal-title').textContent = y + '년 ' + (m+1) + '월';
@@ -531,16 +657,338 @@ function renderCalendar() {
   const firstDow = new Date(y, m, 1).getDay();
   const lastDate = new Date(y, m+1, 0).getDate();
   const today = new Date();
+  const todayStr = toDateStr(today.getFullYear(), today.getMonth(), today.getDate());
+  const maxShow = 2;
   for (let i = 0; i < firstDow; i++) html += `<div class="cal-day empty"></div>`;
   for (let d = 1; d <= lastDate; d++) {
-    const isToday = today.getFullYear()===y && today.getMonth()===m && today.getDate()===d;
-    html += `<div class="cal-day${isToday?' today':''}">${d}</div>`;
+    const dateStr = toDateStr(y, m, d);
+    const isToday = dateStr === todayStr;
+    const dayEvents = eventsOnDate(dateStr);
+    const chips = dayEvents.slice(0, maxShow).map(ev => `<div class="cal-evt-chip">${escapeHtml(ev.title)}</div>`).join('');
+    const more = dayEvents.length > maxShow ? `<div class="cal-evt-more">+${dayEvents.length - maxShow}개</div>` : '';
+    html += `<div class="cal-day${isToday?' today':''}" onclick="openCalModal('${dateStr}')">
+      <div class="cal-day-num">${d}</div>${chips}${more}
+    </div>`;
   }
   grid.innerHTML = html;
 }
 function calShift(delta) {
   calDate = new Date(calDate.getFullYear(), calDate.getMonth()+delta, 1);
   renderCalendar();
+}
+
+// ===== 업무일정 등록/수정 모달 =====
+function openCalModal(dateStr) {
+  calModalDate = dateStr;
+  document.getElementById('cal-modal-backdrop').style.display = 'flex';
+  showCalModalView('day');
+  renderCalModalDayView();
+}
+function closeCalModal() {
+  document.getElementById('cal-modal-backdrop').style.display = 'none';
+  calModalDate = null;
+  editingScheduleId = null;
+}
+function showCalModalView(view) {
+  document.getElementById('cal-modal-day-view').style.display = view === 'day' ? 'block' : 'none';
+  document.getElementById('cal-modal-form-view').style.display = view === 'form' ? 'block' : 'none';
+}
+function renderCalModalDayView() {
+  if (!calModalDate) return;
+  const [y, m, d] = calModalDate.split('-').map(Number);
+  document.getElementById('cal-modal-date-title').textContent = `${y}년 ${m}월 ${d}일`;
+  const dayEvents = eventsOnDate(calModalDate);
+  const list = document.getElementById('cal-modal-event-list');
+  if (dayEvents.length === 0) {
+    list.innerHTML = `<div id="cal-modal-empty">등록된 일정이 없어요</div>`;
+    return;
+  }
+  list.innerHTML = dayEvents.map(ev => `
+    <div class="cal-evt-row">
+      <div style="min-width:0;">
+        <div class="et-title">${escapeHtml(ev.title)}</div>
+        <div class="et-date">${ev.startDate}${ev.endDate && ev.endDate !== ev.startDate ? ' ~ ' + ev.endDate : ''}</div>
+      </div>
+      <div class="et-actions">
+        <button onclick="openScheduleForm('${ev.id}')">수정</button>
+        <button onclick="deleteSchedule('${ev.id}')">삭제</button>
+      </div>
+    </div>`).join('');
+}
+
+function openScheduleForm(id) {
+  editingScheduleId = id || null;
+  const titleLabel = document.getElementById('cal-form-title-label');
+  const titleInput = document.getElementById('cal-form-title');
+  const startInput = document.getElementById('cal-form-start');
+  const endInput = document.getElementById('cal-form-end');
+  if (editingScheduleId) {
+    const ev = scheduleList.find(e => String(e.id) === String(editingScheduleId));
+    if (!ev) return;
+    titleLabel.textContent = '일정 수정';
+    titleInput.value = ev.title;
+    startInput.value = ev.startDate;
+    endInput.value = ev.endDate || ev.startDate;
+  } else {
+    titleLabel.textContent = '일정 추가';
+    titleInput.value = '';
+    startInput.value = calModalDate;
+    endInput.value = calModalDate;
+  }
+  showCalModalView('form');
+}
+function closeScheduleForm() {
+  editingScheduleId = null;
+  showCalModalView('day');
+}
+
+async function saveSchedule() {
+  const title = document.getElementById('cal-form-title').value.trim();
+  const startDate = document.getElementById('cal-form-start').value;
+  let endDate = document.getElementById('cal-form-end').value || startDate;
+  if (!title || !startDate) { alert('제목과 시작일을 입력해주세요.'); return; }
+  if (endDate < startDate) { alert('종료일이 시작일보다 빠를 수 없어요.'); return; }
+
+  const btn = document.getElementById('cal-form-save-btn');
+  btn.disabled = true; btn.textContent = '저장 중...';
+  try {
+    const payload = { title, startDate, endDate };
+    if (editingScheduleId) {
+      payload.action = 'updateSchedule';
+      payload.id = editingScheduleId;
+    } else {
+      payload.action = 'addSchedule';
+    }
+    const res = await apiPost(payload);
+    if (res && res.error) { alert('저장에 실패했어요: ' + res.error); return; }
+
+    if (editingScheduleId) {
+      const idx = scheduleList.findIndex(e => String(e.id) === String(editingScheduleId));
+      if (idx !== -1) { scheduleList[idx].title = title; scheduleList[idx].startDate = startDate; scheduleList[idx].endDate = endDate; }
+    } else {
+      scheduleList.push({ id: res.id, title, startDate, endDate });
+    }
+    editingScheduleId = null;
+    renderCalendar();
+    showCalModalView('day');
+    renderCalModalDayView();
+  } catch (e) {
+    alert('저장 중 오류가 발생했어요. 다시 시도해주세요.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '저장';
+  }
+}
+
+async function deleteSchedule(id) {
+  if (!confirm('이 일정을 삭제할까요?')) return;
+  try {
+    await apiPost({ action: 'deleteSchedule', id });
+    const idx = scheduleList.findIndex(e => String(e.id) === String(id));
+    if (idx !== -1) scheduleList.splice(idx, 1);
+    renderCalendar();
+    renderCalModalDayView();
+  } catch (e) {
+    alert('삭제 중 오류가 발생했어요. 다시 시도해주세요.');
+  }
+}
+
+// ===== 샘플발송현황 =====
+let shipmentList = [];
+let editingShipmentId = null;
+
+async function loadShipments() {
+  const loading = document.getElementById('ship-loading');
+  const listCard = document.getElementById('ship-list-card');
+  try {
+    const res = await apiGet({ action: 'getShipments' });
+    shipmentList = Array.isArray(res) ? res : [];
+  } catch (e) {
+    shipmentList = [];
+  }
+  if (loading) loading.style.display = 'none';
+  if (listCard) listCard.style.display = 'block';
+  renderShipments();
+}
+
+// 제품조회(products.html)는 이미 iframe으로 함께 로드되어 있어서,
+// 거기 담긴 제품명 · Lot 번호 목록을 그대로 가져다 자동완성에 사용함 (별도로 목록을 관리할 필요 없음)
+let productMasterCache = null;
+function getProductMaster() {
+  if (productMasterCache) return productMasterCache;
+  try {
+    const win = document.getElementById('frame-products')?.contentWindow;
+    const master = win && win.DATA && win.DATA.master;
+    if (Array.isArray(master) && master.length) {
+      productMasterCache = master;
+      return master;
+    }
+  } catch (e) {}
+  return [];
+}
+function getProductNames() {
+  return [...new Set(getProductMaster().map(p => p.name).filter(Boolean))].sort();
+}
+// Lot 번호는 뒤에 배치별 숫자(-003 등)가 붙어서 매번 다르기 때문에,
+// 제품마다 고정된 앞자리 7자리(예: 2PSFHP1)만 뽑아서 자동완성 후보로 씀
+function lotPrefix(lot) {
+  if (!lot || !/^[A-Za-z0-9]/.test(lot) || lot.length < 5) return null;
+  return lot.slice(0, 7);
+}
+function getLotPrefixes() {
+  return [...new Set(getProductMaster().map(p => lotPrefix(p.lot)).filter(Boolean))].sort();
+}
+// 제품명을 입력했을 때, 그 제품의 Lot 앞자리가 하나로 정해지면 자동으로 채워줌 (이미 값이 있으면 안 건드림)
+function getLotPrefixForProduct(name) {
+  if (!name) return null;
+  const prefixes = [...new Set(
+    getProductMaster().filter(p => p.name === name).map(p => lotPrefix(p.lot)).filter(Boolean)
+  )];
+  return prefixes.length === 1 ? prefixes[0] : null;
+}
+function fillShipDatalists() {
+  const names = getProductNames();
+  const productList = document.getElementById('ship-product-list');
+  if (productList) productList.innerHTML = names.map(n => `<option value="${escapeHtml(n)}"></option>`).join('');
+
+  const lotPrefixes = getLotPrefixes();
+  const lotList = document.getElementById('ship-lot-list');
+  if (lotList) lotList.innerHTML = lotPrefixes.map(l => `<option value="${escapeHtml(l)}"></option>`).join('');
+
+  const methods = [...new Set(shipmentList.map(s => s.method).filter(Boolean))].sort();
+  const methodList = document.getElementById('ship-method-list');
+  if (methodList) methodList.innerHTML = methods.map(m => `<option value="${escapeHtml(m)}"></option>`).join('');
+}
+function onShipProductNameChange() {
+  const lotInput = document.getElementById('sf-lotNo');
+  if (lotInput && !lotInput.value) {
+    const prefix = getLotPrefixForProduct(document.getElementById('sf-productName').value.trim());
+    if (prefix) lotInput.value = prefix + '-';
+  }
+}
+
+function renderShipments() {
+  const tbody = document.getElementById('ship-table-body');
+  const listEmpty = document.getElementById('ship-list-empty');
+  if (!tbody) return;
+
+  const q = (document.getElementById('ship-search')?.value || '').trim().toLowerCase();
+  const filtered = q
+    ? shipmentList.filter(s => ['requester','recipient','productName','lotNo','manager'].some(k => String(s[k] || '').toLowerCase().includes(q)))
+    : shipmentList;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    if (listEmpty) listEmpty.style.display = 'block';
+    return;
+  }
+  if (listEmpty) listEmpty.style.display = 'none';
+
+  tbody.innerHTML = filtered.map(s => `
+    <tr>
+      <td>${escapeHtml(s.requestDate || '')}</td>
+      <td>${escapeHtml(s.requester || '')}</td>
+      <td>${escapeHtml(s.recipient || '')}</td>
+      <td>${escapeHtml(s.shipDate || '')}</td>
+      <td class="sp-product">${escapeHtml(s.productName || '')}</td>
+      <td>${escapeHtml(s.lotNo || '')}</td>
+      <td>${escapeHtml(String(s.container ?? ''))}</td>
+      <td>${escapeHtml(String(s.qty ?? ''))}</td>
+      <td>${escapeHtml(s.method || '')}</td>
+      <td>${escapeHtml(s.manager || '')}</td>
+      <td class="sp-actions">
+        <button onclick="openShipForm('${s.id}')">수정</button>
+        <button onclick="deleteShipment('${s.id}')">삭제</button>
+      </td>
+    </tr>`).join('');
+}
+
+function openShipForm(id) {
+  editingShipmentId = id || null;
+  fillShipDatalists();
+  const label = document.getElementById('ship-form-title-label');
+  if (editingShipmentId) {
+    const s = shipmentList.find(x => String(x.id) === String(editingShipmentId));
+    if (!s) return;
+    label.textContent = '발송 수정';
+    document.getElementById('sf-requestDate').value = s.requestDate || '';
+    document.getElementById('sf-requester').value = s.requester || '';
+    document.getElementById('sf-recipient').value = s.recipient || '';
+    document.getElementById('sf-shipDate').value = s.shipDate || '';
+    document.getElementById('sf-productName').value = s.productName || '';
+    document.getElementById('sf-lotNo').value = s.lotNo || '';
+    document.getElementById('sf-container').value = s.container ?? '';
+    document.getElementById('sf-qty').value = s.qty ?? '';
+    document.getElementById('sf-method').value = s.method || '';
+    document.getElementById('sf-manager').value = s.manager || '';
+  } else {
+    label.textContent = '발송 등록';
+    ['sf-requestDate','sf-requester','sf-recipient','sf-shipDate','sf-productName','sf-lotNo','sf-container','sf-qty','sf-method'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('sf-manager').value = '방은희';
+    const today = new Date();
+    document.getElementById('sf-requestDate').value = `${today.getFullYear()}-${pad2(today.getMonth()+1)}-${pad2(today.getDate())}`;
+  }
+  document.getElementById('ship-modal-backdrop').style.display = 'flex';
+}
+function closeShipForm() {
+  editingShipmentId = null;
+  document.getElementById('ship-modal-backdrop').style.display = 'none';
+}
+
+async function saveShipment() {
+  const payload = {
+    requestDate: document.getElementById('sf-requestDate').value,
+    requester: document.getElementById('sf-requester').value.trim(),
+    recipient: document.getElementById('sf-recipient').value.trim(),
+    shipDate: document.getElementById('sf-shipDate').value,
+    productName: document.getElementById('sf-productName').value.trim(),
+    lotNo: document.getElementById('sf-lotNo').value.trim(),
+    container: document.getElementById('sf-container').value.trim(),
+    qty: document.getElementById('sf-qty').value,
+    method: document.getElementById('sf-method').value.trim(),
+    manager: document.getElementById('sf-manager').value.trim(),
+  };
+  if (!payload.requestDate || !payload.productName) { alert('신청일과 제품명은 꼭 입력해주세요.'); return; }
+
+  const btn = document.getElementById('ship-form-save-btn');
+  btn.disabled = true; btn.textContent = '저장 중...';
+  try {
+    const apiPayload = { ...payload };
+    if (editingShipmentId) {
+      apiPayload.action = 'updateShipment';
+      apiPayload.id = editingShipmentId;
+    } else {
+      apiPayload.action = 'addShipment';
+    }
+    const res = await apiPost(apiPayload);
+    if (res && res.error) { alert('저장에 실패했어요: ' + res.error); return; }
+
+    if (editingShipmentId) {
+      const idx = shipmentList.findIndex(x => String(x.id) === String(editingShipmentId));
+      if (idx !== -1) shipmentList[idx] = { ...shipmentList[idx], ...payload };
+    } else {
+      shipmentList.unshift({ ...payload, id: res.id });
+    }
+    closeShipForm();
+    renderShipments();
+  } catch (e) {
+    alert('저장 중 오류가 발생했어요. 다시 시도해주세요.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '저장';
+  }
+}
+
+async function deleteShipment(id) {
+  if (!confirm('이 발송 기록을 삭제할까요?')) return;
+  try {
+    await apiPost({ action: 'deleteShipment', id });
+    const idx = shipmentList.findIndex(x => String(x.id) === String(id));
+    if (idx !== -1) shipmentList.splice(idx, 1);
+    renderShipments();
+  } catch (e) {
+    alert('삭제 중 오류가 발생했어요. 다시 시도해주세요.');
+  }
 }
 
 // ===== 잔업관리 (임시, 새로고침시 초기화) =====
@@ -704,7 +1152,7 @@ async function addNotice() {
         writer: payload.writer,
         title: payload.title,
         body: payload.body,
-        date: `${now.getMonth() + 1}.${now.getDate()}`,
+        date: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`,
         fileName: res.fileName || payload.fileName || '',
         fileUrl: res.fileUrl || ''
       });
@@ -770,7 +1218,7 @@ function renderNotice() {
         <div class="notice-row-item" onclick="switchTab('notice')">
           <div class="nt-num">${idx + 1}</div>
           <div class="nt-title">${escapeHtml(n.title)}${n.fileUrl ? ' 📎' : ''}</div>
-          <div class="nt-meta">${escapeHtml(n.writer)}(${n.date})</div>
+          <div class="nt-meta">${escapeHtml(n.writer)} ${n.date}</div>
         </div>`;
       homeList.innerHTML = noticeList.slice(0, 3).map(homeItemHtml).join('');
     }
@@ -796,7 +1244,7 @@ function renderNotice() {
     <div class="notice-row-item" onclick="openNoticeDetail(${n.id})">
       <div class="nt-num">${idx + 1}</div>
       <div class="nt-title">${escapeHtml(n.title)}${n.fileUrl ? ' 📎' : ''}</div>
-      <div class="nt-meta">${escapeHtml(n.writer)}(${n.date})</div>
+      <div class="nt-meta">${escapeHtml(n.writer)} ${n.date}</div>
     </div>`).join('');
 }
 
