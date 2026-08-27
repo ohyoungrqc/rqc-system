@@ -217,9 +217,23 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbzJDpUSKclNi-umnbO3uaSaU1QHAG28eGvqkkQyTvxhjBiWKZmpCd4xcXCIEKcmJNcY/exec';
 const PW_KEY = 'qc_pw';
-function getSavedPw() { try { return sessionStorage.getItem(PW_KEY) || ''; } catch(e) { return ''; } }
-function savePw(pw) { try { sessionStorage.setItem(PW_KEY, pw); } catch(e) {} }
-function clearPw() { try { sessionStorage.removeItem(PW_KEY); } catch(e) {} }
+const PW_TS_KEY = 'qc_pw_ts';
+const PW_EXPIRY_MS = 8 * 60 * 60 * 1000; // 8시간 동안 안 쓰면 자동 로그아웃 (기기/브라우저 종류 상관없이 동일하게 작동)
+function getSavedPw() {
+  try {
+    const pw = localStorage.getItem(PW_KEY);
+    const ts = parseInt(localStorage.getItem(PW_TS_KEY) || '0', 10);
+    if (!pw || !ts || (Date.now() - ts) > PW_EXPIRY_MS) {
+      localStorage.removeItem(PW_KEY);
+      localStorage.removeItem(PW_TS_KEY);
+      return '';
+    }
+    localStorage.setItem(PW_TS_KEY, String(Date.now())); // 계속 쓰는 중이면 유효시간 연장
+    return pw;
+  } catch(e) { return ''; }
+}
+function savePw(pw) { try { localStorage.setItem(PW_KEY, pw); localStorage.setItem(PW_TS_KEY, String(Date.now())); } catch(e) {} }
+function clearPw() { try { localStorage.removeItem(PW_KEY); localStorage.removeItem(PW_TS_KEY); } catch(e) {} }
 
 async function apiGet(params) {
   const url = API + '?' + new URLSearchParams({ ...params, pw: getSavedPw() });
