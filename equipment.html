@@ -957,7 +957,7 @@ function downloadLabel(eqId, name) {
     const qrCanvas = document.querySelector(`#qr-${eqId} canvas`);
     if (!qrCanvas) return;
 
-    const SCALE = 5; // 인쇄해도 흐릿하지 않도록 5배 해상도로 저장 (QR이 뭉개져 보인다는 문제로 3배→5배 상향)
+    const SCALE = 3; // 인쇄해도 흐릿하지 않도록 3배 해상도로 저장 (너무 배율을 올리면 이미지 자체가 커져서 3배로 유지, 대신 아래 흐림 방지 설정으로 선명하게 함)
     const W = 260, H = 90;
     const canvas = document.createElement('canvas');
     canvas.width = W * SCALE; canvas.height = H * SCALE;
