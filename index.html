@@ -31,7 +31,7 @@
   /* ===== 상단 헤더 / 네비게이션 ===== */
   .portal-header { background:#fff; border-bottom:1px solid #e2e8f0; position:sticky; top:0; z-index:200; }
   .header-top { display:flex; align-items:center; padding:14px 24px; }
-  .brand-wrap { display:flex; align-items:center; gap:16px; }
+  .brand-wrap { display:flex; align-items:center; gap:16px; cursor:pointer; }
   .brand-wrap img { width:48px; height:48px; object-fit:contain; }
   .brand-wrap .name { font-weight:800; font-size:24px; letter-spacing:0.3px; line-height:1.25; }
   .brand-wrap .name small { display:block; font-weight:600; font-size:14px; color:#64748b; letter-spacing:0; margin-top:2px; }
@@ -95,8 +95,8 @@
   .home-hero h1 { font-size:20px; font-weight:800; margin:0 0 4px; }
   .home-hero p { font-size:13px; color:#64748b; margin:0; }
 
-  .home-notice-card { margin-bottom:26px; }
-  .home-notice-card .card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:2px; }
+  .home-notice-card { margin-bottom:26px; padding:16px 0; }
+  .home-notice-card .card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; padding:0 18px; }
   .home-notice-card .card-head .title { font-size:14px; font-weight:800; }
   .home-notice-card .card-head a { font-size:12px; color:#2a5298; font-weight:600; text-decoration:none; cursor:pointer; }
 
@@ -108,31 +108,24 @@
   .quick-card .sub { font-size:11.5px; color:#94a3b8; margin-top:2px; }
 
   /* ===== 공지사항 ===== */
-  .notice-item { padding:14px 0; border-bottom:1px solid #eef2f7; }
-  .notice-item:last-child { border-bottom:none; }
-  .notice-item .notice-top { display:flex; align-items:baseline; gap:8px; margin-bottom:4px; }
-  .notice-item .notice-title { font-size:13.5px; font-weight:700; color:#1e293b; }
-  .notice-item .notice-meta { font-size:11px; color:#94a3b8; }
-  .notice-item .notice-body { font-size:12.5px; color:#475569; white-space:pre-wrap; }
-  .notice-item .notice-row { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
-  .notice-item .notice-actions { flex-shrink:0; display:flex; gap:6px; }
-  .notice-item .notice-actions button { background:none; border:1px solid #e2e8f0; border-radius:7px; padding:4px 9px; font-size:11px; color:#64748b; cursor:pointer; font-family:inherit; }
-  .notice-item .notice-actions button:hover { background:#f7f9fc; color:#2a5298; }
-  .notice-item .notice-file { display:inline-flex; align-items:center; gap:5px; margin-top:6px; font-size:12px; color:#2a5298; text-decoration:none; background:#eaf1f8; padding:4px 10px; border-radius:20px; }
   #notice-home-empty { text-align:center; color:#94a3b8; font-size:13px; padding:24px 0; }
 
   /* ===== 공지사항 게시판 (목록/상세/글쓰기) ===== */
   .notice-toolbar { display:flex; gap:10px; margin-bottom:14px; }
   .notice-toolbar input { flex:1; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; font-family:inherit; }
   .notice-toolbar button { flex-shrink:0; }
-  table.notice-table { width:100%; border-collapse:collapse; font-size:13px; table-layout:fixed; }
-  table.notice-table th, table.notice-table td { padding:10px 14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  table.notice-table th { text-align:left; background:#f7f9fc; color:#64748b; font-weight:600; border-bottom:1px solid #e2e8f0; }
-  table.notice-table td { padding:12px 14px; border-bottom:1px solid #eef2f7; }
-  table.notice-table tr.notice-row-clickable { cursor:pointer; }
-  table.notice-table tr.notice-row-clickable:hover td { background:#f7f9fc; }
-  table.notice-table td.nt-title { font-weight:600; color:#1e293b; }
-  table.notice-table td.nt-meta { color:#94a3b8; }
+
+  .notice-list-head { display:flex; align-items:center; gap:10px; padding:10px 18px; background:#f7f9fc; color:#64748b; font-weight:600; font-size:12px; border-bottom:1px solid #e2e8f0; }
+  .notice-list-head .nt-num { flex-shrink:0; width:26px; text-align:center; }
+  .notice-list-head .nt-title { flex:1; }
+  .notice-list-head .nt-meta { flex-shrink:0; width:150px; text-align:right; }
+
+  .notice-row-item { display:flex; align-items:center; gap:10px; padding:12px 18px; border-bottom:1px solid #eef2f7; cursor:pointer; }
+  .notice-row-item:last-child { border-bottom:none; }
+  .notice-row-item:hover { background:#f7f9fc; }
+  .notice-row-item .nt-num { flex-shrink:0; width:26px; text-align:center; font-size:12px; color:#94a3b8; }
+  .notice-row-item .nt-title { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13.5px; font-weight:600; color:#1e293b; }
+  .notice-row-item .nt-meta { flex-shrink:0; width:150px; text-align:right; font-size:12px; color:#94a3b8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   #notice-list-empty { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
   #notice-loading { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
 
@@ -160,6 +153,8 @@
     .ot-form { grid-template-columns:1fr; }
     #login-gate .card { padding:32px 22px 26px; }
     .content-section iframe { height:calc(100vh - 103px); }
+    .notice-list-head, .notice-row-item { padding-left:12px; padding-right:12px; }
+    .notice-list-head .nt-meta, .notice-row-item .nt-meta { width:88px; font-size:11px; }
   }
 </style>
 </head>
@@ -178,7 +173,7 @@
 
 <header class="portal-header">
   <div class="header-top">
-    <div class="brand-wrap">
+    <div class="brand-wrap" onclick="switchTab('home')" title="홈으로 이동">
       <img src="https://drive.google.com/thumbnail?id=1z6L5wiLkMBe6KH6GBW1UmvgHipi-vWEw&sz=w96" alt="오영 로고">
       <div class="name">OHYOUNG<small>품질관리부 반응QC 통합관리시스템</small></div>
     </div>
@@ -262,11 +257,12 @@
       </div>
       <div id="notice-loading">불러오는 중...</div>
       <div class="card" style="padding:0;overflow:hidden;display:none;" id="notice-list-card">
-        <table class="notice-table">
-          <colgroup><col style="width:60%"><col style="width:20%"><col style="width:20%"></colgroup>
-          <thead><tr><th>제목</th><th>작성자</th><th>작성일</th></tr></thead>
-          <tbody id="notice-table-body"></tbody>
-        </table>
+        <div class="notice-list-head">
+          <div class="nt-num">No</div>
+          <div class="nt-title">제목</div>
+          <div class="nt-meta">작성자 · 작성일</div>
+        </div>
+        <div id="notice-table-body"></div>
         <div id="notice-list-empty" style="display:none;">등록된 공지사항이 없어요</div>
       </div>
     </div>
@@ -688,8 +684,33 @@ async function addNotice() {
     }
     const res = await apiPost(payload);
     if (res && res.error) { alert('저장에 실패했어요: ' + res.error); return; }
+
+    // 화면 전환을 빠르게 하기 위해, 목록을 서버에서 다시 안 받아오고 방금 결과로 바로 업데이트
+    if (editingNoticeId !== null) {
+      const idx = noticeList.findIndex(n => String(n.id) === String(editingNoticeId));
+      if (idx !== -1) {
+        noticeList[idx].writer = payload.writer;
+        noticeList[idx].title = payload.title;
+        noticeList[idx].body = payload.body;
+        if (file) {
+          noticeList[idx].fileName = res.fileName || payload.fileName || noticeList[idx].fileName;
+          noticeList[idx].fileUrl = res.fileUrl || noticeList[idx].fileUrl;
+        }
+      }
+    } else {
+      const now = new Date();
+      noticeList.unshift({
+        id: res.id,
+        writer: payload.writer,
+        title: payload.title,
+        body: payload.body,
+        date: `${now.getMonth() + 1}.${now.getDate()}`,
+        fileName: res.fileName || payload.fileName || '',
+        fileUrl: res.fileUrl || ''
+      });
+    }
     cancelEditNotice();
-    await loadNotices();
+    renderNotice();
     showNoticeView('list');
   } catch (e) {
     alert('저장 중 오류가 발생했어요. 다시 시도해주세요.');
@@ -727,7 +748,9 @@ async function deleteNotice(id) {
     await apiPost({ action: 'deleteNotice', id });
     if (editingNoticeId === id) cancelEditNotice();
     if (selectedNoticeId === id) selectedNoticeId = null;
-    await loadNotices();
+    const idx = noticeList.findIndex(n => String(n.id) === String(id));
+    if (idx !== -1) noticeList.splice(idx, 1);
+    renderNotice();
     showNoticeView('list');
   } catch (e) {
     alert('삭제 중 오류가 발생했어요. 다시 시도해주세요.');
@@ -743,10 +766,11 @@ function renderNotice() {
       if (homeEmpty) homeEmpty.style.display = 'block';
     } else {
       if (homeEmpty) homeEmpty.style.display = 'none';
-      const homeItemHtml = n => `
-        <div class="notice-item">
-          <div class="notice-top"><div class="notice-title">${escapeHtml(n.title)}</div><div class="notice-meta">${escapeHtml(n.writer)} · ${n.date}</div></div>
-          <div class="notice-body">${escapeHtml(n.body)}</div>
+      const homeItemHtml = (n, idx) => `
+        <div class="notice-row-item" onclick="switchTab('notice')">
+          <div class="nt-num">${idx + 1}</div>
+          <div class="nt-title">${escapeHtml(n.title)}${n.fileUrl ? ' 📎' : ''}</div>
+          <div class="nt-meta">${escapeHtml(n.writer)}(${n.date})</div>
         </div>`;
       homeList.innerHTML = noticeList.slice(0, 3).map(homeItemHtml).join('');
     }
@@ -768,12 +792,12 @@ function renderNotice() {
   }
   if (listEmpty) listEmpty.style.display = 'none';
 
-  tbody.innerHTML = filtered.map(n => `
-    <tr class="notice-row-clickable" onclick="openNoticeDetail(${n.id})">
-      <td class="nt-title">${escapeHtml(n.title)}${n.fileUrl ? ' 📎' : ''}</td>
-      <td class="nt-meta">${escapeHtml(n.writer)}</td>
-      <td class="nt-meta">${n.date}</td>
-    </tr>`).join('');
+  tbody.innerHTML = filtered.map((n, idx) => `
+    <div class="notice-row-item" onclick="openNoticeDetail(${n.id})">
+      <div class="nt-num">${idx + 1}</div>
+      <div class="nt-title">${escapeHtml(n.title)}${n.fileUrl ? ' 📎' : ''}</div>
+      <div class="nt-meta">${escapeHtml(n.writer)}(${n.date})</div>
+    </div>`).join('');
 }
 
 startApp();
