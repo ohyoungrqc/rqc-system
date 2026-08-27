@@ -55,6 +55,7 @@
   .content-section iframe { width:100%; height:calc(100vh - 130px); border:none; display:block; background:#fff; }
 
   .page-wrap { max-width:1000px; margin:0 auto; padding:32px 24px 60px; }
+  #section-shipping .page-wrap { max-width:1360px; }
   .page-title { font-size:20px; font-weight:800; margin-bottom:4px; }
   .page-sub { font-size:13px; color:#64748b; margin-bottom:24px; }
 
@@ -109,15 +110,18 @@
   .ship-toolbar { display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
   .ship-toolbar input { flex:1; min-width:180px; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; font-family:inherit; }
   .ship-toolbar button { flex-shrink:0; }
-  .ship-table-wrap { overflow-x:auto; }
-  table.ship-table { width:100%; min-width:900px; border-collapse:collapse; font-size:12.5px; }
-  table.ship-table th, table.ship-table td { padding:9px 10px; white-space:nowrap; border-bottom:1px solid #eef2f7; }
-  table.ship-table th { text-align:left; background:#f7f9fc; color:#64748b; font-weight:600; font-size:11.5px; border-bottom:1px solid #e2e8f0; }
-  table.ship-table td.sp-product { font-weight:600; color:#1e293b; white-space:normal; min-width:170px; }
-  table.ship-table tr:hover td { background:#fafbfc; }
+  .ship-table-wrap { overflow:auto; max-height:68vh; }
+  table.ship-table { width:100%; min-width:960px; border-collapse:collapse; font-size:12.5px; }
+  table.ship-table th, table.ship-table td { padding:10px 12px; white-space:nowrap; border-bottom:1px solid #eef2f7; }
+  table.ship-table th { position:sticky; top:0; z-index:1; text-align:left; background:#eaf1f8; color:#1e4884; font-weight:700; font-size:11px; letter-spacing:0.2px; border-bottom:1.5px solid #d7e3f3; }
+  table.ship-table tbody tr:nth-child(even) td { background:#fafbfd; }
+  table.ship-table tr:hover td { background:#eef4fb; }
+  table.ship-table td.sp-product { font-weight:700; color:#1e293b; white-space:normal; min-width:170px; }
   table.ship-table td.sp-actions { display:flex; gap:6px; }
   table.ship-table td.sp-actions button { background:none; border:1px solid #e2e8f0; border-radius:7px; padding:4px 9px; font-size:11px; color:#64748b; cursor:pointer; font-family:inherit; }
-  table.ship-table td.sp-actions button:hover { background:#f7f9fc; color:#2a5298; }
+  table.ship-table td.sp-actions button:hover { background:#fff; color:#2a5298; border-color:#c7d7ee; }
+  .qty-badge { display:inline-flex; align-items:center; justify-content:center; min-width:22px; height:20px; padding:0 6px; border-radius:10px; background:#eaf1f8; color:#2a5298; font-weight:700; font-size:11.5px; }
+  .method-pill { display:inline-block; padding:3px 10px; border-radius:20px; font-weight:700; font-size:10.5px; white-space:nowrap; }
   #ship-list-empty { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
 
   /* ===== 잔업관리 ===== */
@@ -867,6 +871,23 @@ function onShipProductNameChange() {
   }
 }
 
+// 서버가 혹시 날짜를 "2026-08-25T15:00:00.000Z" 같은 형태로 잘못 보내줘도
+// 한국시간 기준으로 다시 계산해서 "2026-08-26"처럼 날짜만 보기 좋게 표시함
+function shortDate(v) {
+  if (!v) return '';
+  const s = String(v);
+  const m = s.match(/^\d{4}-\d{2}-\d{2}T/);
+  if (!m) return s;
+  const kst = new Date(new Date(s).getTime() + 9 * 60 * 60 * 1000);
+  return kst.toISOString().slice(0, 10);
+}
+const METHOD_PILL_COLORS = ['#2a5298','#c2410c','#15803d','#7c3aed','#be185d','#0e7490','#65a30d','#b45309'];
+function pillColorFor(text) {
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) hash = (hash * 31 + text.charCodeAt(i)) >>> 0;
+  return METHOD_PILL_COLORS[hash % METHOD_PILL_COLORS.length];
+}
+
 function renderShipments() {
   const tbody = document.getElementById('ship-table-body');
   const listEmpty = document.getElementById('ship-list-empty');
@@ -884,23 +905,28 @@ function renderShipments() {
   }
   if (listEmpty) listEmpty.style.display = 'none';
 
-  tbody.innerHTML = filtered.map(s => `
+  tbody.innerHTML = filtered.map(s => {
+    const method = s.method || '';
+    const methodColor = method ? pillColorFor(method) : '';
+    const qty = s.qty ?? '';
+    return `
     <tr>
-      <td>${escapeHtml(s.requestDate || '')}</td>
+      <td>${escapeHtml(shortDate(s.requestDate))}</td>
       <td>${escapeHtml(s.requester || '')}</td>
       <td>${escapeHtml(s.recipient || '')}</td>
-      <td>${escapeHtml(s.shipDate || '')}</td>
+      <td>${escapeHtml(shortDate(s.shipDate))}</td>
       <td class="sp-product">${escapeHtml(s.productName || '')}</td>
       <td>${escapeHtml(s.lotNo || '')}</td>
       <td>${escapeHtml(String(s.container ?? ''))}</td>
-      <td>${escapeHtml(String(s.qty ?? ''))}</td>
-      <td>${escapeHtml(s.method || '')}</td>
+      <td>${qty !== '' ? `<span class="qty-badge">${escapeHtml(String(qty))}</span>` : ''}</td>
+      <td>${method ? `<span class="method-pill" style="background:${methodColor}20;color:${methodColor};">${escapeHtml(method)}</span>` : ''}</td>
       <td>${escapeHtml(s.manager || '')}</td>
       <td class="sp-actions">
         <button onclick="openShipForm('${s.id}')">수정</button>
         <button onclick="deleteShipment('${s.id}')">삭제</button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 function openShipForm(id) {
