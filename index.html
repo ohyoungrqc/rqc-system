@@ -120,6 +120,13 @@
     <div class="nav-item" data-key="monitor">
       <button class="nav-btn" onclick="switchTab('monitor')">생산현황 모니터링</button>
     </div>
+    <div class="nav-item" data-key="sample">
+      <button class="nav-btn" onclick="toggleOrSwitch(this,'shipping')">샘플발송현황 ▾</button>
+      <div class="dropdown">
+        <button class="active" data-tab="shipping" onclick="switchTab('shipping')">발송현황</button>
+        <button data-tab="labels" onclick="switchTab('labels')">라벨인쇄</button>
+      </div>
+    </div>
     <div class="nav-item" data-key="calendar">
       <button class="nav-btn" onclick="toggleOrSwitch(this,'calendar')">스케줄 ▾</button>
       <div class="dropdown">
@@ -167,6 +174,31 @@
       <div class="stat-tile"><div class="label">이상 알림</div><div class="value">—</div></div>
       <div class="stat-tile"><div class="label">품질 이슈</div><div class="value">—</div></div>
     </div>
+    <div class="card" style="text-align:center;color:#94a3b8;padding:40px 0;">데이터 연결 예정</div>
+  </div>
+</div>
+
+<!-- 샘플발송현황: 발송현황 -->
+<div class="content-section" id="section-shipping">
+  <div class="page-wrap">
+    <div class="badge-soon">준비중</div>
+    <div class="page-title">샘플발송현황</div>
+    <div class="page-sub">고객사에 보낸 샘플의 발송 상태를 한눈에 보는 화면이에요. 곧 만들어질 예정이에요.</div>
+    <div class="card">
+      <table class="mock">
+        <tr><th>발송일</th><th>고객사</th><th>제품명</th><th>상태</th></tr>
+        <tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:24px 0;">데이터 연결 예정</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 샘플발송현황: 라벨인쇄 -->
+<div class="content-section" id="section-labels">
+  <div class="page-wrap">
+    <div class="badge-soon">준비중</div>
+    <div class="page-title">라벨인쇄</div>
+    <div class="page-sub">샘플 용기·포장에 붙이는 라벨(제품명·로트번호 등)을 인쇄하는 화면이에요. 곧 만들어질 예정이에요.</div>
     <div class="card" style="text-align:center;color:#94a3b8;padding:40px 0;">데이터 연결 예정</div>
   </div>
 </div>
@@ -293,7 +325,7 @@ function switchTab(key) {
   document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
   document.querySelectorAll('.dropdown button').forEach(b => b.classList.remove('active'));
 
-  const parentMap = { products:'products', lots:'products', calendar:'calendar', overtime:'calendar', equipment:'equipment', monitor:'monitor' };
+  const parentMap = { products:'products', lots:'products', calendar:'calendar', overtime:'calendar', equipment:'equipment', monitor:'monitor', shipping:'sample', labels:'sample' };
   const parentKey = parentMap[key] || key;
   const item = document.querySelector('.nav-item[data-key="' + parentKey + '"]');
   if (item) item.classList.add('active');
