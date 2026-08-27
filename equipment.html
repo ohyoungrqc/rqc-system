@@ -229,6 +229,8 @@
   .qr-print-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
   .qr-print-name { font-size: 12px; font-weight: 700; text-align: center; }
   .qr-print-sub { font-size: 10px; color: var(--text-muted); text-align: center; }
+  .qr-thumb canvas, .qr-thumb img { width: 60px !important; height: 60px !important; }
+  .qr-thumb-detail canvas, .qr-thumb-detail img { width: 100px !important; height: 100px !important; }
 
   /* ===== LOADING ===== */
   .loading { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 48px; color: var(--text-muted); font-size: 14px; }
@@ -907,7 +909,7 @@ function renderQR() {
         <span style="color:white;font-size:13px;font-weight:700;letter-spacing:2px;">OHYOUNG</span>
       </div>
       <div style="display:flex;align-items:center;">
-        <div id="qr-${eq.id}" style="padding:8px;border-right:1px solid #eee;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fafafa;"></div>
+        <div id="qr-${eq.id}" class="qr-thumb" style="padding:8px;border-right:1px solid #eee;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fafafa;"></div>
         <div style="padding:8px 14px;flex:1;min-width:0;">
           <table style="width:100%;border-collapse:collapse;">
             <tr>
@@ -937,10 +939,12 @@ function renderQR() {
 
   db.equipment.forEach(eq => {
     const url = `${location.origin}${location.pathname}?eq=${eq.id}` + (getSavedPw() ? `&pw=${encodeURIComponent(getSavedPw())}` : '');
+    // 화면에는 CSS로 60px로 작게 보이지만, 실제 QR은 240px 고해상도로 만들어서
+    // 라벨로 인쇄했을 때도 선명하게 스캔되도록 함
     new QRCode(document.getElementById('qr-'+eq.id), {
-      text: url, width: 60, height: 60,
+      text: url, width: 240, height: 240,
       colorDark: '#1a1714', colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.M
+      correctLevel: QRCode.CorrectLevel.Q
     });
   });
 }
@@ -953,10 +957,15 @@ function downloadLabel(eqId, name) {
     const qrCanvas = document.querySelector(`#qr-${eqId} canvas`);
     if (!qrCanvas) return;
 
+    const SCALE = 5; // 인쇄해도 흐릿하지 않도록 5배 해상도로 저장 (QR이 뭉개져 보인다는 문제로 3배→5배 상향)
     const W = 260, H = 90;
     const canvas = document.createElement('canvas');
-    canvas.width = W; canvas.height = H;
+    canvas.width = W * SCALE; canvas.height = H * SCALE;
     const ctx = canvas.getContext('2d');
+    ctx.scale(SCALE, SCALE);
+    // 브라우저가 QR 이미지를 축소해서 그릴 때 자동으로 흐릿하게(부드럽게) 처리하는 기능을 꺼서
+    // 칸(모듈) 경계가 뭉개지지 않고 선명하게 나오도록 함
+    ctx.imageSmoothingEnabled = false;
 
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
@@ -1020,6 +1029,15 @@ function downloadLabel(eqId, name) {
   }, 500);
 }
 
+function downloadQR(elId, name) {
+  const canvas = document.querySelector(`#${elId} canvas`);
+  if (!canvas) { alert('QR 코드를 불러오는 중이에요. 잠시 후 다시 시도해주세요.'); return; }
+  const a = document.createElement('a');
+  a.download = `QR_${name}.png`;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+
 // ===== DETAIL =====
 function openDetail(id) {
   currentEqId = id;
@@ -1052,7 +1070,7 @@ function openDetail(id) {
         </div>
       </div>
       <div class="qr-section" style="flex-shrink:0;min-width:120px;">
-        <div id="detail-qr-${id}"></div>
+        <div id="detail-qr-${id}" class="qr-thumb-detail"></div>
         <div style="font-size:10px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">${id}</div>
         <button class="btn btn-secondary btn-sm" onclick="downloadQR('detail-qr-${id}','${eq.name}')">⬇ QR 저장</button>
       </div>
@@ -1064,9 +1082,9 @@ function openDetail(id) {
     if (el && el.children.length === 0) {
       new QRCode(el, {
         text: `${location.origin}${location.pathname}?eq=${id}` + (getSavedPw() ? `&pw=${encodeURIComponent(getSavedPw())}` : ''),
-        width: 100, height: 100,
+        width: 260, height: 260,
         colorDark: '#1a1714', colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.M
+        correctLevel: QRCode.CorrectLevel.Q
       });
     }
   }, 100);
