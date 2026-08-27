@@ -12,6 +12,7 @@
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
   :root { color-scheme: light only; }
   * { box-sizing: border-box; }
+  html, body { overflow-x: hidden; max-width: 100%; }
   body {
     margin: 0; font-family: 'Noto Sans KR', -apple-system, sans-serif;
     background: #f0f4f9; color: #1e293b;
@@ -35,8 +36,9 @@
   .brand-wrap .name { font-weight:800; font-size:24px; letter-spacing:0.3px; line-height:1.25; }
   .brand-wrap .name small { display:block; font-weight:600; font-size:14px; color:#64748b; letter-spacing:0; margin-top:2px; }
 
-  .nav { display:flex; height:52px; padding:0 24px; border-top:1px solid #eef2f7; }
-  .nav-item { position:relative; }
+  .nav { display:flex; height:52px; padding:0 24px; border-top:1px solid #eef2f7; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .nav::-webkit-scrollbar { display:none; }
+  .nav-item { position:relative; flex-shrink:0; }
   .nav-btn { background:none; border:none; height:52px; padding:0 18px; font-size:14px; font-weight:600; color:#64748b; cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; font-family:inherit; }
   .nav-btn:hover { color:#2a5298; }
   .nav-item.active > .nav-btn { color:#2a5298; border-bottom-color:#2a5298; }
@@ -98,7 +100,7 @@
   .home-notice-card .card-head .title { font-size:14px; font-weight:800; }
   .home-notice-card .card-head a { font-size:12px; color:#2a5298; font-weight:600; text-decoration:none; cursor:pointer; }
 
-  .quick-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; }
+  .quick-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
   .quick-card { -webkit-appearance:none; appearance:none; background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:box-shadow .15s,border-color .15s; text-align:left; font-family:inherit; font-size:inherit; width:100%; }
   .quick-card:hover { border-color:#2a5298; box-shadow:0 4px 14px rgba(42,82,152,0.12); }
   .quick-card .icon { font-size:20px; width:40px; height:40px; background:#eaf1f8; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
@@ -112,7 +114,52 @@
   .notice-item .notice-title { font-size:13.5px; font-weight:700; color:#1e293b; }
   .notice-item .notice-meta { font-size:11px; color:#94a3b8; }
   .notice-item .notice-body { font-size:12.5px; color:#475569; white-space:pre-wrap; }
-  #notice-list-empty, #notice-home-empty { text-align:center; color:#94a3b8; font-size:13px; padding:24px 0; }
+  .notice-item .notice-row { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .notice-item .notice-actions { flex-shrink:0; display:flex; gap:6px; }
+  .notice-item .notice-actions button { background:none; border:1px solid #e2e8f0; border-radius:7px; padding:4px 9px; font-size:11px; color:#64748b; cursor:pointer; font-family:inherit; }
+  .notice-item .notice-actions button:hover { background:#f7f9fc; color:#2a5298; }
+  .notice-item .notice-file { display:inline-flex; align-items:center; gap:5px; margin-top:6px; font-size:12px; color:#2a5298; text-decoration:none; background:#eaf1f8; padding:4px 10px; border-radius:20px; }
+  #notice-home-empty { text-align:center; color:#94a3b8; font-size:13px; padding:24px 0; }
+
+  /* ===== 공지사항 게시판 (목록/상세/글쓰기) ===== */
+  .notice-toolbar { display:flex; gap:10px; margin-bottom:14px; }
+  .notice-toolbar input { flex:1; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; font-family:inherit; }
+  .notice-toolbar button { flex-shrink:0; }
+  table.notice-table { width:100%; border-collapse:collapse; font-size:13px; }
+  table.notice-table th { text-align:left; padding:10px 14px; background:#f7f9fc; color:#64748b; font-weight:600; border-bottom:1px solid #e2e8f0; }
+  table.notice-table td { padding:12px 14px; border-bottom:1px solid #eef2f7; }
+  table.notice-table tr.notice-row-clickable { cursor:pointer; }
+  table.notice-table tr.notice-row-clickable:hover td { background:#f7f9fc; }
+  table.notice-table td.nt-title { font-weight:600; color:#1e293b; }
+  table.notice-table td.nt-meta { color:#94a3b8; white-space:nowrap; width:1%; }
+  #notice-list-empty { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
+  #notice-loading { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
+
+  .btn-back { background:none; border:none; color:#2a5298; font-size:13px; font-weight:600; cursor:pointer; padding:0; font-family:inherit; }
+  .notice-detail-title { font-size:18px; font-weight:800; margin-bottom:8px; }
+  .notice-detail-meta { font-size:12px; color:#94a3b8; margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid #eef2f7; }
+  .notice-detail-body { font-size:13.5px; color:#334155; white-space:pre-wrap; line-height:1.65; margin-bottom:16px; min-height:60px; }
+  .notice-detail-actions { display:flex; gap:8px; justify-content:flex-end; }
+  .notice-detail-actions button { background:none; border:1px solid #e2e8f0; border-radius:8px; padding:7px 16px; font-size:12.5px; color:#64748b; cursor:pointer; font-family:inherit; }
+  .notice-detail-actions button:hover { background:#f7f9fc; color:#2a5298; }
+  .notice-file { display:inline-flex; align-items:center; gap:5px; margin-top:2px; font-size:12px; color:#2a5298; text-decoration:none; background:#eaf1f8; padding:4px 10px; border-radius:20px; }
+
+  /* ===== 모바일 화면 대응 ===== */
+  @media (max-width: 640px) {
+    .header-top { padding:10px 14px; }
+    .brand-wrap { gap:10px; }
+    .brand-wrap img { width:36px; height:36px; }
+    .brand-wrap .name { font-size:17px; }
+    .brand-wrap .name small { font-size:11px; }
+    .nav { padding:0 10px; height:46px; }
+    .nav-btn { height:46px; padding:0 12px; font-size:12.5px; }
+    .dropdown { top:46px; }
+    .page-wrap { padding:20px 14px 40px; }
+    .quick-grid { grid-template-columns:1fr 1fr; }
+    .ot-form { grid-template-columns:1fr; }
+    #login-gate .card { padding:32px 22px 26px; }
+    .content-section iframe { height:calc(100vh - 103px); }
+  }
 </style>
 </head>
 <body>
@@ -142,8 +189,8 @@
     <div class="nav-item" data-key="notice">
       <button class="nav-btn" onclick="switchTab('notice')">공지사항</button>
     </div>
-    <div class="nav-item" data-key="equipment">
-      <button class="nav-btn" onclick="switchTab('equipment')">설비관리</button>
+    <div class="nav-item" data-key="monitor">
+      <button class="nav-btn" onclick="switchTab('monitor')">생산현황 모니터링</button>
     </div>
     <div class="nav-item" data-key="products">
       <button class="nav-btn" onclick="toggleOrSwitch(this,'products')">제품조회 ▾</button>
@@ -152,21 +199,21 @@
         <button data-tab="lots" onclick="switchTab('lots')">생산로트조회</button>
       </div>
     </div>
-    <div class="nav-item" data-key="monitor">
-      <button class="nav-btn" onclick="switchTab('monitor')">생산현황 모니터링</button>
-    </div>
-    <div class="nav-item" data-key="sample">
-      <button class="nav-btn" onclick="toggleOrSwitch(this,'shipping')">샘플발송현황 ▾</button>
-      <div class="dropdown">
-        <button class="active" data-tab="shipping" onclick="switchTab('shipping')">발송현황</button>
-        <button data-tab="labels" onclick="switchTab('labels')">라벨인쇄</button>
-      </div>
+    <div class="nav-item" data-key="equipment">
+      <button class="nav-btn" onclick="switchTab('equipment')">설비관리</button>
     </div>
     <div class="nav-item" data-key="calendar">
       <button class="nav-btn" onclick="toggleOrSwitch(this,'calendar')">일정관리 ▾</button>
       <div class="dropdown">
         <button class="active" data-tab="calendar" onclick="switchTab('calendar')">업무일정</button>
         <button data-tab="overtime" onclick="switchTab('overtime')">잔업관리</button>
+      </div>
+    </div>
+    <div class="nav-item" data-key="sample">
+      <button class="nav-btn" onclick="toggleOrSwitch(this,'shipping')">샘플발송현황 ▾</button>
+      <div class="dropdown">
+        <button class="active" data-tab="shipping" onclick="switchTab('shipping')">발송현황</button>
+        <button data-tab="labels" onclick="switchTab('labels')">라벨인쇄</button>
       </div>
     </div>
   </nav>
@@ -203,20 +250,54 @@
 <div class="content-section" id="section-notice">
   <div class="page-wrap">
     <div class="page-title">공지사항</div>
-    <div class="page-sub">팀에 공유할 소식이나 안내를 등록하는 곳이에요.</div>
-    <div class="card">
-      <div class="ot-form">
-        <div><label>작성자</label><input id="notice-writer" type="text" placeholder="이름"></div>
-        <div><label>제목</label><input id="notice-title" type="text" placeholder="공지 제목"></div>
-        <div class="full"><label>내용</label><textarea id="notice-body" rows="3" placeholder="공지 내용"></textarea></div>
+    <div class="page-sub">팀에 공유할 소식이나 안내를 확인하고 등록하는 곳이에요.</div>
+
+    <!-- 목록 뷰 -->
+    <div id="notice-view-list">
+      <div class="notice-toolbar">
+        <input id="notice-search" type="text" placeholder="제목·작성자로 검색" oninput="renderNotice()">
+        <button class="btn-primary" onclick="openNoticeWrite()">＋ 글쓰기</button>
       </div>
-      <button class="btn-primary" onclick="addNotice()">＋ 공지 등록</button>
+      <div id="notice-loading">불러오는 중...</div>
+      <div class="card" style="padding:0;overflow:hidden;display:none;" id="notice-list-card">
+        <table class="notice-table">
+          <thead><tr><th>제목</th><th>작성자</th><th>작성일</th></tr></thead>
+          <tbody id="notice-table-body"></tbody>
+        </table>
+        <div id="notice-list-empty" style="display:none;">등록된 공지사항이 없어요</div>
+      </div>
     </div>
-    <div class="card" style="margin-top:16px;">
-      <div id="notice-full-list"></div>
-      <div id="notice-list-empty">아직 등록된 공지사항이 없어요</div>
+
+    <!-- 상세 뷰 -->
+    <div id="notice-view-detail" style="display:none;">
+      <button class="btn-back" onclick="closeNoticeDetail()">← 목록으로</button>
+      <div class="card" style="margin-top:12px;">
+        <div class="notice-detail-title" id="nd-title"></div>
+        <div class="notice-detail-meta" id="nd-meta"></div>
+        <div class="notice-detail-body" id="nd-body"></div>
+        <div id="nd-file"></div>
+        <div class="notice-detail-actions">
+          <button onclick="editNoticeFromDetail()">수정</button>
+          <button onclick="deleteNoticeFromDetail()">삭제</button>
+        </div>
+      </div>
     </div>
-    <div style="margin-top:10px;font-size:12px;color:#94a3b8;">※ 지금은 화면에서만 확인되는 임시 버전이에요. 새로고침하면 목록이 사라져요 — 실제로 저장되게 하려면 구글시트 연결이 필요해요.</div>
+
+    <!-- 작성/수정 뷰 -->
+    <div id="notice-view-write" style="display:none;">
+      <button class="btn-back" onclick="closeNoticeWrite()">← 목록으로</button>
+      <div class="card" style="margin-top:12px;">
+        <div class="ot-form">
+          <div><label>작성자</label><input id="notice-writer" type="text" placeholder="이름"></div>
+          <div><label>제목</label><input id="notice-title" type="text" placeholder="공지 제목"></div>
+          <div class="full"><label>내용</label><textarea id="notice-body" rows="5" placeholder="공지 내용"></textarea></div>
+          <div class="full"><label>첨부파일 (선택)</label><input id="notice-file" type="file"><div id="notice-file-current" style="font-size:11.5px;color:#94a3b8;margin-top:4px;"></div></div>
+        </div>
+        <button class="btn-primary" id="notice-submit-btn" onclick="addNotice()">등록</button>
+      </div>
+    </div>
+
+    <div style="margin-top:10px;font-size:12px;color:#94a3b8;">※ 등록한 공지는 구글시트에 저장돼요. 첨부파일은 5MB 이하로 올려주세요 (너무 크면 느려질 수 있어요).</div>
   </div>
 </div>
 
@@ -356,6 +437,14 @@ async function apiGet(params) {
   return res.json();
 }
 
+async function apiPost(data) {
+  const res = await fetch(API, {
+    method: 'POST',
+    body: JSON.stringify({ ...data, pw: getSavedPw() })
+  });
+  return res.json();
+}
+
 async function tryLogin() {
   const pw = document.getElementById('login-pw-input').value;
   document.getElementById('login-error').style.display = 'none';
@@ -395,7 +484,7 @@ function enterPortal() {
   document.getElementById('frame-products').src = 'products.html?v=' + v;
   switchTab('home');
   renderHomeDate();
-  renderNotice();
+  loadNotices();
   renderCalendar();
 }
 
@@ -423,6 +512,7 @@ function switchTab(key) {
   if (dropBtn) dropBtn.classList.add('active');
 
   if (key === 'calendar') renderCalendar();
+  if (key === 'notice') resetNoticeBoard();
 }
 
 document.addEventListener('click', (e) => {
@@ -487,47 +577,201 @@ function renderHomeDate() {
   el.textContent = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${dows[now.getDay()]}요일`;
 }
 
-// ===== 공지사항 (임시, 새로고침시 초기화) =====
+// ===== 공지사항 (구글시트에 저장됨) =====
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-const noticeList = [];
-function addNotice() {
+let noticeList = [];
+let editingNoticeId = null;
+
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(',')[1]); // "data:...;base64,XXXX"에서 XXXX만
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function loadNotices() {
+  const loading = document.getElementById('notice-loading');
+  const listCard = document.getElementById('notice-list-card');
+  try {
+    const res = await apiGet({ action: 'getNotices' });
+    noticeList = Array.isArray(res) ? res : [];
+  } catch (e) {
+    noticeList = [];
+  }
+  if (loading) loading.style.display = 'none';
+  if (listCard) listCard.style.display = 'block';
+  renderNotice();
+}
+
+function showNoticeView(view) {
+  document.getElementById('notice-view-list').style.display = view === 'list' ? 'block' : 'none';
+  document.getElementById('notice-view-detail').style.display = view === 'detail' ? 'block' : 'none';
+  document.getElementById('notice-view-write').style.display = view === 'write' ? 'block' : 'none';
+}
+
+function resetNoticeBoard() {
+  selectedNoticeId = null;
+  const search = document.getElementById('notice-search');
+  if (search) search.value = '';
+  showNoticeView('list');
+  renderNotice();
+}
+
+function openNoticeWrite() {
+  cancelEditNotice();
+  showNoticeView('write');
+}
+
+function closeNoticeWrite() {
+  cancelEditNotice();
+  showNoticeView('list');
+}
+
+let selectedNoticeId = null;
+function openNoticeDetail(id) {
+  const n = noticeList.find(n => String(n.id) === String(id));
+  if (!n) return;
+  selectedNoticeId = n.id;
+  document.getElementById('nd-title').textContent = n.title;
+  document.getElementById('nd-meta').textContent = `${n.writer} · ${n.date}`;
+  document.getElementById('nd-body').textContent = n.body;
+  document.getElementById('nd-file').innerHTML = n.fileUrl ? `<a class="notice-file" href="${escapeHtml(n.fileUrl)}" target="_blank" rel="noopener">📎 ${escapeHtml(n.fileName || '첨부파일')}</a>` : '';
+  showNoticeView('detail');
+}
+
+function closeNoticeDetail() {
+  selectedNoticeId = null;
+  showNoticeView('list');
+}
+
+function editNoticeFromDetail() {
+  if (selectedNoticeId === null) return;
+  editNotice(selectedNoticeId);
+  showNoticeView('write');
+}
+
+function deleteNoticeFromDetail() {
+  if (selectedNoticeId === null) return;
+  deleteNotice(selectedNoticeId);
+}
+
+async function addNotice() {
   const writer = document.getElementById('notice-writer').value.trim();
   const title = document.getElementById('notice-title').value.trim();
   const body = document.getElementById('notice-body').value.trim();
   if (!title || !body) { alert('제목과 내용을 입력해주세요.'); return; }
-  const now = new Date();
-  const date = `${now.getMonth()+1}.${now.getDate()}`;
-  noticeList.unshift({ writer: writer || '익명', title, body, date });
-  renderNotice();
+  const fileInput = document.getElementById('notice-file');
+  const file = fileInput.files[0];
+  if (file && file.size > 5 * 1024 * 1024) { alert('첨부파일은 5MB 이하만 가능해요.'); return; }
+
+  const btn = document.getElementById('notice-submit-btn');
+  btn.disabled = true; btn.textContent = '저장 중...';
+
+  try {
+    const payload = { writer: writer || '익명', title, body };
+    if (file) {
+      payload.fileName = file.name;
+      payload.fileMime = file.type || 'application/octet-stream';
+      payload.fileBase64 = await readFileAsBase64(file);
+    }
+    if (editingNoticeId !== null) {
+      payload.action = 'updateNotice';
+      payload.id = editingNoticeId;
+    } else {
+      payload.action = 'addNotice';
+    }
+    const res = await apiPost(payload);
+    if (res && res.error) { alert('저장에 실패했어요: ' + res.error); return; }
+    cancelEditNotice();
+    await loadNotices();
+    showNoticeView('list');
+  } catch (e) {
+    alert('저장 중 오류가 발생했어요. 다시 시도해주세요.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = editingNoticeId !== null ? '수정 완료' : '등록';
+  }
+}
+
+function editNotice(id) {
+  const n = noticeList.find(n => String(n.id) === String(id));
+  if (!n) return;
+  editingNoticeId = n.id;
+  document.getElementById('notice-writer').value = n.writer;
+  document.getElementById('notice-title').value = n.title;
+  document.getElementById('notice-body').value = n.body;
+  document.getElementById('notice-file').value = '';
+  document.getElementById('notice-file-current').textContent = n.fileName ? `현재 첨부파일: ${n.fileName} (새 파일을 올리면 교체돼요)` : '';
+  document.getElementById('notice-submit-btn').textContent = '수정 완료';
+}
+
+function cancelEditNotice() {
+  editingNoticeId = null;
   document.getElementById('notice-writer').value = '';
   document.getElementById('notice-title').value = '';
   document.getElementById('notice-body').value = '';
+  document.getElementById('notice-file').value = '';
+  document.getElementById('notice-file-current').textContent = '';
+  document.getElementById('notice-submit-btn').textContent = '등록';
 }
+
+async function deleteNotice(id) {
+  if (!confirm('이 공지사항을 삭제할까요?')) return;
+  try {
+    await apiPost({ action: 'deleteNotice', id });
+    if (editingNoticeId === id) cancelEditNotice();
+    if (selectedNoticeId === id) selectedNoticeId = null;
+    await loadNotices();
+    showNoticeView('list');
+  } catch (e) {
+    alert('삭제 중 오류가 발생했어요. 다시 시도해주세요.');
+  }
+}
+
 function renderNotice() {
   const homeList = document.getElementById('notice-home-list');
   const homeEmpty = document.getElementById('notice-home-empty');
-  const fullList = document.getElementById('notice-full-list');
-  const fullEmpty = document.getElementById('notice-list-empty');
-  if (!homeList || !fullList) return;
+  if (homeList) {
+    if (noticeList.length === 0) {
+      homeList.innerHTML = '';
+      if (homeEmpty) homeEmpty.style.display = 'block';
+    } else {
+      if (homeEmpty) homeEmpty.style.display = 'none';
+      const homeItemHtml = n => `
+        <div class="notice-item">
+          <div class="notice-top"><div class="notice-title">${escapeHtml(n.title)}</div><div class="notice-meta">${escapeHtml(n.writer)} · ${n.date}</div></div>
+          <div class="notice-body">${escapeHtml(n.body)}</div>
+        </div>`;
+      homeList.innerHTML = noticeList.slice(0, 3).map(homeItemHtml).join('');
+    }
+  }
 
-  if (noticeList.length === 0) {
-    homeList.innerHTML = ''; homeEmpty.style.display = 'block';
-    fullList.innerHTML = ''; fullEmpty.style.display = 'block';
+  const tbody = document.getElementById('notice-table-body');
+  const listEmpty = document.getElementById('notice-list-empty');
+  if (!tbody) return;
+
+  const q = (document.getElementById('notice-search')?.value || '').trim().toLowerCase();
+  const filtered = q
+    ? noticeList.filter(n => String(n.title || '').toLowerCase().includes(q) || String(n.writer || '').toLowerCase().includes(q))
+    : noticeList;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    if (listEmpty) listEmpty.style.display = 'block';
     return;
   }
-  homeEmpty.style.display = 'none';
-  fullEmpty.style.display = 'none';
+  if (listEmpty) listEmpty.style.display = 'none';
 
-  const itemHtml = n => `
-    <div class="notice-item">
-      <div class="notice-top"><div class="notice-title">${escapeHtml(n.title)}</div><div class="notice-meta">${escapeHtml(n.writer)} · ${n.date}</div></div>
-      <div class="notice-body">${escapeHtml(n.body)}</div>
-    </div>`;
-
-  homeList.innerHTML = noticeList.slice(0, 3).map(itemHtml).join('');
-  fullList.innerHTML = noticeList.map(itemHtml).join('');
+  tbody.innerHTML = filtered.map(n => `
+    <tr class="notice-row-clickable" onclick="openNoticeDetail(${n.id})">
+      <td class="nt-title">${escapeHtml(n.title)}${n.fileUrl ? ' 📎' : ''}</td>
+      <td class="nt-meta">${escapeHtml(n.writer)}</td>
+      <td class="nt-meta">${n.date}</td>
+    </tr>`).join('');
 }
 
 startApp();
