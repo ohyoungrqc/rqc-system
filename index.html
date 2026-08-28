@@ -148,6 +148,15 @@
   .ot-form label { display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px; }
   .ot-form input, .ot-form textarea { width:100%; box-sizing:border-box; padding:9px 11px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; font-family:inherit; }
   .btn-primary { background:#2a5298; color:#fff; border:none; border-radius:8px; padding:10px 18px; font-size:13px; font-weight:700; cursor:pointer; }
+
+  /* ===== 샘플발송현황: 등록 화면에서 제품 여러 개 추가 ===== */
+  .ship-product-row { position:relative; border:1.5px dashed #dbe3ee; border-radius:10px; padding:14px 34px 2px 14px; margin-bottom:12px; }
+  .ship-product-row .ot-form { margin-bottom:0; }
+  .ship-product-row .spr-label { font-size:11.5px; font-weight:700; color:#2a5298; margin-bottom:8px; }
+  .spr-remove { position:absolute; top:8px; right:8px; width:24px; height:24px; border:none; background:#f1f5f9; color:#94a3b8; border-radius:50%; font-size:14px; line-height:1; cursor:pointer; }
+  .spr-remove:hover { background:#fee2e2; color:#dc2626; }
+  .btn-add-product { width:100%; background:#f7f9fc; border:1.5px dashed #94a3b8; border-radius:8px; padding:10px; font-size:12.5px; color:#2a5298; cursor:pointer; font-family:inherit; margin-bottom:16px; }
+  .btn-add-product:hover { background:#eaf1f8; }
   #ot-list-empty { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
 
   .ot-tabs { display:flex; gap:12px; margin-bottom:20px; }
@@ -187,7 +196,7 @@
   .hum-table-toggle { font-size:12px; color:#2a5298; font-weight:600; cursor:pointer; background:none; border:none; padding:0; font-family:inherit; margin-top:14px; }
 
   /* ===== 홈: 온습도 미리보기 ===== */
-  .home-hum-card { margin-bottom:26px; padding:16px 18px; }
+  .home-hum-card { margin-bottom:16px; padding:16px 18px; }
   .home-hum-card .card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
   .home-hum-card .card-head .title { font-size:14px; font-weight:800; }
   .home-hum-card .card-head a { font-size:12px; color:#2a5298; font-weight:600; text-decoration:none; cursor:pointer; }
@@ -208,15 +217,23 @@
   .ns-week-row .ns-label { font-size:12px; color:#64748b; width:130px; flex-shrink:0; }
   .ns-week-row input { flex:1; padding:8px 10px; border:1.5px solid #e2e8f0; border-radius:7px; font-size:13px; font-family:inherit; }
 
-  /* ===== 홈 ===== */
-  .home-hero { padding:4px 0 22px; }
-  .home-hero h1 { font-size:20px; font-weight:800; margin:0 0 4px; }
-  .home-hero p { font-size:13px; color:#64748b; margin:0; }
-
-  .home-notice-card { margin-bottom:26px; padding:16px 0; }
+  /* ===== 홈: 대시보드 카드 ===== */
+  .home-notice-card { margin-bottom:16px; padding:16px 0; }
   .home-notice-card .card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; padding:0 18px; }
   .home-notice-card .card-head .title { font-size:14px; font-weight:800; }
   .home-notice-card .card-head a { font-size:12px; color:#2a5298; font-weight:600; text-decoration:none; cursor:pointer; }
+
+  .home-sched-card, .home-monitor-card { margin-bottom:16px; padding:16px 18px; }
+  .home-sched-card .card-head, .home-monitor-card .card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .home-sched-card .card-head .title, .home-monitor-card .card-head .title { font-size:14px; font-weight:800; }
+  .home-sched-card .card-head a, .home-monitor-card .card-head a { font-size:12px; color:#2a5298; font-weight:600; text-decoration:none; cursor:pointer; }
+  .home-sched-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid #eef2f7; cursor:pointer; }
+  .home-sched-row:last-child { border-bottom:none; }
+  .home-sched-row:hover { background:#f7f9fc; }
+  .home-sched-row .hs-date { flex-shrink:0; width:56px; font-size:12px; font-weight:700; color:#2a5298; }
+  .home-sched-row .hs-date.today { color:#dc2626; }
+  .home-sched-row .hs-title { flex:1; min-width:0; font-size:13.5px; color:#1e293b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #home-sched-empty, .home-monitor-empty { text-align:center; color:#94a3b8; font-size:13px; padding:18px 0; }
 
   .quick-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
   .quick-card { -webkit-appearance:none; appearance:none; background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:box-shadow .15s,border-color .15s; text-align:left; font-family:inherit; font-size:inherit; width:100%; }
@@ -342,11 +359,6 @@
 <!-- 홈 -->
 <div class="content-section" id="section-home">
   <div class="page-wrap">
-    <div class="home-hero">
-      <h1>안녕하세요, 반응QC 통합관리시스템입니다</h1>
-      <p id="home-date"></p>
-    </div>
-
     <div class="card home-notice-card">
       <div class="card-head">
         <div class="title">📢 공지사항</div>
@@ -354,6 +366,23 @@
       </div>
       <div id="notice-home-list"></div>
       <div id="notice-home-empty" style="display:none;">등록된 공지사항이 없어요</div>
+    </div>
+
+    <div class="card home-sched-card">
+      <div class="card-head">
+        <div class="title">📅 업무일정</div>
+        <a onclick="switchTab('calendar')">더보기 →</a>
+      </div>
+      <div id="home-sched-list"></div>
+      <div id="home-sched-empty" style="display:none;">다가오는 일정이 없어요</div>
+    </div>
+
+    <div class="card home-monitor-card">
+      <div class="card-head">
+        <div class="title">📊 생산현황 모니터링</div>
+        <a onclick="switchTab('monitor')">더보기 →</a>
+      </div>
+      <div class="home-monitor-empty">아직 연결 전이에요. 준비되는 대로 이 카드에서 바로 확인하실 수 있어요.</div>
     </div>
 
     <div class="card home-hum-card">
@@ -522,13 +551,13 @@
       <div><label>신청자</label><input id="sf-requester" type="text" placeholder="이름"></div>
       <div><label>수신처</label><input id="sf-recipient" type="text"></div>
       <div><label>발송일</label><input id="sf-shipDate" type="date"></div>
-      <div class="full"><label>제품명</label><input id="sf-productName" type="text" list="ship-product-list" placeholder="제품명을 입력하면 후보가 아래에 떠요" autocomplete="off" onchange="onShipProductNameChange()"></div>
-      <div><label>Lot No.</label><input id="sf-lotNo" type="text" list="ship-lot-list" placeholder="예: 2PSFHP1-003" autocomplete="off"></div>
-      <div><label>용기(g)</label><input id="sf-container" type="text" placeholder="예: 100 또는 5kg"></div>
-      <div><label>수량</label><input id="sf-qty" type="number" placeholder="예: 2"></div>
       <div><label>전달방법</label><input id="sf-method" type="text" list="ship-method-list" placeholder="예: 물류과 전달" autocomplete="off"></div>
       <div><label>담당자</label><input id="sf-manager" type="text" placeholder="이름"></div>
     </div>
+
+    <div id="ship-product-rows"></div>
+    <button type="button" class="btn-add-product" id="ship-add-product-btn" onclick="addShipProductRow()">＋ 제품 추가 (한 신청자가 여러 제품을 한 번에 보낼 때)</button>
+
     <datalist id="ship-product-list"></datalist>
     <datalist id="ship-lot-list"></datalist>
     <datalist id="ship-method-list"></datalist>
@@ -860,6 +889,11 @@ function toggleOrSwitch(btn, defaultTab) {
 document.querySelectorAll('.nav-item').forEach(item => {
   if (!item.querySelector('.dropdown')) return;
   item.addEventListener('mouseenter', () => {
+    // 마우스를 옮길 때 이전 메뉴가 채 안 닫히고 새 메뉴랑 같이 떠 있는 경우가 있어서,
+    // 새 메뉴에 들어가는 순간 다른 메뉴는 확실히 다 닫아줌
+    document.querySelectorAll('.nav-item.hover-open, .nav-item.open').forEach(i => {
+      if (i !== item) { i.classList.remove('hover-open'); i.classList.remove('open'); }
+    });
     positionDropdown(item);
     item.classList.add('hover-open');
   });
@@ -956,6 +990,34 @@ async function loadSchedules() {
     scheduleList = [];
   }
   renderCalendar();
+  renderHomeSchedule();
+}
+
+// 홈 화면 "업무일정" 미리보기 카드: 오늘부터 앞으로 있는 일정을 가까운 순서로 몇 개만 보여줌
+function renderHomeSchedule() {
+  const listEl = document.getElementById('home-sched-list');
+  const emptyEl = document.getElementById('home-sched-empty');
+  if (!listEl) return;
+  const today = new Date();
+  const todayStr = toDateStr(today.getFullYear(), today.getMonth(), today.getDate());
+  const upcoming = scheduleList
+    .filter(ev => (ev.endDate || ev.startDate) >= todayStr)
+    .sort((a, b) => (a.startDate < b.startDate ? -1 : a.startDate > b.startDate ? 1 : 0))
+    .slice(0, 4);
+  if (upcoming.length === 0) {
+    listEl.innerHTML = '';
+    if (emptyEl) emptyEl.style.display = 'block';
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+  listEl.innerHTML = upcoming.map(ev => {
+    const isToday = ev.startDate === todayStr;
+    const label = isToday ? '오늘' : shortDate(ev.startDate).slice(5).replace('-', '.');
+    return `<div class="home-sched-row" onclick="switchTab('calendar')">
+      <div class="hs-date${isToday ? ' today' : ''}">${escapeHtml(label)}</div>
+      <div class="hs-title">${escapeHtml(ev.title)}</div>
+    </div>`;
+  }).join('');
 }
 
 function renderCalendar() {
@@ -1176,12 +1238,55 @@ function fillShipDatalists() {
   const methodList = document.getElementById('ship-method-list');
   if (methodList) methodList.innerHTML = methods.map(m => `<option value="${escapeHtml(m)}"></option>`).join('');
 }
-function onShipProductNameChange() {
-  const lotInput = document.getElementById('sf-lotNo');
+function onShipProductNameChange(nameInput) {
+  const row = nameInput.closest('.ship-product-row');
+  const lotInput = row ? row.querySelector('.sf-lotNo') : null;
   if (lotInput && !lotInput.value) {
-    const prefix = getLotPrefixForProduct(document.getElementById('sf-productName').value.trim());
+    const prefix = getLotPrefixForProduct(nameInput.value.trim());
     if (prefix) lotInput.value = prefix + '-';
   }
+}
+
+// 제품 입력 줄 하나를 추가함 (등록할 때 여러 제품을 한 화면에서 쓸 수 있게)
+function addShipProductRow(prefill) {
+  const wrap = document.getElementById('ship-product-rows');
+  if (!wrap) return;
+  const div = document.createElement('div');
+  div.className = 'ship-product-row';
+  div.innerHTML = `
+    <button type="button" class="spr-remove" onclick="removeShipProductRow(this)" title="이 제품 삭제">×</button>
+    <div class="spr-label"></div>
+    <div class="ot-form">
+      <div class="full"><label>제품명</label><input class="sf-productName" type="text" list="ship-product-list" placeholder="제품명을 입력하면 후보가 아래에 떠요" autocomplete="off" onchange="onShipProductNameChange(this)"></div>
+      <div><label>Lot No.</label><input class="sf-lotNo" type="text" list="ship-lot-list" placeholder="예: 2PSFHP1-003" autocomplete="off"></div>
+      <div><label>용기(g)</label><input class="sf-container" type="text" placeholder="예: 100 또는 5kg"></div>
+      <div><label>수량</label><input class="sf-qty" type="number" placeholder="예: 2"></div>
+    </div>`;
+  wrap.appendChild(div);
+  if (prefill) {
+    div.querySelector('.sf-productName').value = prefill.productName || '';
+    div.querySelector('.sf-lotNo').value = prefill.lotNo || '';
+    div.querySelector('.sf-container').value = prefill.container ?? '';
+    div.querySelector('.sf-qty').value = prefill.qty ?? '';
+  }
+  renumberShipProductRows();
+}
+// 제품 줄 삭제 (최소 1개는 항상 남겨둠)
+function removeShipProductRow(btn) {
+  const rows = document.querySelectorAll('#ship-product-rows .ship-product-row');
+  if (rows.length <= 1) return;
+  btn.closest('.ship-product-row').remove();
+  renumberShipProductRows();
+}
+// 줄이 추가/삭제될 때마다 "제품 1", "제품 2"... 번호와 삭제버튼 표시를 다시 매김
+function renumberShipProductRows() {
+  const rows = document.querySelectorAll('#ship-product-rows .ship-product-row');
+  rows.forEach((row, i) => {
+    const label = row.querySelector('.spr-label');
+    if (label) label.textContent = '제품 ' + (i + 1);
+    const removeBtn = row.querySelector('.spr-remove');
+    if (removeBtn) removeBtn.style.display = rows.length > 1 ? 'flex' : 'none';
+  });
 }
 
 // 서버가 혹시 날짜를 "2026-08-25T15:00:00.000Z" 같은 형태로 잘못 보내줘도
@@ -1246,6 +1351,9 @@ function openShipForm(id) {
   editingShipmentId = id || null;
   fillShipDatalists();
   const label = document.getElementById('ship-form-title-label');
+  const rowsWrap = document.getElementById('ship-product-rows');
+  const addBtn = document.getElementById('ship-add-product-btn');
+  rowsWrap.innerHTML = '';
   if (editingShipmentId) {
     const s = shipmentList.find(x => String(x.id) === String(editingShipmentId));
     if (!s) return;
@@ -1254,18 +1362,19 @@ function openShipForm(id) {
     document.getElementById('sf-requester').value = s.requester || '';
     document.getElementById('sf-recipient').value = s.recipient || '';
     document.getElementById('sf-shipDate').value = s.shipDate || '';
-    document.getElementById('sf-productName').value = s.productName || '';
-    document.getElementById('sf-lotNo').value = s.lotNo || '';
-    document.getElementById('sf-container').value = s.container ?? '';
-    document.getElementById('sf-qty').value = s.qty ?? '';
     document.getElementById('sf-method').value = s.method || '';
     document.getElementById('sf-manager').value = s.manager || '';
+    addShipProductRow({ productName: s.productName, lotNo: s.lotNo, container: s.container, qty: s.qty });
+    // 수정할 때는 한 건만 고치는 거라서 "제품 추가" 버튼은 숨김 (여러 제품 추가는 새로 등록할 때만)
+    addBtn.style.display = 'none';
   } else {
     label.textContent = '발송 등록';
-    ['sf-requestDate','sf-requester','sf-recipient','sf-shipDate','sf-productName','sf-lotNo','sf-container','sf-qty','sf-method'].forEach(id => document.getElementById(id).value = '');
+    ['sf-requestDate','sf-requester','sf-recipient','sf-shipDate','sf-method'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('sf-manager').value = '방은희';
     const today = new Date();
     document.getElementById('sf-requestDate').value = `${today.getFullYear()}-${pad2(today.getMonth()+1)}-${pad2(today.getDate())}`;
+    addShipProductRow();
+    addBtn.style.display = 'block';
   }
   document.getElementById('ship-modal-backdrop').style.display = 'flex';
 }
@@ -1275,38 +1384,41 @@ function closeShipForm() {
 }
 
 async function saveShipment() {
-  const payload = {
+  const common = {
     requestDate: document.getElementById('sf-requestDate').value,
     requester: document.getElementById('sf-requester').value.trim(),
     recipient: document.getElementById('sf-recipient').value.trim(),
     shipDate: document.getElementById('sf-shipDate').value,
-    productName: document.getElementById('sf-productName').value.trim(),
-    lotNo: document.getElementById('sf-lotNo').value.trim(),
-    container: document.getElementById('sf-container').value.trim(),
-    qty: document.getElementById('sf-qty').value,
     method: document.getElementById('sf-method').value.trim(),
     manager: document.getElementById('sf-manager').value.trim(),
   };
-  if (!payload.requestDate || !payload.productName) { alert('신청일과 제품명은 꼭 입력해주세요.'); return; }
+  // 제품명을 안 쓴 빈 줄은 무시하고, 제품명이 있는 줄만 저장 대상으로 삼음
+  const productRows = [...document.querySelectorAll('#ship-product-rows .ship-product-row')].map(row => ({
+    productName: row.querySelector('.sf-productName').value.trim(),
+    lotNo: row.querySelector('.sf-lotNo').value.trim(),
+    container: row.querySelector('.sf-container').value.trim(),
+    qty: row.querySelector('.sf-qty').value,
+  })).filter(r => r.productName);
+
+  if (!common.requestDate || productRows.length === 0) { alert('신청일과 제품명은 꼭 입력해주세요.'); return; }
 
   const btn = document.getElementById('ship-form-save-btn');
   btn.disabled = true; btn.textContent = '저장 중...';
   try {
-    const apiPayload = { ...payload };
     if (editingShipmentId) {
-      apiPayload.action = 'updateShipment';
-      apiPayload.id = editingShipmentId;
-    } else {
-      apiPayload.action = 'addShipment';
-    }
-    const res = await apiPost(apiPayload);
-    if (res && res.error) { alert('저장에 실패했어요: ' + res.error); return; }
-
-    if (editingShipmentId) {
+      const payload = { ...common, ...productRows[0], action: 'updateShipment', id: editingShipmentId };
+      const res = await apiPost(payload);
+      if (res && res.error) { alert('저장에 실패했어요: ' + res.error); return; }
       const idx = shipmentList.findIndex(x => String(x.id) === String(editingShipmentId));
-      if (idx !== -1) shipmentList[idx] = { ...shipmentList[idx], ...payload };
+      if (idx !== -1) shipmentList[idx] = { ...shipmentList[idx], ...common, ...productRows[0] };
     } else {
-      shipmentList.unshift({ ...payload, id: res.id });
+      // 제품이 여러 개면, 공통 정보(신청자/수신처 등)는 똑같이 넣고 제품별로 한 건씩 순서대로 저장함
+      for (const r of productRows) {
+        const payload = { ...common, ...r, action: 'addShipment' };
+        const res = await apiPost(payload);
+        if (res && res.error) { alert('저장에 실패했어요: ' + res.error); continue; }
+        shipmentList.unshift({ ...common, ...r, id: res.id });
+      }
     }
     closeShipForm();
     renderShipments();
