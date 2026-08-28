@@ -938,6 +938,8 @@ function renderQR() {
   `}).join('') + `</div>`;
 
   db.equipment.forEach(eq => {
+    // 큐알 찍으면 비밀번호 안 치고 바로 들어가지도록 비밀번호도 같이 담음
+    // (그만큼 큐알 칸이 촘촘해지는데, 라벨을 6.5x3.25cm 큰 사이즈로 인쇄해서 스캔이 잘 되도록 맞춤)
     const url = `${location.origin}${location.pathname}?eq=${eq.id}` + (getSavedPw() ? `&pw=${encodeURIComponent(getSavedPw())}` : '');
     // 화면에는 CSS로 60px로 작게 보이지만, 실제 QR은 240px 고해상도로 만들어서
     // 라벨로 인쇄했을 때도 선명하게 스캔되도록 함
@@ -949,6 +951,64 @@ function renderQR() {
   });
 }
 
+// PNG 사진 파일 안에 "실제 인쇄 크기가 이만큼이다"라는 정보(DPI)를 심어주는 함수.
+// 이 정보를 읽을 수 있는 프로그램(사진뷰어, 인쇄 프로그램)에서 "실제 크기로 인쇄"를 선택하면
+// 화면 크기와 상관없이 우리가 지정한 물리적 크기(cm)로 정확히 인쇄돼요.
+function crc32(bytes) {
+  if (!crc32.table) {
+    const table = [];
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      table[n] = c >>> 0;
+    }
+    crc32.table = table;
+  }
+  let crc = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) crc = crc32.table[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+function setPngPhysicalDpi(dataUrl, dpi) {
+  try {
+    const base64 = dataUrl.split(',')[1];
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+
+    const pixelsPerMeter = Math.round(dpi / 0.0254); // PNG 표준 단위: 1미터당 픽셀 수
+
+    const typeBytes = new Uint8Array([0x70, 0x48, 0x59, 0x73]); // "pHYs"
+    const chunkData = new Uint8Array(9);
+    const dv = new DataView(chunkData.buffer);
+    dv.setUint32(0, pixelsPerMeter, false);
+    dv.setUint32(4, pixelsPerMeter, false);
+    chunkData[8] = 1; // 1 = 미터 단위
+
+    const crcInput = new Uint8Array(typeBytes.length + chunkData.length);
+    crcInput.set(typeBytes, 0);
+    crcInput.set(chunkData, typeBytes.length);
+    const crc = crc32(crcInput);
+
+    const chunk = new Uint8Array(4 + 4 + chunkData.length + 4);
+    new DataView(chunk.buffer).setUint32(0, chunkData.length, false); // length
+    chunk.set(typeBytes, 4);
+    chunk.set(chunkData, 8);
+    new DataView(chunk.buffer).setUint32(8 + chunkData.length, crc, false);
+
+    const insertPos = 8 + 25; // PNG 서명(8) + IHDR 청크(25) 바로 뒤
+    const result = new Uint8Array(bytes.length + chunk.length);
+    result.set(bytes.slice(0, insertPos), 0);
+    result.set(chunk, insertPos);
+    result.set(bytes.slice(insertPos), insertPos + chunk.length);
+
+    let resultBinary = '';
+    for (let i = 0; i < result.length; i++) resultBinary += String.fromCharCode(result[i]);
+    return 'data:image/png;base64,' + btoa(resultBinary);
+  } catch (e) {
+    return dataUrl; // 혹시 실패해도 원본 사진은 그대로 다운로드되게 함
+  }
+}
+
 function downloadLabel(eqId, name) {
   const eq = db.equipment.find(e => e.id === eqId);
   if (!eq) return;
@@ -957,25 +1017,35 @@ function downloadLabel(eqId, name) {
     const qrCanvas = document.querySelector(`#qr-${eqId} canvas`);
     if (!qrCanvas) return;
 
-    const SCALE = 3; // 인쇄해도 흐릿하지 않도록 3배 해상도로 저장 (너무 배율을 올리면 이미지 자체가 커져서 3배로 유지, 대신 아래 흐림 방지 설정으로 선명하게 함)
-    const W = 260, H = 90;
+    // 실제 인쇄했을 때 가로 5cm x 세로 2.5cm로 나오도록, 도안(260x130 가상 단위)을
+    // 인쇄용 해상도(300dpi)에 맞는 실제 픽셀 크기로 환산해서 그림
+    const DESIGN_W = 260, DESIGN_H = 130;
+    const TARGET_W_CM = 6.5, TARGET_H_CM = 3.25; // 큰 사이즈로 확정 (비밀번호 포함 큐알도 여유있게 스캔되는 크기)
+    const DPI = 300;
+    const pxPerCm = DPI / 2.54;
+    const PRINT_W = Math.round(TARGET_W_CM * pxPerCm);
+    const PRINT_H = Math.round(TARGET_H_CM * pxPerCm);
+    const scale = PRINT_W / DESIGN_W;
+
     const canvas = document.createElement('canvas');
-    canvas.width = W * SCALE; canvas.height = H * SCALE;
+    canvas.width = PRINT_W; canvas.height = PRINT_H;
     const ctx = canvas.getContext('2d');
-    ctx.scale(SCALE, SCALE);
+    ctx.scale(scale, scale);
     // 브라우저가 QR 이미지를 축소해서 그릴 때 자동으로 흐릿하게(부드럽게) 처리하는 기능을 꺼서
     // 칸(모듈) 경계가 뭉개지지 않고 선명하게 나오도록 함
     ctx.imageSmoothingEnabled = false;
+
+    const W = DESIGN_W, H = DESIGN_H;
 
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
 
     // 파란 헤더
     ctx.fillStyle = '#2a5298';
-    ctx.fillRect(0, 0, W, 18);
+    ctx.fillRect(0, 0, W, 24);
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 12px Arial';
-    ctx.fillText('OHYOUNG', 8, 13);
+    ctx.font = 'bold 14px Arial';
+    ctx.fillText('OHYOUNG', 8, 17);
 
     // 테두리
     ctx.strokeStyle = '#2a5298';
@@ -983,22 +1053,32 @@ function downloadLabel(eqId, name) {
     ctx.strokeRect(0.75, 0.75, W - 1.5, H - 1.5);
 
     // QR
-    const qrSize = 62;
-    const qrX = 5, qrY = 22;
+    const qrSize = 88;
+    const qrX = 6, qrY = 30;
     ctx.fillStyle = '#fafafa';
-    ctx.fillRect(qrX, qrY, qrSize + 4, H - qrY - 4);
+    ctx.fillRect(qrX, qrY, qrSize + 4, H - qrY - 6);
     ctx.drawImage(qrCanvas, qrX + 2, qrY + 2, qrSize, qrSize);
 
     // 구분선
     ctx.strokeStyle = '#eeeeee';
     ctx.lineWidth = 0.5;
     ctx.beginPath();
-    ctx.moveTo(qrX + qrSize + 6, 22);
-    ctx.lineTo(qrX + qrSize + 6, H - 4);
+    ctx.moveTo(qrX + qrSize + 8, 30);
+    ctx.lineTo(qrX + qrSize + 8, H - 6);
     ctx.stroke();
 
-    // 정보
-    const infoX = qrX + qrSize + 10;
+    // 정보 (글자 폭을 실제로 재서 배치하기 때문에, 항목 이름 글자 수가 달라져도 겹치지 않음)
+    function fitText(text, maxWidth) {
+      if (ctx.measureText(text).width <= maxWidth) return text;
+      const ellipsis = '...';
+      let lo = 0, hi = text.length;
+      while (lo < hi) {
+        const mid = Math.ceil((lo + hi) / 2);
+        if (ctx.measureText(text.slice(0, mid) + ellipsis).width <= maxWidth) lo = mid; else hi = mid - 1;
+      }
+      return text.slice(0, lo) + ellipsis;
+    }
+    const infoX = qrX + qrSize + 12;
     const displayName = eq.model ? `${eq.name} (${eq.model})` : eq.name;
     const rows = [
       ['자산명', displayName],
@@ -1008,23 +1088,32 @@ function downloadLabel(eqId, name) {
     ];
 
     rows.forEach(([label, value], i) => {
-      const rowY = 28 + i * 15;
+      const rowY = 42 + i * 22;
       if (i % 2 === 1) {
         ctx.fillStyle = '#f7f9fc';
-        ctx.fillRect(infoX - 2, rowY - 11, W - infoX - 3, 14);
+        ctx.fillRect(infoX - 2, rowY - 15, W - infoX - 3, 20);
       }
       ctx.fillStyle = '#999999';
-      ctx.font = '9px Arial';
+      ctx.font = '10px Arial';
       ctx.fillText(label, infoX, rowY);
+      const valueX = infoX + ctx.measureText(label).width + 8;
+      const maxValueWidth = W - valueX - 5;
+      // 글자가 칸을 넘치면 "..."으로 자르지 않고, 다 보일 때까지 글씨 크기를 조금씩 줄임
+      // (그래도 안 들어갈 만큼 아주 길 때만 최소 크기에서 "..."으로 줄임)
       ctx.fillStyle = '#1a1a1a';
-      ctx.font = 'bold 11px Arial';
-      const truncated = value.length > 18 ? value.slice(0, 18) + '...' : value;
-      ctx.fillText(truncated, infoX + 38, rowY);
+      let fontSize = 12;
+      ctx.font = `bold ${fontSize}px Arial`;
+      while (ctx.measureText(value).width > maxValueWidth && fontSize > 8) {
+        fontSize -= 0.5;
+        ctx.font = `bold ${fontSize}px Arial`;
+      }
+      const finalValue = ctx.measureText(value).width > maxValueWidth ? fitText(value, maxValueWidth) : value;
+      ctx.fillText(finalValue, valueX, rowY);
     });
 
     const a = document.createElement('a');
     a.download = `라벨_${name}.png`;
-    a.href = canvas.toDataURL('image/png');
+    a.href = setPngPhysicalDpi(canvas.toDataURL('image/png'), DPI);
     a.click();
   }, 500);
 }
