@@ -569,6 +569,9 @@ async function tryLogin() {
 }
 
 async function startApp() {
+  // 설비 큐알을 찍고 들어온 경우, 주소에 비밀번호가 같이 담겨있으면 자동으로 저장함
+  const urlPw = new URLSearchParams(location.search).get('pw');
+  if (urlPw) savePw(urlPw);
   const saved = getSavedPw();
   if (!saved) { document.getElementById('login-pw-input')?.focus(); return; }
   // 저장된 비번이 있으면 화면 깜빡임 없이 바로 들어가고, 서버 확인은 뒤에서 조용히 진행
@@ -576,9 +579,13 @@ async function startApp() {
   try {
     const res = await apiGet({ action: 'ping' });
     if (res && res.error === 'unauthorized') {
-      // 비번이 실제로 틀렸을 때만 로그인 화면으로 되돌림 (팀 비번이 바뀐 경우 등)
+      // 비번이 실제로 틀렸을 때만 로그인 화면으로 되돌림 (팀 비번이 바뀐 경우 등).
+      // 주소에 비밀번호가 담겨 들어온 경우, 그 틀린 비밀번호를 주소에서 지우고 새로고침해야
+      // 새로고침할 때마다 같은 틀린 비밀번호가 반복 저장되는 걸 막을 수 있음
       clearPw();
-      location.reload();
+      const url = new URL(location.href);
+      url.searchParams.delete('pw');
+      location.href = url.toString();
     }
   } catch (e) {
     // 네트워크 오류(일시적 통신 지연 등)는 무시하고 저장된 로그인 상태를 유지
@@ -589,9 +596,12 @@ function enterPortal() {
   document.getElementById('login-gate').style.display = 'none';
   const pw = getSavedPw();
   const v = Date.now(); // 캐시 방지: 매번 새 파일을 받아오도록 함 (파일을 새로 업데이트해도 옛날 화면이 계속 보이는 문제 방지)
-  document.getElementById('frame-equipment').src = 'equipment.html?pw=' + encodeURIComponent(pw) + '&v=' + v;
+  // 설비 큐알(?eq=설비아이디)을 찍고 들어온 경우, 그 아이디를 설비관리 화면에도 그대로 전달해서
+  // 포털이 열리자마자 바로 그 설비의 상세정보가 보이도록 함
+  const eqId = new URLSearchParams(location.search).get('eq');
+  document.getElementById('frame-equipment').src = 'equipment.html?pw=' + encodeURIComponent(pw) + '&v=' + v + (eqId ? '&eq=' + encodeURIComponent(eqId) : '');
   document.getElementById('frame-products').src = 'products.html?v=' + v;
-  switchTab('home');
+  switchTab(eqId ? 'equipment' : 'home');
   renderHomeDate();
   loadNotices();
   loadSchedules();

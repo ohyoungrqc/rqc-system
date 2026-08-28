@@ -222,6 +222,7 @@
     border: 1px solid var(--border); background: white; color: var(--blue-accent);
     border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
     transition: background .12s, transform .1s, border-color .12s;
+    white-space: nowrap;
   }
   .icon-btn:hover { background: var(--blue-light); border-color: var(--blue-accent); transform: translateY(-1px); }
   .back-btn {
@@ -287,6 +288,73 @@
     .qc-table-wrap { padding: 4px 16px 14px; }
     .filler-chip, .status-pill, .suggest-badge, .competitor-tag, .rename-banner { border: 1px solid rgba(0,0,0,0.06); }
     .rename-link { text-decoration: none; color: inherit; }
+  }
+
+  /* ---- 핸드폰 화면(가로 640px 이하)에서는 표를 옆으로 스크롤하지 않고,
+     한 줄(행)씩 카드처럼 세로로 쌓아서 보여준다. 각 칸 앞에 어떤 값인지
+     이름표(data-label)를 붙여서 표 머리글 없이도 무슨 값인지 알 수 있게 한다. ---- */
+  @media (max-width: 640px) {
+    .table-card { overflow-x: visible; }
+    table.results-table { min-width: 0; width: 100%; }
+    .qc-table-wrap { overflow-x: visible; padding: 4px 14px 14px; }
+
+    table.results-table thead, table.lots thead, table.qc-table thead { display: none; }
+
+    table.results-table tbody tr, table.lots tbody tr, table.qc-table tbody tr {
+      display: block;
+      padding: 12px 14px;
+      border-bottom: 1px solid #f0f2f5;
+    }
+    table.results-table tbody tr:last-child, table.lots tbody tr:last-child, table.qc-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    table.results-table td, table.lots td, table.qc-table td {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 5px 0;
+      border-bottom: none !important;
+      text-align: right;
+      white-space: normal;
+      max-width: none;
+    }
+    table.results-table td[data-label]::before,
+    table.lots td[data-label]::before,
+    table.qc-table td[data-label]::before {
+      content: attr(data-label);
+      flex-shrink: 0;
+      margin-right: 10px;
+      color: var(--gray);
+      font-size: 11.5px;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    /* 품명(제품 이름)은 이 카드의 제목 역할이니, 값:이름표를 나란히 두지 않고
+       이름표는 작게 위에, 실제 이름은 크게 아래에 오도록 세로로 쌓는다 */
+    table.results-table td.rt-name {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3px;
+    }
+    table.results-table td.rt-name::before { margin-right: 0; }
+    table.results-table td.rt-name b { font-size: 15.5px; }
+
+    /* 번호(#)는 검색 순서대로 나오니 카드형에서는 굳이 안 보여줘도 됨 */
+    table.results-table td.rt-idx { display: none; }
+
+    .rt-remark, table.qc-table td.qc-remark-cell {
+      max-width: none; white-space: normal; text-overflow: clip;
+    }
+
+    /* 맨 아래 "상세보기" 버튼은 이름표 없이 카드 너비만큼 꽉 채워서 누르기 쉽게 */
+    table.results-table td.rt-action {
+      justify-content: center;
+      padding-top: 10px;
+    }
+    table.results-table td.rt-action .icon-btn { width: 100%; text-align: center; }
   }
 </style>
 </head>
@@ -536,11 +604,11 @@ function renderProductCard(p) {
       }
       const statusClass = row.status === "생산" ? "badge-생산" : (row.status === "단종" ? "badge-단종" : "");
       return `<tr>
-        <td>${row.conc ? (typeof row.conc === "number" ? (row.conc*100).toFixed(1)+"%" : row.conc) : ""}</td>
-        <td class="lot-mono">${row.lot || ""}</td>
-        <td>${row.status ? `<span class="suggest-badge ${statusClass}">${row.status}</span>` : ""}</td>
-        <td>${row.remark || ""}</td>
-        <td>${chips.join("") || "-"}</td>
+        <td data-label="농도">${row.conc ? (typeof row.conc === "number" ? (row.conc*100).toFixed(1)+"%" : row.conc) : ""}</td>
+        <td class="lot-mono" data-label="Lot No">${row.lot || ""}</td>
+        <td data-label="상태">${row.status ? `<span class="suggest-badge ${statusClass}">${row.status}</span>` : ""}</td>
+        <td data-label="비고">${row.remark || ""}</td>
+        <td data-label="Filler 구성">${chips.join("") || "-"}</td>
       </tr>`;
     }).join("");
     lotsHtml += "</tbody></table>";
@@ -561,14 +629,14 @@ function renderProductCard(p) {
           ? (typeof a.owf === "number" ? a.owf + "%" : a.owf) : "-";
         const absorbance = (a.absorbance !== null && a.absorbance !== "" && a.absorbance !== undefined) ? a.absorbance : "-";
         return `<tr>
-          <td class="lot-mono">${a.lot || "-"}</td>
-          <td>${a.method || "-"}</td>
-          <td>${a.dilution || "-"}</td>
-          <td>${wavelength}</td>
-          <td>${absorbance}</td>
-          <td>${owf}</td>
-          <td>${a.blend || "-"}</td>
-          <td class="qc-remark-cell">${a.remark || "-"}</td>
+          <td class="lot-mono" data-label="Lot No">${a.lot || "-"}</td>
+          <td data-label="염법">${a.method || "-"}</td>
+          <td data-label="희석배율">${a.dilution || "-"}</td>
+          <td data-label="파장">${wavelength}</td>
+          <td data-label="흡광도평균">${absorbance}</td>
+          <td data-label="OWF(%)">${owf}</td>
+          <td data-label="배합">${a.blend || "-"}</td>
+          <td class="qc-remark-cell" data-label="비고">${a.remark || "-"}</td>
         </tr>`;
       }).join("") + "</tbody></table></div>";
   }
@@ -604,11 +672,11 @@ function buildResultsTable(products, query) {
     const withRemark = p.allLots.find(l => l.remark);
     const remark = withRemark ? withRemark.remark : "-";
     return `<tr data-drill="${escAttr(p.name)}">
-      <td class="rt-idx">${i + 1}</td>
-      <td class="rt-name">${p.groups.map(g => `<span class="group-tag">${g}</span>`).join("")}<b>${p.name}</b></td>
-      <td>${p.allLots.length}건</td>
-      <td>${p.headStatus ? `<span class="suggest-badge ${statusClass}">${p.headStatus}</span>` : "-"}</td>
-      <td class="rt-remark" title="${escAttr(remark)}">${remark}</td>
+      <td class="rt-idx" data-label="#">${i + 1}</td>
+      <td class="rt-name" data-label="품명">${p.groups.map(g => `<span class="group-tag">${g}</span>`).join("")}<b>${p.name}</b></td>
+      <td data-label="Lot 이력">${p.allLots.length}건</td>
+      <td data-label="상태">${p.headStatus ? `<span class="suggest-badge ${statusClass}">${p.headStatus}</span>` : "-"}</td>
+      <td class="rt-remark" data-label="비고" title="${escAttr(remark)}">${remark}</td>
       <td class="rt-action"><button class="icon-btn" data-drill="${escAttr(p.name)}">상세보기 &rsaquo;</button></td>
     </tr>`;
   }).join("");

@@ -958,9 +958,12 @@ function renderQR() {
   `}).join('') + `</div>`;
 
   db.equipment.forEach(eq => {
-    // 큐알 찍으면 비밀번호 안 치고 바로 들어가지도록 비밀번호도 같이 담음
-    // (그만큼 큐알 칸이 촘촘해지는데, 라벨을 6.5x3.25cm 큰 사이즈로 인쇄해서 스캔이 잘 되도록 맞춤)
-    const url = `${location.origin}${location.pathname}?eq=${eq.id}` + (getSavedPw() ? `&pw=${encodeURIComponent(getSavedPw())}` : '');
+    // 큐알 찍으면 설비관리 화면만 뜨는 게 아니라, 메뉴/네비게이션이 다 보이는 전체 통합시스템(index.html)
+    // 홈페이지가 뜨면서 그 안에서 바로 이 설비의 상세정보가 보이도록 함
+    // (비밀번호도 같이 담아서 비밀번호 안 치고 바로 들어가지게 함 — 그만큼 큐알 칸이 촘촘해지는데,
+    //  라벨을 6.5x3.25cm 큰 사이즈로 인쇄해서 스캔이 잘 되도록 맞춤)
+    const indexPath = location.pathname.replace(/[^/]*$/, 'index.html');
+    const url = `${location.origin}${indexPath}?eq=${eq.id}` + (getSavedPw() ? `&pw=${encodeURIComponent(getSavedPw())}` : '');
     // 화면에는 CSS로 60px로 작게 보이지만, 실제 QR은 240px 고해상도로 만들어서
     // 라벨로 인쇄했을 때도 선명하게 스캔되도록 함
     new QRCode(document.getElementById('qr-'+eq.id), {
@@ -1190,7 +1193,7 @@ function openDetail(id) {
     const el = document.getElementById('detail-qr-'+id);
     if (el && el.children.length === 0) {
       new QRCode(el, {
-        text: `${location.origin}${location.pathname}?eq=${id}` + (getSavedPw() ? `&pw=${encodeURIComponent(getSavedPw())}` : ''),
+        text: `${location.origin}${location.pathname.replace(/[^/]*$/, 'index.html')}?eq=${id}` + (getSavedPw() ? `&pw=${encodeURIComponent(getSavedPw())}` : ''),
         width: 260, height: 260,
         colorDark: '#1a1714', colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.Q
