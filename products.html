@@ -298,6 +298,12 @@
     table.results-table { min-width: 0; width: 100%; }
     .qc-table-wrap { overflow-x: visible; padding: 4px 14px 14px; }
 
+    /* <table>은 원래 display:table인데, 그 안의 tr/td만 block/flex로 바꾸면
+       브라우저가 표의 전체 너비 계산을 이상하게 해서(화면보다 넓게 잡음),
+       값이 화면 오른쪽 밖으로 밀려나가 안 보이는 문제가 생긴다.
+       그래서 표 전체를 block으로 바꿔서 폭 계산이 화면에 맞게 되도록 한다. */
+    table.results-table, table.lots, table.qc-table { display: block; }
+    table.results-table tbody, table.lots tbody, table.qc-table tbody { display: block; }
     table.results-table thead, table.lots thead, table.qc-table thead { display: none; }
 
     table.results-table tbody tr, table.lots tbody tr, table.qc-table tbody tr {

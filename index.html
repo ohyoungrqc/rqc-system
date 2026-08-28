@@ -79,12 +79,12 @@
   .cal-head button { background:#f7f9fc; border:1px solid #e2e8f0; border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:14px; color:#2a5298; }
   .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
   .cal-dow { text-align:center; font-size:11px; font-weight:700; color:#94a3b8; padding-bottom:6px; }
-  .cal-day { min-height:78px; border-radius:8px; padding:6px 5px; background:#f7f9fc; color:#1e293b; display:flex; flex-direction:column; align-items:flex-start; gap:3px; cursor:pointer; transition:background .12s; }
+  .cal-day { min-height:118px; border-radius:8px; padding:7px 6px; background:#f7f9fc; color:#1e293b; display:flex; flex-direction:column; align-items:flex-start; gap:4px; cursor:pointer; transition:background .12s; }
   .cal-day:hover { background:#eef2f7; }
   .cal-day.empty { background:none; cursor:default; }
   .cal-day-num { font-size:12px; font-weight:700; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
   .cal-day.today .cal-day-num { background:#2a5298; color:#fff; }
-  .cal-evt-chip { width:100%; box-sizing:border-box; font-size:10px; font-weight:600; padding:2px 5px; border-radius:5px; background:#dbe6f5; color:#1e4884; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cal-evt-chip { width:100%; box-sizing:border-box; font-size:10.5px; font-weight:600; padding:3px 6px; border-radius:5px; background:#dbe6f5; color:#1e4884; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.4; }
   .cal-evt-more { font-size:10px; color:#94a3b8; padding-left:4px; }
 
   /* ===== 업무일정 등록/수정 모달 ===== */
@@ -123,6 +123,25 @@
   .method-pill { display:inline-block; padding:3px 10px; border-radius:20px; font-weight:700; font-size:10.5px; white-space:nowrap; }
   #ship-list-empty { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
 
+  .print-header { display:none; align-items:center; gap:10px; padding:0 0 12px; margin-bottom:14px; border-bottom:2px solid #2a5298; }
+  .print-header .print-badge { width:30px; height:30px; flex-shrink:0; display:block; object-fit:contain; }
+  .print-header .print-brand { font-size:14px; font-weight:700; letter-spacing:0.5px; color:#2a5298; line-height:1.25; }
+  .print-header .print-dept { font-size:10.5px; color:#94a3b8; font-weight:600; line-height:1.25; }
+  .print-header .print-date { margin-left:auto; font-size:10.5px; color:#64748b; }
+
+  @media print {
+    body { background:#fff; }
+    .portal-header, .page-sub, .ship-toolbar, .sp-actions, #ship-loading, .badge-soon { display:none !important; }
+    #section-shipping .page-title { display:none; }
+    #section-shipping .page-wrap { max-width:100%; padding:0; }
+    .print-header { display:flex !important; }
+    .ship-table-wrap { overflow:visible; max-height:none; }
+    table.ship-table { min-width:0; font-size:10px; }
+    table.ship-table th { position:static; }
+    table.ship-table th:last-child { display:none !important; }
+    .card { box-shadow:none; border:1px solid #d7dce2; }
+  }
+
   /* ===== 잔업관리 ===== */
   .ot-form { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
   .ot-form .full { grid-column:1 / -1; }
@@ -130,6 +149,64 @@
   .ot-form input, .ot-form textarea { width:100%; box-sizing:border-box; padding:9px 11px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; font-family:inherit; }
   .btn-primary { background:#2a5298; color:#fff; border:none; border-radius:8px; padding:10px 18px; font-size:13px; font-weight:700; cursor:pointer; }
   #ot-list-empty { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
+
+  .ot-tabs { display:flex; gap:12px; margin-bottom:20px; }
+  .ot-tab-btn { flex:1; background:#fff; border:1.5px solid #e2e8f0; border-radius:12px; padding:18px; cursor:pointer; text-align:center; font-family:inherit; transition:border-color .12s, box-shadow .12s; }
+  .ot-tab-btn:hover { border-color:#2a5298; box-shadow:0 4px 14px rgba(42,82,152,0.10); }
+  .ot-tab-btn.active { border-color:#2a5298; background:#eaf1f8; }
+  .ot-tab-btn .icon { font-size:24px; margin-bottom:6px; }
+  .ot-tab-btn .label { font-size:14.5px; font-weight:800; color:#1e293b; }
+  .ot-tab-btn .sub { font-size:11.5px; color:#94a3b8; margin-top:2px; }
+
+  .ot-row { display:flex; align-items:center; gap:12px; padding:13px 4px; border-bottom:1px solid #eef2f7; }
+  .ot-row:last-child { border-bottom:none; }
+  .ot-row .ot-check { flex-shrink:0; width:19px; height:19px; cursor:pointer; accent-color:#2a5298; }
+  .ot-row .ot-info { flex:1; min-width:0; }
+  .ot-row .ot-name { font-size:13.5px; font-weight:700; color:#1e293b; }
+  .ot-row .ot-meta { font-size:11.5px; color:#94a3b8; margin-top:2px; }
+  .ot-row .ot-confirmed-tag { font-size:10.5px; font-weight:700; color:#15803d; background:#dcfce7; padding:3px 9px; border-radius:20px; flex-shrink:0; white-space:nowrap; }
+  .ot-row .ot-unconfirmed-tag { font-size:10.5px; font-weight:700; color:#b45309; background:#fff3d6; padding:3px 9px; border-radius:20px; flex-shrink:0; white-space:nowrap; }
+  .ot-row .et-actions { flex-shrink:0; display:flex; gap:6px; }
+
+  .ot-stat-controls { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  table.ot-stat-table { width:100%; border-collapse:collapse; font-size:13px; }
+  table.ot-stat-table th { text-align:left; padding:10px 12px; background:#f7f9fc; color:#64748b; font-weight:600; border-bottom:1px solid #e2e8f0; }
+  table.ot-stat-table td { padding:10px 12px; border-bottom:1px solid #eef2f7; }
+  table.ot-stat-table td.ot-hours { font-weight:700; color:#2a5298; text-align:right; }
+  .ot-stat-section-title { font-size:13px; font-weight:800; color:#1e293b; margin:22px 0 10px; }
+
+  /* ===== 온습도관리 ===== */
+  .hum-chart-wrap { padding:16px 6px 6px; overflow-x:auto; }
+  .hum-legend { display:flex; gap:16px; font-size:11.5px; color:#64748b; margin-bottom:10px; padding:0 6px; flex-wrap:wrap; }
+  .hum-legend span { display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+  .hum-legend i { width:14px; height:3px; border-radius:2px; display:inline-block; }
+  .hum-input-row { display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; margin-bottom:16px; }
+  .hum-input-row div { display:flex; flex-direction:column; gap:5px; }
+  .hum-input-row label { font-size:12px; font-weight:600; color:#64748b; }
+  .hum-input-row input { padding:9px 11px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; font-family:inherit; width:130px; }
+  .hum-table-toggle { font-size:12px; color:#2a5298; font-weight:600; cursor:pointer; background:none; border:none; padding:0; font-family:inherit; margin-top:14px; }
+
+  /* ===== 홈: 온습도 미리보기 ===== */
+  .home-hum-card { margin-bottom:26px; padding:16px 18px; }
+  .home-hum-card .card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .home-hum-card .card-head .title { font-size:14px; font-weight:800; }
+  .home-hum-card .card-head a { font-size:12px; color:#2a5298; font-weight:600; text-decoration:none; cursor:pointer; }
+  .home-hum-today { display:flex; gap:18px; margin-top:10px; }
+  .home-hum-today .tile { flex:1; background:#f7f9fc; border-radius:10px; padding:10px 14px; }
+  .home-hum-today .tile .label { font-size:11px; color:#94a3b8; }
+  .home-hum-today .tile .value { font-size:18px; font-weight:800; color:#1e293b; margin-top:2px; }
+  .home-hum-today .tile .value.over { color:#dc2626; }
+
+  /* ===== 업무일정: 야간조 표시 ===== */
+  .cal-day.night-week { background:#fff3d6; }
+  .cal-day.night-week:hover { background:#ffe9b8; }
+  .cal-day.night-week.today .cal-day-num { background:#b45309; }
+  .cal-night-tag { font-size:9px; font-weight:700; color:#8a5a00; width:100%; box-sizing:border-box; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cal-nightshift-btn { background:#f7f9fc; border:1px solid #e2e8f0; border-radius:8px; padding:0 12px; height:32px; font-size:12px; color:#2a5298; cursor:pointer; font-family:inherit; white-space:nowrap; flex-shrink:0; }
+  .ns-week-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid #eef2f7; }
+  .ns-week-row:last-child { border-bottom:none; }
+  .ns-week-row .ns-label { font-size:12px; color:#64748b; width:130px; flex-shrink:0; }
+  .ns-week-row input { flex:1; padding:8px 10px; border:1.5px solid #e2e8f0; border-radius:7px; font-size:13px; font-family:inherit; }
 
   /* ===== 홈 ===== */
   .home-hero { padding:4px 0 22px; }
@@ -199,7 +276,7 @@
     .notice-list-head, .notice-row-item { padding-left:14px; padding-right:14px; gap:6px; }
     .notice-list-head .nt-writer, .notice-row-item .nt-writer,
     .notice-list-head .nt-date, .notice-row-item .nt-date { font-size:10.5px; }
-    .cal-day { min-height:56px; padding:4px 3px; }
+    .cal-day { min-height:90px; padding:5px 4px; }
     .cal-evt-chip, .cal-evt-more { font-size:9px; }
   }
 </style>
@@ -256,6 +333,7 @@
       <div class="dropdown">
         <button class="active" data-tab="shipping" onclick="switchTab('shipping')">발송현황</button>
         <button data-tab="labels" onclick="switchTab('labels')">라벨인쇄</button>
+        <button data-tab="humidity" onclick="switchTab('humidity')">온습도관리</button>
       </div>
     </div>
   </nav>
@@ -276,6 +354,19 @@
       </div>
       <div id="notice-home-list"></div>
       <div id="notice-home-empty" style="display:none;">등록된 공지사항이 없어요</div>
+    </div>
+
+    <div class="card home-hum-card">
+      <div class="card-head">
+        <div class="title">🌡️ 샘플실 온습도</div>
+        <a onclick="switchTab('humidity')">더보기 →</a>
+      </div>
+      <div id="home-hum-today" class="home-hum-today" style="display:none;">
+        <div class="tile"><div class="label">오늘 온도 (기준 20℃ 이하)</div><div class="value" id="home-hum-temp">-</div></div>
+        <div class="tile"><div class="label">오늘 습도 (기준 55% 이하)</div><div class="value" id="home-hum-humid">-</div></div>
+      </div>
+      <div id="home-hum-empty" style="font-size:12.5px;color:#94a3b8;">오늘 입력된 온습도 기록이 없어요</div>
+      <div id="home-hum-chart" style="margin-top:10px;"></div>
     </div>
 
     <div class="quick-grid">
@@ -392,10 +483,19 @@
   <div class="page-wrap">
     <div class="page-title">샘플발송현황</div>
     <div class="page-sub">신청자·수신처·제품명·Lot No. 중 무엇으로 검색해도 찾을 수 있어요.</div>
+    <div class="print-header">
+      <img class="print-badge" src="https://drive.google.com/thumbnail?id=1z6L5wiLkMBe6KH6GBW1UmvgHipi-vWEw&sz=w96" alt="OHYOUNG">
+      <div>
+        <div class="print-brand">OHYOUNG 샘플발송현황</div>
+        <div class="print-dept">품질관리부 · 반응QC</div>
+      </div>
+      <span class="print-date" id="ship-print-date"></span>
+    </div>
     <div class="ship-toolbar">
       <input id="ship-search" type="text" placeholder="신청자·수신처·제품명·Lot No.로 검색" onkeydown="if(event.key==='Enter') renderShipments()">
       <button class="btn-primary" onclick="renderShipments()" style="background:#64748b;">검색</button>
       <button class="btn-primary" onclick="openShipForm()">＋ 등록</button>
+      <button class="btn-primary" onclick="printShipments()" style="background:#fff;color:#2a5298;border:1.5px solid #2a5298;">🖨️ 인쇄</button>
     </div>
     <div id="ship-loading">불러오는 중...</div>
     <div class="card ship-table-wrap" style="padding:0;display:none;" id="ship-list-card">
@@ -453,12 +553,15 @@
 <div class="content-section" id="section-calendar">
   <div class="page-wrap">
     <div class="page-title">업무일정</div>
-    <div class="page-sub">날짜를 클릭하면 그날의 일정을 보거나 새 일정을 등록할 수 있어요.</div>
+    <div class="page-sub">날짜를 클릭하면 그날의 일정을 보거나 새 일정을 등록할 수 있어요. 주황색으로 칠해진 주는 그 주의 야간조가 표시된 거예요.</div>
     <div class="card">
       <div class="cal-head">
-        <button onclick="calShift(-1)">‹</button>
-        <div class="title" id="cal-title"></div>
-        <button onclick="calShift(1)">›</button>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <button onclick="calShift(-1)">‹</button>
+          <div class="title" id="cal-title"></div>
+          <button onclick="calShift(1)">›</button>
+        </div>
+        <button class="cal-nightshift-btn" onclick="openNightShiftModal()">🌙 야간조 설정</button>
       </div>
       <div class="cal-grid" id="cal-grid"></div>
     </div>
@@ -497,25 +600,143 @@
 <div class="content-section" id="section-overtime">
   <div class="page-wrap">
     <div class="page-title">일정관리 · 잔업관리</div>
-    <div class="page-sub">잔업 신청을 올리고 확인하는 화면이에요.</div>
-    <div class="card">
-      <div class="ot-form">
-        <div><label>날짜</label><input id="ot-date" type="date"></div>
-        <div><label>이름</label><input id="ot-name" type="text" placeholder="이름"></div>
-        <div><label>시작 시간</label><input id="ot-start" type="time"></div>
-        <div><label>종료 시간</label><input id="ot-end" type="time"></div>
-        <div class="full"><label>사유</label><textarea id="ot-reason" rows="2" placeholder="잔업 사유"></textarea></div>
+    <div class="page-sub">잔업을 신청하고, 다음날 실제로 했는지 확인하고, 월별로 통계도 볼 수 있어요.</div>
+
+    <div class="ot-tabs">
+      <button class="ot-tab-btn active" id="ot-tab-apply-btn" onclick="showOtView('apply')">
+        <div class="icon">📝</div>
+        <div class="label">잔업신청</div>
+        <div class="sub">신청 · 수정 · 확인체크</div>
+      </button>
+      <button class="ot-tab-btn" id="ot-tab-stats-btn" onclick="showOtView('stats')">
+        <div class="icon">📊</div>
+        <div class="label">잔업통계</div>
+        <div class="sub">월별 누적시간 보기</div>
+      </button>
+    </div>
+
+    <!-- 잔업신청 화면 -->
+    <div id="ot-view-apply">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+        <button class="btn-primary" onclick="openOtForm()">＋ 잔업 신청</button>
       </div>
-      <button class="btn-primary" onclick="addOvertime()">＋ 잔업 신청</button>
+      <div class="card" style="padding:6px 20px;">
+        <div id="ot-list"></div>
+        <div id="ot-list-empty">아직 신청한 잔업이 없어요</div>
+      </div>
     </div>
-    <div class="card" style="margin-top:16px;padding:0;overflow:hidden;">
-      <table class="mock" id="ot-table" style="display:none;">
-        <thead><tr><th>날짜</th><th>이름</th><th>시간</th><th>사유</th></tr></thead>
-        <tbody id="ot-tbody"></tbody>
-      </table>
-      <div id="ot-list-empty">아직 신청한 잔업이 없어요</div>
+
+    <!-- 잔업통계 화면 -->
+    <div id="ot-view-stats" style="display:none;">
+      <div class="card">
+        <div class="ot-stat-controls">
+          <button onclick="otStatShift(-1)">‹</button>
+          <div class="title" id="ot-stat-title" style="font-size:15px;font-weight:800;"></div>
+          <button onclick="otStatShift(1)">›</button>
+        </div>
+        <div class="ot-stat-section-title" style="margin-top:0;">사람별 이번 달 누적 시간</div>
+        <table class="ot-stat-table" id="ot-stat-person-table">
+          <thead><tr><th>이름</th><th style="text-align:right;">누적 시간</th><th style="text-align:right;">신청 건수</th></tr></thead>
+          <tbody id="ot-stat-person-tbody"></tbody>
+        </table>
+        <div id="ot-stat-person-empty" style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0;display:none;">이번 달 잔업 기록이 없어요</div>
+
+        <div class="ot-stat-section-title">날짜별 상세</div>
+        <table class="ot-stat-table" id="ot-stat-date-table">
+          <thead><tr><th>날짜</th><th>이름</th><th>시간</th><th style="text-align:right;">확인여부</th></tr></thead>
+          <tbody id="ot-stat-date-tbody"></tbody>
+        </table>
+      </div>
     </div>
-    <div style="margin-top:10px;font-size:12px;color:#94a3b8;">※ 지금은 화면에서만 확인되는 임시 버전이에요. 새로고침하면 목록이 사라져요 — 실제로 저장되게 하려면 구글시트 연결이 필요해요.</div>
+  </div>
+</div>
+
+<!-- 잔업 신청/수정 모달 -->
+<div id="ot-modal-backdrop" class="app-modal-backdrop" onclick="if(event.target===this) closeOtForm()">
+  <div class="card">
+    <div class="cal-modal-head">
+      <div class="title" id="ot-form-title-label">잔업 신청</div>
+      <button onclick="closeOtForm()">×</button>
+    </div>
+    <div class="ot-form" style="grid-template-columns:1fr 1fr;">
+      <div><label>날짜</label><input id="ot-f-date" type="date"></div>
+      <div><label>신청자</label><input id="ot-f-name" type="text" list="ot-name-list" placeholder="이름을 입력하거나 골라주세요" autocomplete="off"></div>
+      <div><label>시작 시간</label><input id="ot-f-start" type="time"></div>
+      <div><label>종료 시간</label><input id="ot-f-end" type="time"></div>
+    </div>
+    <datalist id="ot-name-list"></datalist>
+    <div class="cal-form-actions">
+      <button class="btn-cancel" onclick="closeOtForm()">취소</button>
+      <button class="btn-primary" id="ot-form-save-btn" onclick="saveOvertime()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 잔업 확인(다음날 체크) 모달: 실제로 다른 시간에 끝났으면 여기서 실제 종료시간을 입력 -->
+<div id="ot-confirm-modal-backdrop" class="app-modal-backdrop" onclick="if(event.target===this) closeOtConfirmModal()">
+  <div class="card">
+    <div class="cal-modal-head">
+      <div class="title">잔업 확인</div>
+      <button onclick="closeOtConfirmModal()">×</button>
+    </div>
+    <div style="font-size:13px;color:#64748b;margin-bottom:14px;">신청한 시간만큼 실제로 잔업하셨나요? 만약 실제로 다른 시간에 끝나셨으면 아래에 실제 종료시간을 고쳐서 입력해주세요.</div>
+    <div class="ot-form" style="grid-template-columns:1fr;">
+      <div><label>실제 종료시간</label><input id="ot-confirm-actual-end" type="time"></div>
+    </div>
+    <div class="cal-form-actions">
+      <button class="btn-cancel" onclick="closeOtConfirmModal()">취소</button>
+      <button class="btn-primary" onclick="submitOtConfirm()">확인 완료</button>
+    </div>
+  </div>
+</div>
+
+<!-- 온습도관리 -->
+<div class="content-section" id="section-humidity">
+  <div class="page-wrap">
+    <div class="page-title">샘플실 온습도관리</div>
+    <div class="page-sub">하루에 한 번, 온도·습도를 입력하면 한 달 치를 그래프로 볼 수 있어요. 점선은 관리 상한선이에요 (온도 20℃, 습도 55%).</div>
+    <div class="card">
+      <div class="hum-input-row">
+        <div><label>날짜</label><input id="hum-date" type="date"></div>
+        <div><label>온도 (℃)</label><input id="hum-temp" type="number" step="0.1" placeholder="예: 19.5"></div>
+        <div><label>습도 (%)</label><input id="hum-humid" type="number" step="0.1" placeholder="예: 52"></div>
+        <button class="btn-primary" onclick="saveHumidity()">저장</button>
+      </div>
+      <div class="cal-stat-controls" style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+        <button onclick="humMonthShift(-1)">‹</button>
+        <div class="title" id="hum-month-title" style="font-size:15px;font-weight:800;"></div>
+        <button onclick="humMonthShift(1)">›</button>
+      </div>
+      <div class="hum-legend">
+        <span><i style="background:#2a5298;"></i>온도(℃)</span>
+        <span><i style="background:#dc2626;"></i>습도(%)</span>
+        <span><i style="background:repeating-linear-gradient(90deg,#94a3b8,#94a3b8 4px,transparent 4px,transparent 8px);"></i>관리 상한선</span>
+      </div>
+      <div class="hum-chart-wrap" id="hum-chart"></div>
+      <button class="hum-table-toggle" onclick="toggleHumTable()" id="hum-table-toggle-btn">이번 달 기록 표로 보기 ▾</button>
+      <div id="hum-table-wrap" style="display:none;margin-top:10px;">
+        <table class="ot-stat-table" id="hum-table">
+          <thead><tr><th>날짜</th><th style="text-align:right;">온도(℃)</th><th style="text-align:right;">습도(%)</th><th></th></tr></thead>
+          <tbody id="hum-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 야간조 설정 모달 -->
+<div id="ns-modal-backdrop" class="app-modal-backdrop" onclick="if(event.target===this) closeNightShiftModal()">
+  <div class="card wide">
+    <div class="cal-modal-head">
+      <div class="title">🌙 야간조 설정 — <span id="ns-modal-month"></span></div>
+      <button onclick="closeNightShiftModal()">×</button>
+    </div>
+    <div style="font-size:12.5px;color:#64748b;margin-bottom:10px;">이번 달의 각 주(월요일 시작)마다 야간자 이름을 적어주세요. 비워두면 그 주는 색칠되지 않아요.</div>
+    <div id="ns-week-list"></div>
+    <div class="cal-form-actions">
+      <button class="btn-cancel" onclick="closeNightShiftModal()">닫기</button>
+      <button class="btn-primary" onclick="saveNightShifts()">저장</button>
+    </div>
   </div>
 </div>
 
@@ -606,6 +827,9 @@ function enterPortal() {
   loadNotices();
   loadSchedules();
   loadShipments();
+  loadOvertimes();
+  loadHumidity();
+  loadNightShifts();
 }
 
 // ===== 탭 전환 =====
@@ -662,7 +886,7 @@ function switchTab(key) {
   document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
   document.querySelectorAll('.dropdown button').forEach(b => b.classList.remove('active'));
 
-  const parentMap = { home:'home', notice:'notice', products:'products', lots:'products', calendar:'calendar', overtime:'calendar', equipment:'equipment', monitor:'monitor', shipping:'sample', labels:'sample' };
+  const parentMap = { home:'home', notice:'notice', products:'products', lots:'products', calendar:'calendar', overtime:'calendar', equipment:'equipment', monitor:'monitor', shipping:'sample', labels:'sample', humidity:'sample' };
   const parentKey = parentMap[key] || key;
   const item = document.querySelector('.nav-item[data-key="' + parentKey + '"]');
   if (item) item.classList.add('active');
@@ -672,6 +896,8 @@ function switchTab(key) {
   if (key === 'calendar') { if (isReclick) resetCalendarView(); renderCalendar(); }
   if (key === 'notice') resetNoticeBoard(); // 공지사항은 원래부터 매번 목록 화면으로 돌아가도록 되어 있음
   if (key === 'shipping') { if (isReclick) resetShippingView(); renderShipments(); }
+  if (key === 'overtime') { if (isReclick) resetOvertimeView(); }
+  if (key === 'humidity') { if (isReclick) resetHumidityView(); }
   if ((key === 'equipment' || key === 'products') && isReclick) reloadEmbeddedFrame(key);
 }
 
@@ -736,13 +962,15 @@ function renderCalendar() {
   const y = calDate.getFullYear(), m = calDate.getMonth();
   document.getElementById('cal-title').textContent = y + '년 ' + (m+1) + '월';
   const grid = document.getElementById('cal-grid');
-  const dows = ['일','월','화','수','목','금','토'];
+  // 야간조는 월요일에 바뀌는 주 단위라서, 달력도 월요일 시작으로 맞춰야 그 주가 한 줄에 깔끔하게 표시됨
+  const dows = ['월','화','수','목','금','토','일'];
   let html = dows.map(d => `<div class="cal-dow">${d}</div>`).join('');
-  const firstDow = new Date(y, m, 1).getDay();
+  const rawFirstDow = new Date(y, m, 1).getDay(); // 0=일 ... 6=토
+  const firstDow = (rawFirstDow + 6) % 7; // 월=0 ... 일=6 로 다시 계산
   const lastDate = new Date(y, m+1, 0).getDate();
   const today = new Date();
   const todayStr = toDateStr(today.getFullYear(), today.getMonth(), today.getDate());
-  const maxShow = 2;
+  const maxShow = 3;
   for (let i = 0; i < firstDow; i++) html += `<div class="cal-day empty"></div>`;
   for (let d = 1; d <= lastDate; d++) {
     const dateStr = toDateStr(y, m, d);
@@ -750,8 +978,13 @@ function renderCalendar() {
     const dayEvents = eventsOnDate(dateStr);
     const chips = dayEvents.slice(0, maxShow).map(ev => `<div class="cal-evt-chip">${escapeHtml(ev.title)}</div>`).join('');
     const more = dayEvents.length > maxShow ? `<div class="cal-evt-more">+${dayEvents.length - maxShow}개</div>` : '';
-    html += `<div class="cal-day${isToday?' today':''}" onclick="openCalModal('${dateStr}')">
-      <div class="cal-day-num">${d}</div>${chips}${more}
+    const weekStart = mondayOf(dateStr);
+    const nightNames = nightShiftMap[weekStart];
+    const isNightWeek = !!nightNames;
+    // 월요일(그 주의 첫 칸)에만 야간자 이름을 작게 보여주고, 배경색은 그 주 전체(월~일)에 칠함
+    const nightTag = (isNightWeek && weekStart === dateStr) ? `<div class="cal-night-tag">🌙 ${escapeHtml(nightNames)}</div>` : '';
+    html += `<div class="cal-day${isToday?' today':''}${isNightWeek?' night-week':''}" onclick="openCalModal('${dateStr}')">
+      <div class="cal-day-num">${d}</div>${nightTag}${chips}${more}
     </div>`;
   }
   grid.innerHTML = html;
@@ -1085,6 +1318,13 @@ async function saveShipment() {
   }
 }
 
+function printShipments() {
+  const now = new Date();
+  const el = document.getElementById('ship-print-date');
+  if (el) el.textContent = `${now.getFullYear()}.${pad2(now.getMonth()+1)}.${pad2(now.getDate())} 출력`;
+  window.print();
+}
+
 async function deleteShipment(id) {
   if (!confirm('이 발송 기록을 삭제할까요?')) return;
   try {
@@ -1097,27 +1337,524 @@ async function deleteShipment(id) {
   }
 }
 
-// ===== 잔업관리 (임시, 새로고침시 초기화) =====
-const overtimeList = [];
-function addOvertime() {
-  const date = document.getElementById('ot-date').value;
-  const name = document.getElementById('ot-name').value.trim();
-  const start = document.getElementById('ot-start').value;
-  const end = document.getElementById('ot-end').value;
-  const reason = document.getElementById('ot-reason').value.trim();
-  if (!date || !name) { alert('날짜와 이름을 입력해주세요.'); return; }
-  overtimeList.unshift({ date, name, time: (start||'-')+' ~ '+(end||'-'), reason: reason||'-' });
-  renderOvertime();
-  document.getElementById('ot-name').value = '';
-  document.getElementById('ot-reason').value = '';
+// ===== 잔업관리 (구글시트에 저장됨) =====
+const TEAM_NAMES = ['이희표','박정근','방은희','장유철','권혁찬','전한울','서재원','양희진','최정환','브로스','파이렛','라집'];
+let overtimeList = [];
+let editingOtId = null;
+let otConfirmId = null;
+let otStatDate = new Date();
+otStatDate = new Date(otStatDate.getFullYear(), otStatDate.getMonth(), 1);
+
+async function loadOvertimes() {
+  try {
+    const res = await apiGet({ action: 'getOvertimes' });
+    overtimeList = Array.isArray(res) ? res : [];
+  } catch (e) {
+    overtimeList = [];
+  }
+  renderOtList();
 }
-function renderOvertime() {
-  const tbody = document.getElementById('ot-tbody');
-  const table = document.getElementById('ot-table');
+
+function showOtView(view) {
+  document.getElementById('ot-view-apply').style.display = view === 'apply' ? 'block' : 'none';
+  document.getElementById('ot-view-stats').style.display = view === 'stats' ? 'block' : 'none';
+  document.getElementById('ot-tab-apply-btn').classList.toggle('active', view === 'apply');
+  document.getElementById('ot-tab-stats-btn').classList.toggle('active', view === 'stats');
+  if (view === 'stats') renderOtStats();
+}
+
+// 잔업관리 탭을 다시 누르면 신청 화면으로 돌아가고, 열려있던 창들도 닫음
+function resetOvertimeView() {
+  showOtView('apply');
+  closeOtForm();
+  closeOtConfirmModal();
+}
+
+function fillOtNameList() {
+  const list = document.getElementById('ot-name-list');
+  if (list) list.innerHTML = TEAM_NAMES.map(n => `<option value="${escapeHtml(n)}"></option>`).join('');
+}
+
+function openOtForm(id) {
+  editingOtId = id || null;
+  fillOtNameList();
+  const label = document.getElementById('ot-form-title-label');
+  if (editingOtId) {
+    const ot = overtimeList.find(o => String(o.id) === String(editingOtId));
+    if (!ot) return;
+    label.textContent = '잔업 수정';
+    document.getElementById('ot-f-date').value = ot.date || '';
+    document.getElementById('ot-f-name').value = ot.name || '';
+    document.getElementById('ot-f-start').value = ot.startTime || '17:30';
+    document.getElementById('ot-f-end').value = ot.endTime || '';
+  } else {
+    label.textContent = '잔업 신청';
+    const today = new Date();
+    document.getElementById('ot-f-date').value = `${today.getFullYear()}-${pad2(today.getMonth()+1)}-${pad2(today.getDate())}`;
+    document.getElementById('ot-f-name').value = '';
+    document.getElementById('ot-f-start').value = '17:30'; // 우리 잔업 시작시간은 항상 17:30 (필요하면 수정 가능)
+    document.getElementById('ot-f-end').value = '';
+  }
+  document.getElementById('ot-modal-backdrop').style.display = 'flex';
+}
+function closeOtForm() {
+  editingOtId = null;
+  document.getElementById('ot-modal-backdrop').style.display = 'none';
+}
+
+async function saveOvertime() {
+  const date = document.getElementById('ot-f-date').value;
+  const name = document.getElementById('ot-f-name').value.trim();
+  const startTime = document.getElementById('ot-f-start').value;
+  const endTime = document.getElementById('ot-f-end').value;
+  if (!date || !name || !startTime || !endTime) { alert('날짜·신청자·시작시간·종료시간을 모두 입력해주세요.'); return; }
+
+  const btn = document.getElementById('ot-form-save-btn');
+  btn.disabled = true; btn.textContent = '저장 중...';
+  try {
+    const payload = { date, name, startTime, endTime };
+    if (editingOtId) {
+      payload.action = 'updateOvertime';
+      payload.id = editingOtId;
+    } else {
+      payload.action = 'addOvertime';
+    }
+    const res = await apiPost(payload);
+    if (res && res.error) { alert('저장에 실패했어요: ' + res.error); return; }
+
+    if (editingOtId) {
+      const idx = overtimeList.findIndex(o => String(o.id) === String(editingOtId));
+      if (idx !== -1) overtimeList[idx] = { ...overtimeList[idx], date, name, startTime, endTime };
+    } else {
+      overtimeList.unshift({ id: res.id, date, name, startTime, endTime, actualEndTime: '', confirmed: false });
+    }
+    closeOtForm();
+    renderOtList();
+  } catch (e) {
+    alert('저장 중 오류가 발생했어요. 다시 시도해주세요.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '저장';
+  }
+}
+
+async function deleteOvertime(id) {
+  if (!confirm('이 잔업 신청을 삭제할까요?')) return;
+  try {
+    await apiPost({ action: 'deleteOvertime', id });
+    const idx = overtimeList.findIndex(o => String(o.id) === String(id));
+    if (idx !== -1) overtimeList.splice(idx, 1);
+    renderOtList();
+  } catch (e) {
+    alert('삭제 중 오류가 발생했어요. 다시 시도해주세요.');
+  }
+}
+
+// 체크박스를 누르면: 켜는 경우엔 실제 종료시간을 확인하는 작은 창을 띄우고,
+// 끄는 경우엔(잘못 눌렀을 때) 바로 확인 취소 처리함
+function onOtCheckToggle(id, checked) {
+  if (checked) {
+    openOtConfirmModal(id);
+  } else {
+    submitOtUnconfirm(id);
+  }
+}
+function openOtConfirmModal(id) {
+  otConfirmId = id;
+  const ot = overtimeList.find(o => String(o.id) === String(id));
+  if (!ot) return;
+  document.getElementById('ot-confirm-actual-end').value = ot.actualEndTime || ot.endTime || '';
+  document.getElementById('ot-confirm-modal-backdrop').style.display = 'flex';
+}
+function closeOtConfirmModal() {
+  otConfirmId = null;
+  document.getElementById('ot-confirm-modal-backdrop').style.display = 'none';
+  renderOtList(); // 체크박스를 껐다 켰다만 하고 취소한 경우, 화면 체크 표시를 원래대로 되돌림
+}
+async function submitOtConfirm() {
+  const actualEndTime = document.getElementById('ot-confirm-actual-end').value;
+  const id = otConfirmId;
+  if (!id) return;
+  try {
+    const res = await apiPost({ action: 'confirmOvertime', id, confirmed: true, actualEndTime });
+    if (res && res.error) { alert('저장에 실패했어요: ' + res.error); return; }
+    const idx = overtimeList.findIndex(o => String(o.id) === String(id));
+    if (idx !== -1) { overtimeList[idx].confirmed = true; overtimeList[idx].actualEndTime = actualEndTime; }
+    otConfirmId = null;
+    document.getElementById('ot-confirm-modal-backdrop').style.display = 'none';
+    renderOtList();
+  } catch (e) {
+    alert('저장 중 오류가 발생했어요. 다시 시도해주세요.');
+  }
+}
+async function submitOtUnconfirm(id) {
+  try {
+    await apiPost({ action: 'confirmOvertime', id, confirmed: false, actualEndTime: '' });
+    const idx = overtimeList.findIndex(o => String(o.id) === String(id));
+    if (idx !== -1) { overtimeList[idx].confirmed = false; overtimeList[idx].actualEndTime = ''; }
+    renderOtList();
+  } catch (e) {
+    renderOtList();
+  }
+}
+
+function renderOtList() {
+  const wrap = document.getElementById('ot-list');
   const empty = document.getElementById('ot-list-empty');
-  if (overtimeList.length === 0) { table.style.display = 'none'; empty.style.display = 'block'; return; }
-  table.style.display = 'table'; empty.style.display = 'none';
-  tbody.innerHTML = overtimeList.map(o => `<tr><td>${o.date}</td><td>${o.name}</td><td>${o.time}</td><td>${o.reason}</td></tr>`).join('');
+  if (!wrap) return;
+  const sorted = [...overtimeList].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  if (sorted.length === 0) {
+    wrap.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  wrap.innerHTML = sorted.map(o => {
+    const timeStr = o.startTime + ' ~ ' + o.endTime + (o.actualEndTime && o.actualEndTime !== o.endTime ? ` (실제 ${o.actualEndTime}까지)` : '');
+    const tag = o.confirmed ? '<span class="ot-confirmed-tag">✓ 확인완료</span>' : '<span class="ot-unconfirmed-tag">확인 대기</span>';
+    return `<div class="ot-row">
+      <input type="checkbox" class="ot-check" ${o.confirmed ? 'checked' : ''} onchange="onOtCheckToggle('${o.id}', this.checked)" title="실제로 그만큼 잔업했으면 체크해주세요">
+      <div class="ot-info">
+        <div class="ot-name">${escapeHtml(o.name)}</div>
+        <div class="ot-meta">${escapeHtml(o.date)} · ${escapeHtml(timeStr)}</div>
+      </div>
+      ${tag}
+      <div class="et-actions">
+        <button onclick="openOtForm('${o.id}')">수정</button>
+        <button onclick="deleteOvertime('${o.id}')">삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ===== 잔업통계 =====
+function timeToMinutes(t) {
+  if (!t) return null;
+  const [h, m] = t.split(':').map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m)) return null;
+  return h * 60 + m;
+}
+function otDurationMinutes(o) {
+  const start = timeToMinutes(o.startTime);
+  let end = timeToMinutes(o.actualEndTime || o.endTime);
+  if (start === null || end === null) return 0;
+  if (end <= start) end += 24 * 60; // 자정을 넘겨서 끝난 경우
+  return end - start;
+}
+function formatMinutes(mins) {
+  const h = Math.floor(mins / 60), m = Math.round(mins % 60);
+  return m ? `${h}시간 ${m}분` : `${h}시간`;
+}
+function otStatShift(delta) {
+  otStatDate = new Date(otStatDate.getFullYear(), otStatDate.getMonth() + delta, 1);
+  renderOtStats();
+}
+function renderOtStats() {
+  const y = otStatDate.getFullYear(), m = otStatDate.getMonth();
+  document.getElementById('ot-stat-title').textContent = `${y}년 ${m + 1}월`;
+  const ym = `${y}-${pad2(m + 1)}`;
+  const monthList = overtimeList.filter(o => (o.date || '').startsWith(ym));
+
+  // 사람별 누적
+  const byPerson = {};
+  monthList.forEach(o => {
+    if (!byPerson[o.name]) byPerson[o.name] = { mins: 0, count: 0 };
+    byPerson[o.name].mins += otDurationMinutes(o);
+    byPerson[o.name].count += 1;
+  });
+  const personRows = Object.keys(byPerson).sort((a, b) => byPerson[b].mins - byPerson[a].mins);
+  const personTbody = document.getElementById('ot-stat-person-tbody');
+  const personEmpty = document.getElementById('ot-stat-person-empty');
+  if (personRows.length === 0) {
+    personTbody.innerHTML = '';
+    personEmpty.style.display = 'block';
+  } else {
+    personEmpty.style.display = 'none';
+    personTbody.innerHTML = personRows.map(name => `<tr>
+      <td>${escapeHtml(name)}</td>
+      <td class="ot-hours">${formatMinutes(byPerson[name].mins)}</td>
+      <td style="text-align:right;">${byPerson[name].count}건</td>
+    </tr>`).join('');
+  }
+
+  // 날짜별 상세
+  const dateSorted = [...monthList].sort((a, b) => (a.date || '').localeCompare(b.date || '') || String(a.name).localeCompare(String(b.name)));
+  const dateTbody = document.getElementById('ot-stat-date-tbody');
+  dateTbody.innerHTML = dateSorted.map(o => `<tr>
+    <td>${escapeHtml(o.date)}</td>
+    <td>${escapeHtml(o.name)}</td>
+    <td>${formatMinutes(otDurationMinutes(o))}</td>
+    <td style="text-align:right;">${o.confirmed ? '✓ 완료' : '대기'}</td>
+  </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:16px 0;">이번 달 잔업 기록이 없어요</td></tr>';
+}
+
+// ===== 온습도관리 (샘플실, 구글시트에 저장됨) =====
+const HUM_TEMP_LIMIT = 20;
+const HUM_HUMID_LIMIT = 55;
+let humidityList = [];
+let humMonth = new Date();
+humMonth = new Date(humMonth.getFullYear(), humMonth.getMonth(), 1);
+let humTableShown = false;
+
+async function loadHumidity() {
+  try {
+    const res = await apiGet({ action: 'getHumidity' });
+    humidityList = Array.isArray(res) ? res : [];
+  } catch (e) {
+    humidityList = [];
+  }
+  const today = new Date();
+  const dateInput = document.getElementById('hum-date');
+  if (dateInput && !dateInput.value) dateInput.value = `${today.getFullYear()}-${pad2(today.getMonth()+1)}-${pad2(today.getDate())}`;
+  renderHumidityChart();
+  renderHomeHumidity();
+}
+
+// 온습도관리 탭을 다시 누르면 이번 달로 돌아가고 표는 다시 접어둠
+function resetHumidityView() {
+  const now = new Date();
+  humMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  humTableShown = false;
+  document.getElementById('hum-table-wrap').style.display = 'none';
+  document.getElementById('hum-table-toggle-btn').textContent = '이번 달 기록 표로 보기 ▾';
+  renderHumidityChart();
+}
+
+async function saveHumidity() {
+  const date = document.getElementById('hum-date').value;
+  const temp = document.getElementById('hum-temp').value;
+  const humid = document.getElementById('hum-humid').value;
+  if (!date || temp === '' || humid === '') { alert('날짜·온도·습도를 모두 입력해주세요.'); return; }
+  try {
+    const existing = humidityList.find(h => h.date === date);
+    const payload = { action: 'saveHumidity', date, temp: Number(temp), humidity: Number(humid) };
+    if (existing) payload.id = existing.id;
+    const res = await apiPost(payload);
+    if (res && res.error) { alert('저장에 실패했어요: ' + res.error); return; }
+    if (existing) {
+      existing.temp = Number(temp);
+      existing.humidity = Number(humid);
+    } else {
+      humidityList.push({ id: res.id, date, temp: Number(temp), humidity: Number(humid) });
+    }
+    renderHumidityChart();
+    renderHomeHumidity();
+  } catch (e) {
+    alert('저장 중 오류가 발생했어요. 다시 시도해주세요.');
+  }
+}
+
+async function deleteHumidity(id) {
+  if (!confirm('이 기록을 삭제할까요?')) return;
+  try {
+    await apiPost({ action: 'deleteHumidity', id });
+    const idx = humidityList.findIndex(h => String(h.id) === String(id));
+    if (idx !== -1) humidityList.splice(idx, 1);
+    renderHumidityChart();
+    renderHomeHumidity();
+  } catch (e) {
+    alert('삭제 중 오류가 발생했어요. 다시 시도해주세요.');
+  }
+}
+
+function humMonthShift(delta) {
+  humMonth = new Date(humMonth.getFullYear(), humMonth.getMonth() + delta, 1);
+  renderHumidityChart();
+}
+
+function toggleHumTable() {
+  humTableShown = !humTableShown;
+  document.getElementById('hum-table-wrap').style.display = humTableShown ? 'block' : 'none';
+  document.getElementById('hum-table-toggle-btn').textContent = humTableShown ? '이번 달 기록 표 접기 ▴' : '이번 달 기록 표로 보기 ▾';
+  if (humTableShown) renderHumTable();
+}
+
+function humEntriesForMonth(dateObj) {
+  const ym = `${dateObj.getFullYear()}-${pad2(dateObj.getMonth()+1)}`;
+  return humidityList.filter(h => (h.date || '').startsWith(ym)).sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function renderHumTable() {
+  const tbody = document.getElementById('hum-tbody');
+  const rows = humEntriesForMonth(humMonth);
+  tbody.innerHTML = rows.length
+    ? rows.map(h => `<tr>
+        <td>${escapeHtml(h.date)}</td>
+        <td style="text-align:right;${h.temp > HUM_TEMP_LIMIT ? 'color:#dc2626;font-weight:700;' : ''}">${h.temp}</td>
+        <td style="text-align:right;${h.humidity > HUM_HUMID_LIMIT ? 'color:#dc2626;font-weight:700;' : ''}">${h.humidity}</td>
+        <td style="text-align:right;"><button onclick="deleteHumidity('${h.id}')" style="background:none;border:1px solid #e2e8f0;border-radius:7px;padding:4px 9px;font-size:11px;color:#64748b;cursor:pointer;font-family:inherit;">삭제</button></td>
+      </tr>`).join('')
+    : '<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:16px 0;">이번 달 기록이 없어요</td></tr>';
+}
+
+// 외부 차트 라이브러리 없이, 온도/습도 두 선 + 관리상한선 점선을 순수 SVG로 직접 그림
+function buildHumidityChartSvg(rows, daysInMonth, opts) {
+  const width = opts.width, height = opts.height;
+  const padL = 34, padR = 14, padT = 14, padB = 24;
+  const plotW = width - padL - padR, plotH = height - padT - padB;
+  const yMax = Math.max(60, HUM_HUMID_LIMIT + 10, ...rows.map(r => Math.max(r.temp, r.humidity))) ;
+  const yMin = 0;
+  const xFor = day => padL + (plotW * (day - 1) / Math.max(1, daysInMonth - 1));
+  const yFor = val => padT + plotH * (1 - (val - yMin) / (yMax - yMin));
+
+  const byDay = {};
+  rows.forEach(r => { byDay[Number(r.date.slice(-2))] = r; });
+
+  function pathFor(key) {
+    const pts = [];
+    for (let d = 1; d <= daysInMonth; d++) {
+      const r = byDay[d];
+      if (r && r[key] !== undefined && r[key] !== null && r[key] !== '') pts.push([d, Number(r[key])]);
+    }
+    if (pts.length === 0) return '';
+    return 'M' + pts.map(([d, v]) => `${xFor(d).toFixed(1)},${yFor(v).toFixed(1)}`).join(' L');
+  }
+  function dotsFor(key, color) {
+    let s = '';
+    for (let d = 1; d <= daysInMonth; d++) {
+      const r = byDay[d];
+      if (r && r[key] !== undefined && r[key] !== null && r[key] !== '') {
+        s += `<circle cx="${xFor(d).toFixed(1)}" cy="${yFor(Number(r[key])).toFixed(1)}" r="2.6" fill="${color}"></circle>`;
+      }
+    }
+    return s;
+  }
+
+  // 가로 기준선(그리드) + y축 눈금
+  let gridSvg = '';
+  const steps = 4;
+  for (let i = 0; i <= steps; i++) {
+    const val = yMin + (yMax - yMin) * i / steps;
+    const y = yFor(val).toFixed(1);
+    gridSvg += `<line x1="${padL}" y1="${y}" x2="${width - padR}" y2="${y}" stroke="#eef2f7" stroke-width="1"></line>`;
+    gridSvg += `<text x="${padL - 6}" y="${Number(y) + 3}" font-size="9.5" fill="#94a3b8" text-anchor="end">${Math.round(val)}</text>`;
+  }
+  // x축 날짜 라벨 (5일 간격)
+  let xLabels = '';
+  for (let d = 1; d <= daysInMonth; d += 5) {
+    xLabels += `<text x="${xFor(d).toFixed(1)}" y="${height - 6}" font-size="9.5" fill="#94a3b8" text-anchor="middle">${d}일</text>`;
+  }
+
+  const tempLimitY = yFor(HUM_TEMP_LIMIT).toFixed(1);
+  const humidLimitY = yFor(HUM_HUMID_LIMIT).toFixed(1);
+
+  return `<svg viewBox="0 0 ${width} ${height}" width="100%" style="max-width:${width}px;display:block;">
+    ${gridSvg}
+    ${xLabels}
+    <line x1="${padL}" y1="${tempLimitY}" x2="${width - padR}" y2="${tempLimitY}" stroke="#2a5298" stroke-width="1.4" stroke-dasharray="4 4"></line>
+    <line x1="${padL}" y1="${humidLimitY}" x2="${width - padR}" y2="${humidLimitY}" stroke="#dc2626" stroke-width="1.4" stroke-dasharray="4 4"></line>
+    <path d="${pathFor('temp')}" fill="none" stroke="#2a5298" stroke-width="2"></path>
+    <path d="${pathFor('humidity')}" fill="none" stroke="#dc2626" stroke-width="2"></path>
+    ${dotsFor('temp', '#2a5298')}
+    ${dotsFor('humidity', '#dc2626')}
+  </svg>`;
+}
+
+function renderHumidityChart() {
+  const titleEl = document.getElementById('hum-month-title');
+  if (titleEl) titleEl.textContent = `${humMonth.getFullYear()}년 ${humMonth.getMonth() + 1}월`;
+  const rows = humEntriesForMonth(humMonth);
+  const daysInMonth = new Date(humMonth.getFullYear(), humMonth.getMonth() + 1, 0).getDate();
+  const chartEl = document.getElementById('hum-chart');
+  if (chartEl) chartEl.innerHTML = buildHumidityChartSvg(rows, daysInMonth, { width: 760, height: 240 });
+  if (humTableShown) renderHumTable();
+}
+
+function renderHomeHumidity() {
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${pad2(today.getMonth()+1)}-${pad2(today.getDate())}`;
+  const todayEntry = humidityList.find(h => h.date === todayStr);
+  const todayBox = document.getElementById('home-hum-today');
+  const emptyBox = document.getElementById('home-hum-empty');
+  if (todayEntry) {
+    todayBox.style.display = 'flex';
+    emptyBox.style.display = 'none';
+    const tempEl = document.getElementById('home-hum-temp');
+    const humidEl = document.getElementById('home-hum-humid');
+    tempEl.textContent = todayEntry.temp + '℃';
+    tempEl.className = 'value' + (todayEntry.temp > HUM_TEMP_LIMIT ? ' over' : '');
+    humidEl.textContent = todayEntry.humidity + '%';
+    humidEl.className = 'value' + (todayEntry.humidity > HUM_HUMID_LIMIT ? ' over' : '');
+  } else {
+    todayBox.style.display = 'none';
+    emptyBox.style.display = 'block';
+  }
+  const rows = humEntriesForMonth(today);
+  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  const chartEl = document.getElementById('home-hum-chart');
+  if (chartEl) chartEl.innerHTML = rows.length ? buildHumidityChartSvg(rows, daysInMonth, { width: 460, height: 140 }) : '';
+}
+
+// ===== 업무일정: 야간조 표시/설정 =====
+let nightShiftMap = {}; // { '그주월요일날짜(YYYY-MM-DD)': '이름들' }
+
+async function loadNightShifts() {
+  try {
+    const res = await apiGet({ action: 'getNightShifts' });
+    nightShiftMap = {};
+    (Array.isArray(res) ? res : []).forEach(r => { if (r.weekStart) nightShiftMap[r.weekStart] = r.names || ''; });
+  } catch (e) {
+    nightShiftMap = {};
+  }
+  renderCalendar();
+}
+
+// dateStr(YYYY-MM-DD)이 속한 주의 월요일 날짜를 구함
+function mondayOf(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  const dow = dt.getDay(); // 0=일 ... 6=토
+  const diff = dow === 0 ? -6 : (1 - dow);
+  dt.setDate(dt.getDate() + diff);
+  return toDateStr(dt.getFullYear(), dt.getMonth(), dt.getDate());
+}
+
+// 이번에 화면에 보이는 달(calDate)에 걸쳐있는 주(월요일 시작)들의 목록을 구함
+function weeksOfMonth(dateObj) {
+  const y = dateObj.getFullYear(), m = dateObj.getMonth();
+  const first = new Date(y, m, 1);
+  const last = new Date(y, m + 1, 0);
+  const firstMonday = mondayOf(toDateStr(y, m, 1));
+  const weeks = [];
+  let cursor = firstMonday;
+  while (cursor <= toDateStr(last.getFullYear(), last.getMonth(), last.getDate())) {
+    weeks.push(cursor);
+    const [cy, cm, cd] = cursor.split('-').map(Number);
+    const dt = new Date(cy, cm - 1, cd + 7);
+    cursor = toDateStr(dt.getFullYear(), dt.getMonth(), dt.getDate());
+  }
+  return weeks;
+}
+
+function openNightShiftModal() {
+  document.getElementById('ns-modal-month').textContent = `${calDate.getFullYear()}년 ${calDate.getMonth() + 1}월`;
+  const weeks = weeksOfMonth(calDate);
+  const list = document.getElementById('ns-week-list');
+  list.innerHTML = weeks.map(w => {
+    const [y, m, d] = w.split('-').map(Number);
+    const endDt = new Date(y, m - 1, d + 6);
+    const label = `${m}/${d} ~ ${endDt.getMonth()+1}/${endDt.getDate()}`;
+    const val = nightShiftMap[w] || '';
+    return `<div class="ns-week-row"><div class="ns-label">${label}</div><input type="text" data-week="${w}" value="${escapeHtml(val)}" placeholder="예: 전한울, 최정환"></div>`;
+  }).join('');
+  document.getElementById('ns-modal-backdrop').style.display = 'flex';
+}
+function closeNightShiftModal() {
+  document.getElementById('ns-modal-backdrop').style.display = 'none';
+}
+async function saveNightShifts() {
+  const inputs = document.querySelectorAll('#ns-week-list input[data-week]');
+  for (const input of inputs) {
+    const weekStart = input.getAttribute('data-week');
+    const names = input.value.trim();
+    if ((nightShiftMap[weekStart] || '') === names) continue; // 안 바뀐 건 그대로 둠
+    try {
+      await apiPost({ action: 'saveNightShift', weekStart, names });
+      nightShiftMap[weekStart] = names;
+    } catch (e) {}
+  }
+  closeNightShiftModal();
+  renderCalendar();
 }
 
 // ===== 홈 화면 날짜 =====
