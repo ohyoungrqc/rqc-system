@@ -987,7 +987,16 @@ function eventsOnDate(dateStr) {
 async function loadSchedules() {
   try {
     const res = await apiGet({ action: 'getSchedules' });
-    scheduleList = Array.isArray(res) ? res : [];
+    // 구글시트가 날짜를 "진짜 날짜" 타입으로 자동 변환해버리면, 코드가 받는 값이
+    // "2026-08-28"이 아니라 "2026-08-27T15:00:00.000Z" 처럼 시간까지 붙은 형태로 올 때가 있음.
+    // 그러면 달력에서 날짜를 정확히 비교(===)할 때 하루가 어긋나서 그 날짜 칸에 안 나타남.
+    // 홈 화면 미리보기는 "오늘 이후인지"만 대충 비교해서 우연히 보였던 것.
+    // 그래서 불러올 때 항상 "YYYY-MM-DD" 형태로 깔끔하게 정리해줌.
+    scheduleList = (Array.isArray(res) ? res : []).map(ev => ({
+      ...ev,
+      startDate: shortDate(ev.startDate) || ev.startDate,
+      endDate: ev.endDate ? (shortDate(ev.endDate) || ev.endDate) : ev.endDate,
+    }));
   } catch (e) {
     scheduleList = [];
   }
