@@ -755,14 +755,23 @@ async function startApp() {
   if (urlPw) savePw(urlPw);
   const saved = getSavedPw();
   if (!saved) { document.getElementById('login-pw-input')?.focus(); return; }
+  // 저장된 비밀번호(또는 큐알 주소에 담긴 비밀번호)가 있으면 로그인 화면이 깜빡이지 않도록
+  // 화면부터 바로 보여주고, 서버 확인은 뒤에서 조용히 진행함
+  document.getElementById('login-gate').style.display = 'none';
+  init();
   try {
     const res = await apiGet({ action: 'ping' });
-    if (!res || res.error === 'unauthorized') throw new Error('bad pw');
-    document.getElementById('login-gate').style.display = 'none';
-    init();
+    if (res && res.error === 'unauthorized') {
+      // 비밀번호가 실제로 틀렸을 때만(예: 팀 비밀번호가 바뀐 경우) 로그인 화면으로 되돌림.
+      // 주소에 비밀번호가 담긴 큐알로 들어온 경우, 그 틀린 비밀번호를 주소에서 지우고 새로고침해야 함
+      // (안 지우면 새로고침할 때마다 주소에 있던 틀린 비밀번호가 다시 저장되면서 계속 반복될 수 있음)
+      clearPw();
+      const url = new URL(location.href);
+      url.searchParams.delete('pw');
+      location.href = url.toString();
+    }
   } catch (e) {
-    clearPw();
-    document.getElementById('login-pw-input')?.focus();
+    // 네트워크 오류(일시적 통신 지연 등)는 무시하고 화면은 그대로 유지함
   }
 }
 
