@@ -641,6 +641,11 @@ window.addEventListener('resize', () => {
 });
 
 function switchTab(key) {
+  // 이미 보고 있던 탭을 다시 눌렀는지 확인 (그러면 그 탭의 처음 화면으로 되돌려줌)
+  const prevActive = document.querySelector('.content-section.active');
+  const prevKey = prevActive ? prevActive.id.replace('section-', '') : null;
+  const isReclick = prevKey === key;
+
   document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
   document.getElementById('section-' + key).classList.add('active');
 
@@ -654,9 +659,38 @@ function switchTab(key) {
   const dropBtn = document.querySelector('.dropdown button[data-tab="' + key + '"]');
   if (dropBtn) dropBtn.classList.add('active');
 
-  if (key === 'calendar') renderCalendar();
-  if (key === 'notice') resetNoticeBoard();
-  if (key === 'shipping') renderShipments();
+  if (key === 'calendar') { if (isReclick) resetCalendarView(); renderCalendar(); }
+  if (key === 'notice') resetNoticeBoard(); // 공지사항은 원래부터 매번 목록 화면으로 돌아가도록 되어 있음
+  if (key === 'shipping') { if (isReclick) resetShippingView(); renderShipments(); }
+  if ((key === 'equipment' || key === 'products') && isReclick) reloadEmbeddedFrame(key);
+}
+
+// 설비관리/제품조회는 화면 안에 또 다른 화면(iframe)을 넣어둔 방식이라,
+// "처음 화면으로 돌아가기"를 하려면 그 화면을 통째로 다시 불러와야 함
+// (열어둔 상세 화면이나 검색어도 같이 초기화됨)
+function reloadEmbeddedFrame(key) {
+  const v = Date.now();
+  if (key === 'equipment') {
+    const pw = getSavedPw();
+    document.getElementById('frame-equipment').src = 'equipment.html?pw=' + encodeURIComponent(pw) + '&v=' + v;
+  } else if (key === 'products') {
+    document.getElementById('frame-products').src = 'products.html?v=' + v;
+    productMasterCache = null; // 제품조회 화면을 새로고침했으니, 자동완성용으로 캐싱해둔 것도 같이 비워줌
+  }
+}
+
+// 업무일정: 다시 누르면 다른 달로 넘어가 있던 것도 이번 달로, 열려있던 창도 닫음
+function resetCalendarView() {
+  const now = new Date();
+  calDate = new Date(now.getFullYear(), now.getMonth(), 1);
+  closeCalModal();
+}
+
+// 샘플발송현황: 다시 누르면 검색어도 지우고, 열려있던 등록/수정 창도 닫음
+function resetShippingView() {
+  const search = document.getElementById('ship-search');
+  if (search) search.value = '';
+  closeShipForm();
 }
 
 document.addEventListener('click', (e) => {
