@@ -212,6 +212,8 @@
   .cal-day.night-week.today .cal-day-num { background:#b45309; }
   .cal-night-tag { font-size:9px; font-weight:700; color:#8a5a00; width:100%; box-sizing:border-box; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .cal-nightshift-btn { background:#f7f9fc; border:1px solid #e2e8f0; border-radius:8px; padding:0 12px; height:32px; font-size:12px; color:#2a5298; cursor:pointer; font-family:inherit; white-space:nowrap; flex-shrink:0; }
+  /* .cal-head button 규칙이 폭을 32px로 강제로 눌러버려서 아이콘+글자가 찌그러지던 것을 고침 */
+  .cal-head .cal-nightshift-btn { width:auto; }
   .ns-week-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid #eef2f7; }
   .ns-week-row:last-child { border-bottom:none; }
   .ns-week-row .ns-label { font-size:12px; color:#64748b; width:130px; flex-shrink:0; }
@@ -628,7 +630,7 @@
 <!-- 잔업관리 -->
 <div class="content-section" id="section-overtime">
   <div class="page-wrap">
-    <div class="page-title">일정관리 · 잔업관리</div>
+    <div class="page-title">잔업관리</div>
     <div class="page-sub">잔업을 신청하고, 다음날 실제로 했는지 확인하고, 월별로 통계도 볼 수 있어요.</div>
 
     <div class="ot-tabs">
@@ -690,8 +692,8 @@
     <div class="ot-form" style="grid-template-columns:1fr 1fr;">
       <div><label>날짜</label><input id="ot-f-date" type="date"></div>
       <div><label>신청자</label><input id="ot-f-name" type="text" list="ot-name-list" placeholder="이름을 입력하거나 골라주세요" autocomplete="off"></div>
-      <div><label>시작 시간</label><input id="ot-f-start" type="time"></div>
-      <div><label>종료 시간</label><input id="ot-f-end" type="time"></div>
+      <div><label>시작 시간</label><input id="ot-f-start" type="time" step="1800"></div>
+      <div><label>종료 시간</label><input id="ot-f-end" type="time" step="1800"></div>
     </div>
     <datalist id="ot-name-list"></datalist>
     <div class="cal-form-actions">
@@ -710,7 +712,7 @@
     </div>
     <div style="font-size:13px;color:#64748b;margin-bottom:14px;">신청한 시간만큼 실제로 잔업하셨나요? 만약 실제로 다른 시간에 끝나셨으면 아래에 실제 종료시간을 고쳐서 입력해주세요.</div>
     <div class="ot-form" style="grid-template-columns:1fr;">
-      <div><label>실제 종료시간</label><input id="ot-confirm-actual-end" type="time"></div>
+      <div><label>실제 종료시간</label><input id="ot-confirm-actual-end" type="time" step="1800"></div>
     </div>
     <div class="cal-form-actions">
       <button class="btn-cancel" onclick="closeOtConfirmModal()">취소</button>
