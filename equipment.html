@@ -397,7 +397,7 @@
 </div>
 
 <header class="app-header">
-  <div class="header-brand" onclick="showView('list')" style="cursor:pointer;" title="홈으로">
+  <div class="header-brand" onclick="goHome()" style="cursor:pointer;" title="홈으로">
     <img src="https://drive.google.com/thumbnail?id=1z6L5wiLkMBe6KH6GBW1UmvgHipi-vWEw&sz=w48" alt="오영 로고" style="width:52px;height:52px;object-fit:contain;">
     <div class="header-divider"></div>
     <div>
@@ -746,6 +746,17 @@ async function tryLogin() {
   } catch (e) {
     clearPw();
     document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+// 상단 "OHYOUNG" 로고/이름을 눌렀을 때: 큐알로 들어와서 이 화면 하나만 떠 있는 상태(포털 밖)면
+// 전체 홈(index.html)으로 이동하고, 포털 안(iframe)에 들어있는 상태면 원래대로 이 화면의 목록으로 돌아감
+// (포털 안에 있을 땐 이 헤더 자체가 안 보이게 되어있어서 실제로는 큐알로 들어왔을 때만 쓰이게 됨)
+function goHome() {
+  if (document.body.classList.contains('embedded')) {
+    showView('list');
+  } else {
+    location.href = 'index.html';
   }
 }
 
