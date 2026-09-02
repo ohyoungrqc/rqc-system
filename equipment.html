@@ -824,6 +824,11 @@ async function init() {
   const data = await apiGet({ action: 'getAll' });
   db = data;
   if (!db.calibs) db.calibs = [];
+  // 구글시트 체크박스/문자 값("TRUE" 등)이 섞여 와도 항상 true/false로 정리해줌
+  db.equipment = (db.equipment || []).map(eq => ({
+    ...eq,
+    hidden: (eq.hidden === true || eq.hidden === 'TRUE' || eq.hidden === 'true'),
+  }));
 
   if (eqId) {
     const eq = db.equipment.find(e => e.id === eqId);
@@ -855,7 +860,7 @@ function showInnerTab(name, btn) {
 
 // ===== STATS =====
 function renderStats() {
-  const total = db.equipment.length;
+  const total = db.equipment.filter(e => !e.hidden).length;
   const now = new Date();
   const thisMonth = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}`;
   const recentChecked = new Set(db.checks.filter(c => c.date && c.date.startsWith(thisMonth)).map(c => c.eqId)).size;
@@ -881,7 +886,7 @@ function renderStats() {
 // ===== LIST =====
 function renderList() {
   const q = (document.getElementById('search-input')?.value || '').toLowerCase();
-  const filtered = db.equipment.filter(e => e.name.toLowerCase().includes(q) || (e.dept||'').toLowerCase().includes(q));
+  const filtered = db.equipment.filter(e => !e.hidden && (e.name.toLowerCase().includes(q) || (e.dept||'').toLowerCase().includes(q)));
   const grid = document.getElementById('eq-grid');
   if (filtered.length === 0) {
     grid.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>설비가 없어요. 새 설비를 등록해보세요!</p></div>`;
@@ -921,10 +926,11 @@ function renderList() {
 // ===== QR =====
 function renderQR() {
   const grid = document.getElementById('qr-print-grid');
-  if (db.equipment.length === 0) { grid.innerHTML = '<div class="empty-state"><div class="icon">📱</div><p>등록된 설비가 없어요.</p></div>'; return; }
+  const visibleEq = db.equipment.filter(e => !e.hidden);
+  if (visibleEq.length === 0) { grid.innerHTML = '<div class="empty-state"><div class="icon">📱</div><p>등록된 설비가 없어요.</p></div>'; return; }
 
   grid.innerHTML = `<div style="display:flex;flex-direction:column;gap:12px;max-width:520px;">` +
-  db.equipment.map(eq => {
+  visibleEq.map(eq => {
     const displayName = eq.model ? `${eq.name} (${eq.model})` : eq.name;
     return `
     <div style="background:white;border:1.5px solid #2a5298;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(42,82,152,0.08);">
@@ -961,7 +967,7 @@ function renderQR() {
     </div>
   `}).join('') + `</div>`;
 
-  db.equipment.forEach(eq => {
+  visibleEq.forEach(eq => {
     // 큐알 찍으면 설비관리 화면만 뜨는 게 아니라, 메뉴/네비게이션이 다 보이는 전체 통합시스템(index.html)
     // 홈페이지가 뜨면서 그 안에서 바로 이 설비의 상세정보가 보이도록 함
     // (비밀번호도 같이 담아서 비밀번호 안 치고 바로 들어가지게 함 — 그만큼 큐알 칸이 촘촘해지는데,
@@ -1847,12 +1853,14 @@ function renderAdmin() {
       <tbody>
         ${db.equipment.map(eq => {
           const checks = db.checks.filter(c => c.eqId === eq.id).sort((a,b) => b.date.localeCompare(a.date));
-          return `<tr>
-            <td><strong>${eq.name}</strong><br><span style="font-size:11px;color:var(--text-muted);">${eq.model||''}</span></td>
+          const hiddenTag = eq.hidden ? ' <span style="font-size:10.5px;font-weight:700;color:#94a3b8;background:#f1f5f9;padding:2px 7px;border-radius:20px;">숨김</span>' : '';
+          return `<tr${eq.hidden ? ' style="opacity:0.55;"' : ''}>
+            <td><strong>${eq.name}</strong>${hiddenTag}<br><span style="font-size:11px;color:var(--text-muted);">${eq.model||''}</span></td>
             <td>${eq.dept||'-'}</td><td>${eq.manager||'-'}</td>
             <td>${checks.length}</td><td style="font-size:12px;">${checks[0]?.date||'-'}</td>
             <td style="display:flex;gap:4px;">
               <button class="btn btn-secondary btn-sm" onclick="openDetail('${eq.id}')">보기</button>
+              <button class="btn btn-secondary btn-sm" onclick="toggleEquipmentHidden('${eq.id}')">${eq.hidden ? '숨김 해제' : '숨기기'}</button>
               <button class="btn btn-danger btn-sm" onclick="deleteEquipment('${eq.id}')">삭제</button>
             </td>
           </tr>`;
@@ -1860,6 +1868,19 @@ function renderAdmin() {
       </tbody>
     </table>
   `;
+}
+
+// 설비를 완전히 지우지 않고 목록/QR관리 화면에서만 안 보이게 함
+// (이미 붙여둔 QR라벨은 이 장비를 직접 가리키므로 숨겨도 계속 정상 작동함)
+async function toggleEquipmentHidden(id) {
+  const eq = db.equipment.find(e => e.id === id);
+  if (!eq) return;
+  const hidden = !eq.hidden;
+  const res = await apiPost({ action: 'setEquipmentHidden', id, hidden });
+  if (res && res.error) { alert('처리에 실패했어요: ' + res.error); return; }
+  eq.hidden = hidden;
+  renderAdmin();
+  renderStats();
 }
 
 async function deleteEquipment(id) {
