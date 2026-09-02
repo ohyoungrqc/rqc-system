@@ -698,6 +698,9 @@ const API = 'https://script.google.com/macros/s/AKfycbzJDpUSKclNi-umnbO3uaSaU1QH
 let db = { equipment: [], checks: [], calibs: [] };
 let currentEqId = null;
 let editingEqId = null;
+// 정보 수정을 어느 화면(QR 관리 vs 설비 상세)에서 시작했는지 기억해뒀다가,
+// 저장 후에 원래 보던 화면으로 그대로 돌아가게 하기 위한 값
+let eqEditReturnView = 'detail';
 
 // ===== 접속 비밀번호 =====
 const PW_KEY = 'qc_pw';
@@ -950,8 +953,9 @@ function renderQR() {
             </tr>
           </table>
         </div>
-        <div style="padding:8px 10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <button class="btn btn-secondary btn-sm" onclick="downloadLabel('${eq.id}','${eq.name}')">⬇</button>
+        <div style="padding:8px 10px;display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;flex-shrink:0;">
+          <button class="btn btn-secondary btn-sm" onclick="editFromQR('${eq.id}')" title="자산명 등 정보 수정">✏️</button>
+          <button class="btn btn-secondary btn-sm" onclick="downloadLabel('${eq.id}','${eq.name}')" title="라벨 이미지 저장">⬇</button>
         </div>
       </div>
     </div>
@@ -1286,6 +1290,7 @@ function openEditModal() {
   const eq = db.equipment.find(e => e.id === currentEqId);
   if (!eq) return;
   editingEqId = currentEqId;
+  eqEditReturnView = 'detail';
   document.getElementById('modal-eq-title').textContent = '설비 정보 수정';
   document.getElementById('f-name').value = eq.name||'';
   document.getElementById('f-model').value = eq.model||'';
@@ -1300,6 +1305,14 @@ function openEditModal() {
   document.getElementById('f-manual').value = eq.manual||'';
   document.getElementById('f-photo').value = eq.photo||'';
   openModal('modal-eq');
+}
+
+// QR 관리 화면의 라벨 카드에서 바로 "✏️ 수정" 눌렀을 때: 설비상세로 넘어가지 않고
+// 그 설비의 정보수정 모달만 열어줌 (자산명을 여기서 바로 고칠 수 있게)
+function editFromQR(id) {
+  currentEqId = id;
+  openEditModal();
+  eqEditReturnView = 'qr'; // openEditModal()이 내부에서 'detail'로 되돌려놓기 때문에, 그 다음에 다시 설정해야 함
 }
 
 async function saveEquipment() {
@@ -1333,8 +1346,10 @@ async function saveEquipment() {
   }
   btn.textContent = '저장'; btn.disabled = false;
   closeModal('modal-eq');
-  if (editingEqId) openDetail(editingEqId);
-  else { renderStats(); renderList(); }
+  if (editingEqId) {
+    if (eqEditReturnView === 'qr') { showView('qr'); renderQR(); }
+    else openDetail(editingEqId);
+  } else { renderStats(); renderList(); }
 }
 
 function openCheckModal() {

@@ -170,12 +170,22 @@
   .ot-row { display:flex; align-items:center; gap:12px; padding:13px 4px; border-bottom:1px solid #eef2f7; }
   .ot-row:last-child { border-bottom:none; }
   .ot-row .ot-check { flex-shrink:0; width:19px; height:19px; cursor:pointer; accent-color:#2a5298; }
+  .ot-datebox { flex-shrink:0; width:42px; height:42px; border-radius:10px; background:#eaf1f8; color:#2a5298; display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1.15; }
+  .ot-datebox .ot-datebox-m { font-size:9px; font-weight:700; opacity:0.85; }
+  .ot-datebox .ot-datebox-d { font-size:15px; font-weight:800; }
+  .ot-datebox.today { background:#2a5298; color:#fff; }
   .ot-row .ot-info { flex:1; min-width:0; }
-  .ot-row .ot-name { font-size:13.5px; font-weight:700; color:#1e293b; }
-  .ot-row .ot-meta { font-size:11.5px; color:#94a3b8; margin-top:2px; }
+  .ot-row .ot-name-time { display:flex; align-items:baseline; gap:9px; flex-wrap:wrap; }
+  .ot-row .ot-name { font-size:13.5px; font-weight:700; color:#1e293b; flex-shrink:0; }
+  .ot-row .ot-time { font-size:12px; color:#64748b; }
   .ot-row .ot-confirmed-tag { font-size:10.5px; font-weight:700; color:#15803d; background:#dcfce7; padding:3px 9px; border-radius:20px; flex-shrink:0; white-space:nowrap; }
   .ot-row .ot-unconfirmed-tag { font-size:10.5px; font-weight:700; color:#b45309; background:#fff3d6; padding:3px 9px; border-radius:20px; flex-shrink:0; white-space:nowrap; }
   .ot-row .et-actions { flex-shrink:0; display:flex; gap:6px; }
+
+  /* ===== 잔업신청: 30분 단위 시간 선택 (자체 제작 - 시/분 골라서 클릭하면 바로 닫힘) ===== */
+  .time-sel-group { display:flex; align-items:center; gap:5px; }
+  .time-sel-group select { flex:1; min-width:0; box-sizing:border-box; padding:9px 6px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; font-family:inherit; background:#fff; color:#1e293b; }
+  .time-sel-group span { color:#94a3b8; font-weight:700; flex-shrink:0; }
 
   .ot-stat-controls { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
   table.ot-stat-table { width:100%; border-collapse:collapse; font-size:13px; }
@@ -692,8 +702,8 @@
     <div class="ot-form" style="grid-template-columns:1fr 1fr;">
       <div><label>날짜</label><input id="ot-f-date" type="date"></div>
       <div><label>신청자</label><input id="ot-f-name" type="text" list="ot-name-list" placeholder="이름을 입력하거나 골라주세요" autocomplete="off"></div>
-      <div><label>시작 시간</label><input id="ot-f-start" type="time" step="1800"></div>
-      <div><label>종료 시간</label><input id="ot-f-end" type="time" step="1800"></div>
+      <div><label>시작 시간</label><div class="time-sel-group"><select id="ot-f-start-h"></select><span>:</span><select id="ot-f-start-m"><option value="00">00</option><option value="30">30</option></select></div></div>
+      <div><label>종료 시간</label><div class="time-sel-group"><select id="ot-f-end-h"></select><span>:</span><select id="ot-f-end-m"><option value="00">00</option><option value="30">30</option></select></div></div>
     </div>
     <datalist id="ot-name-list"></datalist>
     <div class="cal-form-actions">
@@ -712,7 +722,7 @@
     </div>
     <div style="font-size:13px;color:#64748b;margin-bottom:14px;">신청한 시간만큼 실제로 잔업하셨나요? 만약 실제로 다른 시간에 끝나셨으면 아래에 실제 종료시간을 고쳐서 입력해주세요.</div>
     <div class="ot-form" style="grid-template-columns:1fr;">
-      <div><label>실제 종료시간</label><input id="ot-confirm-actual-end" type="time" step="1800"></div>
+      <div><label>실제 종료시간</label><div class="time-sel-group"><select id="ot-confirm-actual-end-h"></select><span>:</span><select id="ot-confirm-actual-end-m"><option value="00">00</option><option value="30">30</option></select></div></div>
     </div>
     <div class="cal-form-actions">
       <button class="btn-cancel" onclick="closeOtConfirmModal()">취소</button>
@@ -1464,14 +1474,57 @@ async function deleteShipment(id) {
 const TEAM_NAMES = ['이희표','박정근','방은희','장유철','권혁찬','전한울','서재원','양희진','최정환','브로스','파이렛','라집'];
 let overtimeList = [];
 let editingOtId = null;
+
+// 시작/종료 시간을 시(0~23) · 분(00/30) 두 개 드롭다운으로 고르게 함
+// - 30분 단위로만 고를 수 있고, 골라서 클릭하면 바로 닫혀서(네이티브 시간 선택창의 불편함 해소)
+function initTimeSelects() {
+  const hourOptions = Array.from({ length: 24 }, (_, h) => `<option value="${pad2(h)}">${pad2(h)}</option>`).join('');
+  ['ot-f-start-h', 'ot-f-end-h', 'ot-confirm-actual-end-h'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = hourOptions;
+  });
+}
+function getTimeSelectValue(prefix) {
+  const h = document.getElementById(prefix + '-h')?.value;
+  const m = document.getElementById(prefix + '-m')?.value;
+  if (h === undefined || m === undefined) return '';
+  return h + ':' + m;
+}
+function setTimeSelectValue(prefix, value) {
+  const hEl = document.getElementById(prefix + '-h');
+  const mEl = document.getElementById(prefix + '-m');
+  if (!hEl || !mEl) return;
+  const parts = String(value || '17:30').split(':');
+  hEl.value = pad2(Number(parts[0]) || 0);
+  // 예전에 저장된 값이 30분 단위가 아니면(예: 21:48), 가까운 00/30 중 하나로 맞춰서 보여줌
+  mEl.value = (Number(parts[1]) || 0) < 30 ? '00' : '30';
+}
+initTimeSelects();
 let otConfirmId = null;
 let otStatDate = new Date();
 otStatDate = new Date(otStatDate.getFullYear(), otStatDate.getMonth(), 1);
 
+// 구글시트가 날짜/시간을 "진짜 날짜·시간" 타입으로 자동 변환해버리면, 업무일정 때와 똑같이
+// "2026-08-27T15:00:00.000Z" 같은 형태로 넘어올 수 있어서, 불러올 때 항상 깔끔하게 정리해줌
+function shortTime(v) {
+  if (!v) return '';
+  const s = String(v);
+  const m = s.match(/^\d{4}-\d{2}-\d{2}T/);
+  if (!m) return s;
+  const kst = new Date(new Date(s).getTime() + 9 * 60 * 60 * 1000);
+  return kst.toISOString().slice(11, 16);
+}
+
 async function loadOvertimes() {
   try {
     const res = await apiGet({ action: 'getOvertimes' });
-    overtimeList = Array.isArray(res) ? res : [];
+    overtimeList = (Array.isArray(res) ? res : []).map(o => ({
+      ...o,
+      date: shortDate(o.date) || o.date,
+      startTime: shortTime(o.startTime) || o.startTime,
+      endTime: shortTime(o.endTime) || o.endTime,
+      actualEndTime: o.actualEndTime ? (shortTime(o.actualEndTime) || o.actualEndTime) : o.actualEndTime,
+    }));
   } catch (e) {
     overtimeList = [];
   }
@@ -1508,15 +1561,15 @@ function openOtForm(id) {
     label.textContent = '잔업 수정';
     document.getElementById('ot-f-date').value = ot.date || '';
     document.getElementById('ot-f-name').value = ot.name || '';
-    document.getElementById('ot-f-start').value = ot.startTime || '17:30';
-    document.getElementById('ot-f-end').value = ot.endTime || '';
+    setTimeSelectValue('ot-f-start', ot.startTime || '17:30');
+    setTimeSelectValue('ot-f-end', ot.endTime || '');
   } else {
     label.textContent = '잔업 신청';
     const today = new Date();
     document.getElementById('ot-f-date').value = `${today.getFullYear()}-${pad2(today.getMonth()+1)}-${pad2(today.getDate())}`;
     document.getElementById('ot-f-name').value = '';
-    document.getElementById('ot-f-start').value = '17:30'; // 우리 잔업 시작시간은 항상 17:30 (필요하면 수정 가능)
-    document.getElementById('ot-f-end').value = '';
+    setTimeSelectValue('ot-f-start', '17:30'); // 우리 잔업 시작시간은 항상 17:30 (필요하면 수정 가능)
+    setTimeSelectValue('ot-f-end', '18:00');
   }
   document.getElementById('ot-modal-backdrop').style.display = 'flex';
 }
@@ -1528,8 +1581,8 @@ function closeOtForm() {
 async function saveOvertime() {
   const date = document.getElementById('ot-f-date').value;
   const name = document.getElementById('ot-f-name').value.trim();
-  const startTime = document.getElementById('ot-f-start').value;
-  const endTime = document.getElementById('ot-f-end').value;
+  const startTime = getTimeSelectValue('ot-f-start');
+  const endTime = getTimeSelectValue('ot-f-end');
   if (!date || !name || !startTime || !endTime) { alert('날짜·신청자·시작시간·종료시간을 모두 입력해주세요.'); return; }
 
   const btn = document.getElementById('ot-form-save-btn');
@@ -1586,7 +1639,7 @@ function openOtConfirmModal(id) {
   otConfirmId = id;
   const ot = overtimeList.find(o => String(o.id) === String(id));
   if (!ot) return;
-  document.getElementById('ot-confirm-actual-end').value = ot.actualEndTime || ot.endTime || '';
+  setTimeSelectValue('ot-confirm-actual-end', ot.actualEndTime || ot.endTime || '17:30');
   document.getElementById('ot-confirm-modal-backdrop').style.display = 'flex';
 }
 function closeOtConfirmModal() {
@@ -1595,7 +1648,7 @@ function closeOtConfirmModal() {
   renderOtList(); // 체크박스를 껐다 켰다만 하고 취소한 경우, 화면 체크 표시를 원래대로 되돌림
 }
 async function submitOtConfirm() {
-  const actualEndTime = document.getElementById('ot-confirm-actual-end').value;
+  const actualEndTime = getTimeSelectValue('ot-confirm-actual-end');
   const id = otConfirmId;
   if (!id) return;
   try {
@@ -1621,25 +1674,42 @@ async function submitOtUnconfirm(id) {
   }
 }
 
+// 신청한 순서가 아니라, 날짜는 최근 날짜가 위로(전날 것도 아래에서 계속 볼 수 있음),
+// 같은 날짜 안에서는 항상 우리팀 이름 순서(TEAM_NAMES)대로 정렬함
 function renderOtList() {
   const wrap = document.getElementById('ot-list');
   const empty = document.getElementById('ot-list-empty');
   if (!wrap) return;
-  const sorted = [...overtimeList].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const nameOrder = (name) => { const i = TEAM_NAMES.indexOf(name); return i === -1 ? 999 : i; };
+  const sorted = [...overtimeList].sort((a, b) => {
+    const byDate = (b.date || '').localeCompare(a.date || '');
+    if (byDate !== 0) return byDate;
+    return nameOrder(a.name) - nameOrder(b.name);
+  });
   if (sorted.length === 0) {
     wrap.innerHTML = '';
     empty.style.display = 'block';
     return;
   }
   empty.style.display = 'none';
+  const today = new Date();
+  const todayStr = toDateStr(today.getFullYear(), today.getMonth(), today.getDate());
   wrap.innerHTML = sorted.map(o => {
-    const timeStr = o.startTime + ' ~ ' + o.endTime + (o.actualEndTime && o.actualEndTime !== o.endTime ? ` (실제 ${o.actualEndTime}까지)` : '');
+    const timeStr = o.startTime + ' ~ ' + o.endTime + (o.actualEndTime && o.actualEndTime !== o.endTime ? ` (실제 ${o.actualEndTime})` : '');
     const tag = o.confirmed ? '<span class="ot-confirmed-tag">✓ 확인완료</span>' : '<span class="ot-unconfirmed-tag">확인 대기</span>';
+    const isToday = o.date === todayStr;
+    const [, moStr, daStr] = String(o.date || '').split('-');
+    const dateBoxHtml = moStr && daStr
+      ? `<div class="ot-datebox${isToday ? ' today' : ''}"><div class="ot-datebox-m">${Number(moStr)}월</div><div class="ot-datebox-d">${Number(daStr)}</div></div>`
+      : `<div class="ot-datebox"><div class="ot-datebox-d">-</div></div>`;
     return `<div class="ot-row">
+      ${dateBoxHtml}
       <input type="checkbox" class="ot-check" ${o.confirmed ? 'checked' : ''} onchange="onOtCheckToggle('${o.id}', this.checked)" title="실제로 그만큼 잔업했으면 체크해주세요">
       <div class="ot-info">
-        <div class="ot-name">${escapeHtml(o.name)}</div>
-        <div class="ot-meta">${escapeHtml(o.date)} · ${escapeHtml(timeStr)}</div>
+        <div class="ot-name-time">
+          <span class="ot-name">${escapeHtml(o.name)}</span>
+          <span class="ot-time">${escapeHtml(timeStr)}</span>
+        </div>
       </div>
       ${tag}
       <div class="et-actions">
