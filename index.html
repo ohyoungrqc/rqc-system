@@ -865,13 +865,11 @@ function enterPortal() {
   document.getElementById('frame-products').src = 'products.html?v=' + v;
   switchTab(eqId ? 'equipment' : 'home');
   renderHomeDate();
-  // 홈 화면 미리보기에 바로 필요한 것들만 여기서 미리 불러옴
-  loadNotices();
-  loadSchedules();
-  loadHumidity();
-  // 샘플발송현황/잔업관리/업무일정(야간조 표시)은 화면이 많아지면서 포털 진입 시
-  // 한꺼번에 너무 많은 요청이 몰려 전체적으로 느려지는 원인이 됐음.
-  // 그래서 이 세 가지는 각자 해당 탭을 처음 열 때만 불러오도록 아래 switchTab()에서 지연 로딩함.
+  // 공지사항/업무일정/온습도(홈 화면 미리보기용)와 샘플발송현황/잔업관리/야간조는
+  // 전부 위 switchTab()이 호출되면서 그 탭에 맞게 알아서 지연 로딩됨(아래 switchTab() 참고).
+  // 큐알로 들어와서 바로 'equipment' 탭으로 가는 경우엔 이 데이터들을 지금 당장 안 불러오게 되고,
+  // 그만큼 설비 상세화면 데이터(equipment iframe의 getAll)가 서버 처리 자원을 덜 나눠 쓰게 되어 더 빨라짐.
+  // (나중에 은희님이 "홈"/"업무일정"/"공지사항"/"온습도관리" 탭을 누르면 그때 알아서 불러와짐)
 }
 
 // ===== 탭 전환 =====
@@ -940,13 +938,22 @@ function switchTab(key) {
   const dropBtn = document.querySelector('.dropdown button[data-tab="' + key + '"]');
   if (dropBtn) dropBtn.classList.add('active');
 
+  if (key === 'home') {
+    // 큐알로 들어와서 설비 상세화면만 보고 홈은 안 열어봤을 수도 있으니, 홈을 처음 열 때 그제서야 불러옴
+    if (!noticesLoaded) { noticesLoaded = true; loadNotices(); }
+    if (!schedulesLoaded) { schedulesLoaded = true; loadSchedules(); }
+    if (!humidityLoaded) { humidityLoaded = true; loadHumidity(); }
+  }
   if (key === 'calendar') {
     if (isReclick) resetCalendarView();
-    renderCalendar();
+    if (schedulesLoaded) renderCalendar(); else { schedulesLoaded = true; loadSchedules(); }
     // 야간조 표시는 이 탭을 처음 열 때만 불러옴 (포털 진입 시 한꺼번에 불러오던 걸 늦춘 것) — 도착하면 renderCalendar()가 자동으로 다시 그려줌
     if (!nightShiftsLoaded) { nightShiftsLoaded = true; loadNightShifts(); }
   }
-  if (key === 'notice') resetNoticeBoard(); // 공지사항은 원래부터 매번 목록 화면으로 돌아가도록 되어 있음
+  if (key === 'notice') {
+    resetNoticeBoard(); // 공지사항은 원래부터 매번 목록 화면으로 돌아가도록 되어 있음
+    if (!noticesLoaded) { noticesLoaded = true; loadNotices(); }
+  }
   if (key === 'shipping') {
     if (isReclick) resetShippingView();
     // 처음 여는 거면 서버에서 불러오면서 화면에 있는 로딩 표시가 자동으로 뜨고, 이미 불러온 적 있으면 바로 다시 그려줌
@@ -956,7 +963,10 @@ function switchTab(key) {
     if (isReclick) resetOvertimeView();
     if (overtimesLoaded) renderOtList(); else { overtimesLoaded = true; loadOvertimes(); }
   }
-  if (key === 'humidity') { if (isReclick) resetHumidityView(); }
+  if (key === 'humidity') {
+    if (isReclick) resetHumidityView();
+    if (!humidityLoaded) { humidityLoaded = true; loadHumidity(); }
+  }
   if ((key === 'equipment' || key === 'products') && isReclick) reloadEmbeddedFrame(key);
 }
 
@@ -1000,6 +1010,7 @@ calDate = new Date(calDate.getFullYear(), calDate.getMonth(), 1);
 let scheduleList = [];
 let calModalDate = null;
 let editingScheduleId = null;
+let schedulesLoaded = false; // 큐알로 바로 설비 상세화면으로 들어온 경우엔 홈 화면을 안 보므로, 나중에(홈/업무일정 탭 열 때) 불러오기 위한 표시
 
 function pad2(n) { return String(n).padStart(2, '0'); }
 function toDateStr(y, m, d) { return `${y}-${pad2(m + 1)}-${pad2(d)}`; }
@@ -1803,6 +1814,7 @@ let humidityList = [];
 let humMonth = new Date();
 humMonth = new Date(humMonth.getFullYear(), humMonth.getMonth(), 1);
 let humTableShown = false;
+let humidityLoaded = false; // 큐알로 바로 설비 상세화면으로 들어온 경우엔 홈 화면을 안 보므로, 나중에(홈/온습도관리 탭 열 때) 불러오기 위한 표시
 
 async function loadHumidity() {
   try {
@@ -2081,6 +2093,7 @@ function escapeHtml(s) {
 }
 let noticeList = [];
 let editingNoticeId = null;
+let noticesLoaded = false; // 큐알로 바로 설비 상세화면으로 들어온 경우엔 홈 화면을 안 보므로, 나중에(홈/공지사항 탭 열 때) 불러오기 위한 표시
 
 function readFileAsBase64(file) {
   return new Promise((resolve, reject) => {
