@@ -359,6 +359,13 @@
   .log-card-value { flex: 1; }
   .log-card-actions { display: flex; gap: 6px; margin-top: 10px; justify-content: flex-end; }
 
+  /* 인쇄용 머리말 - 포털(index.html)의 샘플발송현황 인쇄 머리말과 항상 똑같은 모양으로 맞춤 */
+  .print-header { display: none; align-items: center; gap: 10px; padding: 0 0 12px; margin-bottom: 14px; border-bottom: 2px solid #2a5298; }
+  .print-header .print-badge { width: 30px; height: 30px; flex-shrink: 0; display: block; object-fit: contain; }
+  .print-header .print-brand { font-size: 14px; font-weight: 700; letter-spacing: 0.5px; color: #2a5298; line-height: 1.25; }
+  .print-header .print-dept { font-size: 10.5px; color: #94a3b8; font-weight: 600; line-height: 1.25; }
+  .print-header .print-date { margin-left: auto; font-size: 10.5px; color: #64748b; }
+
   @media print {
     .app-header, .toolbar, .btn, .nav-tabs { display: none !important; }
     .view { display: none !important; padding: 0; }
@@ -367,7 +374,9 @@
     .check-table { display: table !important; }
     .log-card-list { display: none !important; }
     .check-table th:last-child, .check-table td:last-child { display: none !important; }
-    /* "인쇄" 버튼을 누르면, 화면에서 지금 보고 있는 탭(점검이력 또는 검교정이력)만 표로 인쇄됨 */
+    /* "인쇄" 버튼을 누르면, 상세정보(자산정보 카드)는 빼고 지금 보고 있는 탭(점검이력 또는 검교정이력) 표만 인쇄됨 */
+    .detail-header, .section-title { display: none !important; }
+    .print-header { display: flex !important; }
   }
   @media (max-width: 700px) {
     .stats-row { grid-template-columns: 1fr 1fr; }
@@ -505,17 +514,33 @@
     <button class="inner-tab" onclick="showInnerTab('manual',this)">📖 Manual</button>
   </div>
   <div class="inner-content active" id="inner-checks">
+    <div class="print-header">
+      <img class="print-badge" src="https://drive.google.com/thumbnail?id=1z6L5wiLkMBe6KH6GBW1UmvgHipi-vWEw&sz=w96" alt="OHYOUNG">
+      <div>
+        <div class="print-brand">OHYOUNG</div>
+        <div class="print-dept">품질관리부 · 반응QC</div>
+      </div>
+      <span class="print-date" id="check-print-date"></span>
+    </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
       <div class="section-title" style="flex:1;margin:0 16px 0 0;">최근 점검 기록</div>
-      <button class="btn btn-secondary btn-sm" onclick="window.print()" title="점검 이력을 표로 인쇄해요">🖨️ 인쇄</button>
+      <button class="btn btn-secondary btn-sm" onclick="printInnerContent('check-print-date')" title="점검 이력을 표로 인쇄해요">🖨️ 인쇄</button>
       <button class="btn btn-primary btn-sm" onclick="openCheckModal()">＋ 점검 기록 추가</button>
     </div>
     <div class="card" style="padding:0;overflow:hidden;"><div id="check-log-container"></div></div>
   </div>
   <div class="inner-content" id="inner-calib">
+    <div class="print-header">
+      <img class="print-badge" src="https://drive.google.com/thumbnail?id=1z6L5wiLkMBe6KH6GBW1UmvgHipi-vWEw&sz=w96" alt="OHYOUNG">
+      <div>
+        <div class="print-brand">OHYOUNG</div>
+        <div class="print-dept">품질관리부 · 반응QC</div>
+      </div>
+      <span class="print-date" id="calib-print-date"></span>
+    </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
       <div class="section-title" style="flex:1;margin:0 16px 0 0;">검교정 이력</div>
-      <button class="btn btn-secondary btn-sm" onclick="window.print()" title="검교정 이력을 표로 인쇄해요">🖨️ 인쇄</button>
+      <button class="btn btn-secondary btn-sm" onclick="printInnerContent('calib-print-date')" title="검교정 이력을 표로 인쇄해요">🖨️ 인쇄</button>
       <button class="btn btn-primary btn-sm" onclick="openCalibModal()">＋ 검교정 기록 추가</button>
     </div>
     <div class="card" style="padding:0;overflow:hidden;"><div id="calib-log-container"></div></div>
@@ -776,6 +801,14 @@ function goHome() {
   } else {
     location.href = 'index.html';
   }
+}
+
+// 점검이력/검교정이력 "인쇄" 버튼: 인쇄 머리말에 오늘 날짜를 채워 넣은 다음 인쇄창을 띄움
+function printInnerContent(dateElId) {
+  const now = new Date();
+  const el = document.getElementById(dateElId);
+  if (el) el.textContent = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')} 출력`;
+  window.print();
 }
 
 async function startApp() {
