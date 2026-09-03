@@ -1464,6 +1464,7 @@ function renderBatchList() {
   const today = new Date();
   const fmt = `${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')}`;
   document.getElementById('batch-date').value = fmt;
+  document.getElementById('batch-person').value = '';
 
   const container = document.getElementById('batch-list');
   if (db.equipment.length === 0) {
@@ -1626,18 +1627,29 @@ async function saveBatchCheck() {
     memo: document.getElementById(`batch-memo${suffix}${eqId}`)?.value || ''
   }));
 
-  const res = await apiPost({ action: 'addCheckBatch', date, person, items });
+  let res;
+  try {
+    res = await apiPost({ action: 'addCheckBatch', date, person, items });
+  } catch (e) {
+    btn.textContent = '💾 전체 저장'; btn.disabled = false;
+    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.');
+    return;
+  }
 
-  if (res.ids) {
+  btn.textContent = '💾 전체 저장'; btn.disabled = false;
+
+  if (res && res.ids) {
     items.forEach((item, i) => {
       if (!db.checks) db.checks = [];
       db.checks.push({ id: res.ids[i] || ('c'+Date.now()+i), eqId: item.eqId, date, person, ...item });
     });
+    alert(`✅ ${checkedIds.length}개 설비 점검 기록이 저장됐어요!`);
+    renderStats();
+    // 저장이 끝나면, 처음 "일괄 점검"을 눌렀을 때와 똑같은 화면(오늘 날짜, 전체 선택, 빈 메모)으로 되돌려줌
+    renderBatchList();
+  } else {
+    alert('저장에 실패했어요: ' + (res && res.error ? res.error : '알 수 없는 오류'));
   }
-
-  btn.textContent = '💾 전체 저장'; btn.disabled = false;
-  alert(`✅ ${checkedIds.length}개 설비 점검 기록이 저장됐어요!`);
-  renderStats();
 }
 let editingCalibId = null;
 
