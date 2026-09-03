@@ -256,7 +256,8 @@
 
   @media print {
     .app-header, .toolbar, .btn, .nav-tabs { display: none !important; }
-    .view { display: block !important; padding: 0; }
+    .view { display: none !important; padding: 0; }
+    .view.active { display: block !important; }
   }
   @media (max-width: 700px) {
     .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -360,7 +361,13 @@
 
   @media print {
     .app-header, .toolbar, .btn, .nav-tabs { display: none !important; }
-    .view { display: block !important; padding: 0; }
+    .view { display: none !important; padding: 0; }
+    .view.active { display: block !important; }
+    .inner-tabs, .search-wrap { display: none !important; }
+    #inner-checks, #inner-calib { display: block !important; margin-bottom: 28px; }
+    .check-table { display: table !important; }
+    .log-card-list { display: none !important; }
+    .check-table th:last-child, .check-table td:last-child { display: none !important; }
   }
   @media (max-width: 700px) {
     .stats-row { grid-template-columns: 1fr 1fr; }
@@ -394,6 +401,12 @@
     <div id="login-error" style="color:#dc2626;font-size:12px;margin-bottom:10px;display:none;">비밀번호가 틀렸습니다</div>
     <button onclick="tryLogin()" style="width:100%;padding:12px;background:#2a5298;color:white;border:none;border-radius:9px;font-size:14px;font-weight:700;letter-spacing:0.5px;cursor:pointer;">Login</button>
   </div>
+</div>
+
+<!-- 큐알 찍고 바로 들어왔을 때, 목록화면이 잠깐 보였다가 상세화면으로 넘어가는 게 아니라
+     처음부터 이 화면(로딩중)만 보이다가 바로 상세화면으로 넘어가도록 함 -->
+<div id="direct-loading" style="display:none;position:fixed;inset:0;background:#f7f9fc;z-index:9990;align-items:center;justify-content:center;">
+  <div class="loading"><div class="spinner"></div> 설비 정보를 불러오는 중...</div>
 </div>
 
 <header class="app-header">
@@ -481,6 +494,7 @@
   <div style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
     <button class="btn btn-secondary btn-sm" onclick="showView('list')">← 목록으로</button>
     <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary btn-sm" onclick="window.print()" title="점검이력/검교정이력을 표로 인쇄해요">🖨️ 인쇄</button>
       <button class="btn btn-secondary btn-sm" onclick="openEditModal()">✏️ 정보 수정</button>
       <a href="https://ohyoung.c-live.kr/ohyoung/index.php" target="_blank" class="btn btn-sm" style="background:#dc2626;color:white;text-decoration:none;">🔧 수리의뢰</a>
     </div>
@@ -772,6 +786,12 @@ async function startApp() {
   // 저장된 비밀번호(또는 큐알 주소에 담긴 비밀번호)가 있으면 로그인 화면이 깜빡이지 않도록
   // 화면부터 바로 보여주고, 서버 확인은 뒤에서 조용히 진행함
   document.getElementById('login-gate').style.display = 'none';
+  // 큐알(?eq=설비아이디)로 들어온 경우: 데이터 불러오는 동안 "설비 목록" 화면이 잠깐 보였다가
+  // 상세화면으로 넘어가면 헷갈리니까, 그 사이엔 목록 대신 로딩 화면만 보이게 함
+  if (new URLSearchParams(location.search).get('eq')) {
+    document.getElementById('view-list').classList.remove('active');
+    document.getElementById('direct-loading').style.display = 'flex';
+  }
   init();
   try {
     const res = await apiGet({ action: 'ping' });
@@ -821,21 +841,27 @@ async function init() {
   const params = new URLSearchParams(location.search);
   const eqId = params.get('eq');
 
-  const data = await apiGet({ action: 'getAll' });
-  db = data;
-  if (!db.calibs) db.calibs = [];
-  // 구글시트 체크박스/문자 값("TRUE" 등)이 섞여 와도 항상 true/false로 정리해줌
-  db.equipment = (db.equipment || []).map(eq => ({
-    ...eq,
-    hidden: (eq.hidden === true || eq.hidden === 'TRUE' || eq.hidden === 'true'),
-  }));
+  try {
+    const data = await apiGet({ action: 'getAll' });
+    db = data;
+    if (!db.calibs) db.calibs = [];
+    // 구글시트 체크박스/문자 값("TRUE" 등)이 섞여 와도 항상 true/false로 정리해줌
+    db.equipment = (db.equipment || []).map(eq => ({
+      ...eq,
+      hidden: (eq.hidden === true || eq.hidden === 'TRUE' || eq.hidden === 'true'),
+    }));
 
-  if (eqId) {
-    const eq = db.equipment.find(e => e.id === eqId);
-    if (eq) { openDetail(eqId); return; }
+    if (eqId) {
+      const eq = db.equipment.find(e => e.id === eqId);
+      if (eq) { openDetail(eqId); return; }
+    }
+    showView('list');
+    addClearButtons();
+  } finally {
+    // 큐알로 들어왔을 때 띄워뒀던 로딩화면은, 성공하든 실패하든(네트워크 오류 등) 항상 닫아줌
+    const overlay = document.getElementById('direct-loading');
+    if (overlay) overlay.style.display = 'none';
   }
-  showView('list');
-  addClearButtons();
 }
 
 // ===== VIEWS =====
