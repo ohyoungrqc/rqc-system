@@ -129,7 +129,7 @@
   .search-box:focus { border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
 
   /* ===== BUTTONS ===== */
-  .btn { padding: 9px 18px; border-radius: var(--radius-sm); border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; letter-spacing: -0.2px; }
+  .btn { padding: 9px 18px; border-radius: var(--radius-sm); border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; letter-spacing: -0.2px; white-space: nowrap; }
   .btn-primary { background: linear-gradient(135deg, #1e3a6e, #2a5298); color: white; box-shadow: 0 2px 8px rgba(42,82,152,0.3); }
   .btn-primary:hover { background: linear-gradient(135deg, #17306e, #234a8a); box-shadow: 0 4px 12px rgba(42,82,152,0.4); transform: translateY(-1px); }
   .btn-secondary { background: var(--surface); color: var(--text); border: 1.5px solid var(--border); box-shadow: var(--shadow-sm); }
@@ -491,9 +491,9 @@
 
 <!-- 설비 상세 -->
 <div class="view" id="view-detail">
-  <div style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
+  <div style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
     <button class="btn btn-secondary btn-sm" onclick="showView('list')">← 목록으로</button>
-    <div style="display:flex;gap:8px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
       <button class="btn btn-secondary btn-sm" onclick="window.print()" title="점검이력/검교정이력을 표로 인쇄해요">🖨️ 인쇄</button>
       <button class="btn btn-secondary btn-sm" onclick="openEditModal()">✏️ 정보 수정</button>
       <a href="https://ohyoung.c-live.kr/ohyoung/index.php" target="_blank" class="btn btn-sm" style="background:#dc2626;color:white;text-decoration:none;">🔧 수리의뢰</a>
