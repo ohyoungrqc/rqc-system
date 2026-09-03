@@ -367,9 +367,7 @@
     .check-table { display: table !important; }
     .log-card-list { display: none !important; }
     .check-table th:last-child, .check-table td:last-child { display: none !important; }
-    /* "상세정보 인쇄" 버튼을 눌렀을 때: 점검이력/검교정이력 표는 다 숨기고 위쪽 기기 정보만 인쇄됨 */
-    body.print-detail-only .inner-tabs, body.print-detail-only .inner-content { display: none !important; }
-    /* "내역 인쇄" 버튼을 눌렀을 때는 별도 처리 없이, 화면에서 지금 보고 있는 탭(점검이력 또는 검교정이력)만 그대로 인쇄됨 */
+    /* "인쇄" 버튼을 누르면, 화면에서 지금 보고 있는 탭(점검이력 또는 검교정이력)만 표로 인쇄됨 */
   }
   @media (max-width: 700px) {
     .stats-row { grid-template-columns: 1fr 1fr; }
@@ -496,8 +494,6 @@
   <div style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
     <button class="btn btn-secondary btn-sm" onclick="showView('list')">← 목록으로</button>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn btn-secondary btn-sm" onclick="printDetailOnly()" title="점검이력/검교정이력 없이 설비 정보만 인쇄해요">🖨️ 상세정보 인쇄</button>
-      <button class="btn btn-secondary btn-sm" onclick="window.print()" title="지금 보고 있는 탭(점검이력 또는 검교정이력)만 표로 인쇄해요">🖨️ 내역 인쇄</button>
       <button class="btn btn-secondary btn-sm" onclick="openEditModal()">✏️ 정보 수정</button>
       <a href="https://ohyoung.c-live.kr/ohyoung/index.php" target="_blank" class="btn btn-sm" style="background:#dc2626;color:white;text-decoration:none;">🔧 수리의뢰</a>
     </div>
@@ -509,15 +505,17 @@
     <button class="inner-tab" onclick="showInnerTab('manual',this)">📖 Manual</button>
   </div>
   <div class="inner-content active" id="inner-checks">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
       <div class="section-title" style="flex:1;margin:0 16px 0 0;">최근 점검 기록</div>
+      <button class="btn btn-secondary btn-sm" onclick="window.print()" title="점검 이력을 표로 인쇄해요">🖨️ 인쇄</button>
       <button class="btn btn-primary btn-sm" onclick="openCheckModal()">＋ 점검 기록 추가</button>
     </div>
     <div class="card" style="padding:0;overflow:hidden;"><div id="check-log-container"></div></div>
   </div>
   <div class="inner-content" id="inner-calib">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
       <div class="section-title" style="flex:1;margin:0 16px 0 0;">검교정 이력</div>
+      <button class="btn btn-secondary btn-sm" onclick="window.print()" title="검교정 이력을 표로 인쇄해요">🖨️ 인쇄</button>
       <button class="btn btn-primary btn-sm" onclick="openCalibModal()">＋ 검교정 기록 추가</button>
     </div>
     <div class="card" style="padding:0;overflow:hidden;"><div id="calib-log-container"></div></div>
@@ -778,18 +776,6 @@ function goHome() {
   } else {
     location.href = 'index.html';
   }
-}
-
-// "상세정보 인쇄" 버튼: 점검이력/검교정이력 표는 빼고 위쪽 설비 정보만 인쇄되도록,
-// 인쇄하는 동안만 body에 표시를 해뒀다가(print-detail-only) 인쇄창이 닫히면 다시 없애줌
-function printDetailOnly() {
-  document.body.classList.add('print-detail-only');
-  const cleanup = () => {
-    document.body.classList.remove('print-detail-only');
-    window.removeEventListener('afterprint', cleanup);
-  };
-  window.addEventListener('afterprint', cleanup);
-  window.print();
 }
 
 async function startApp() {
