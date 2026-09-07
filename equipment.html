@@ -1470,10 +1470,32 @@ async function saveCheck() {
     closeModal('modal-check');
     renderCheckLog();
     renderStats();
+    // "이상있음"으로 기록되면 차장님께 바로 알림 이메일 발송 시도 (실패해도 점검 저장 자체엔 영향 없음)
+    if (data.machine === '이상있음') {
+      notifyAbnormalCheck(data);
+    }
   } catch (e) {
     alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.\n\n(문제 파악용 상세정보: ' + (e && e.message ? e.message : e) + ')');
   } finally {
     btn.textContent = '저장'; btn.disabled = false;
+  }
+}
+
+// 점검 중 "이상있음"이 기록되면 차장님께 즉시 알림 이메일을 보내달라고 서버에 요청 (2026-09-07 추가)
+// 실패해도 조용히 무시함 — 점검 기록 저장(위 saveCheck)은 이미 끝난 뒤라 사용자 경험에 영향 없음
+async function notifyAbnormalCheck(data) {
+  try {
+    const eq = (db.equipment || []).find(e => e.id === data.eqId);
+    await apiPost({
+      action: 'notifyAbnormal',
+      eqId: data.eqId,
+      eqName: eq ? eq.name : '',
+      date: data.date,
+      person: data.person,
+      memo: data.memo || ''
+    });
+  } catch (e) {
+    // 알림 발송 실패는 무시 (점검 기록 자체는 이미 정상 저장됨)
   }
 }
 
