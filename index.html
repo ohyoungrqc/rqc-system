@@ -338,7 +338,7 @@
       <button class="nav-btn" onclick="switchTab('notice')">공지사항</button>
     </div>
     <div class="nav-item" data-key="monitor">
-      <button class="nav-btn" onclick="switchTab('monitor')">생산현황 모니터링</button>
+      <button class="nav-btn" onclick="switchTab('monitor')">QC모니터링</button>
     </div>
     <div class="nav-item" data-key="products">
       <button class="nav-btn" onclick="toggleOrSwitch(this,'products')">제품조회 ▾</button>
@@ -391,7 +391,7 @@
 
     <div class="card home-monitor-card">
       <div class="card-head">
-        <div class="title">📊 생산현황 모니터링</div>
+        <div class="title">📊 QC모니터링</div>
         <a onclick="switchTab('monitor')">더보기 →</a>
       </div>
       <div class="home-monitor-empty">아직 연결 전이에요. 준비되는 대로 이 카드에서 바로 확인하실 수 있어요.</div>
@@ -413,7 +413,7 @@
     <div class="quick-grid">
       <button class="quick-card" onclick="switchTab('equipment')"><div class="icon">🔧</div><div><div class="title">설비관리</div><div class="sub">점검 · QR · 이력 관리</div></div></button>
       <button class="quick-card" onclick="switchTab('products')"><div class="icon">🧪</div><div><div class="title">제품조회</div><div class="sub">Lot 이력 · QC 자료</div></div></button>
-      <button class="quick-card" onclick="switchTab('monitor')"><div class="icon">📊</div><div><div class="title">생산현황 모니터링</div><div class="sub">준비중</div></div></button>
+      <button class="quick-card" onclick="switchTab('monitor')"><div class="icon">📊</div><div><div class="title">QC모니터링</div><div class="sub">준비중</div></div></button>
       <button class="quick-card" onclick="switchTab('shipping')"><div class="icon">📦</div><div><div class="title">샘플발송현황</div><div class="sub">발송현황 · 라벨인쇄</div></div></button>
       <button class="quick-card" onclick="switchTab('calendar')"><div class="icon">📅</div><div><div class="title">일정관리</div><div class="sub">일정 · 잔업관리</div></div></button>
     </div>
@@ -503,16 +503,16 @@
   </div>
 </div>
 
-<!-- 생산현황 모니터링: 준비중 -->
+<!-- QC모니터링: 준비중 -->
 <div class="content-section" id="section-monitor">
   <div class="page-wrap">
     <div class="badge-soon">준비중</div>
-    <div class="page-title">생산현황 모니터링</div>
-    <div class="page-sub">공정별 생산 현황을 실시간으로 볼 수 있는 화면이 여기 들어갈 예정이에요.</div>
+    <div class="page-title">QC모니터링</div>
+    <div class="page-sub">품질 관련 현황을 실시간으로 볼 수 있는 화면이 여기 들어갈 예정이에요.</div>
     <div class="stat-row">
-      <div class="stat-tile"><div class="label">오늘 생산량</div><div class="value accent">—</div></div>
-      <div class="stat-tile"><div class="label">가동 설비</div><div class="value">—</div></div>
-      <div class="stat-tile"><div class="label">이상 알림</div><div class="value">—</div></div>
+      <div class="stat-tile"><div class="label">오늘 검사 건수</div><div class="value accent">—</div></div>
+      <div class="stat-tile"><div class="label">불량/이상 건수</div><div class="value">—</div></div>
+      <div class="stat-tile"><div class="label">점검 지연 설비</div><div class="value">—</div></div>
       <div class="stat-tile"><div class="label">품질 이슈</div><div class="value">—</div></div>
     </div>
     <div class="card" style="text-align:center;color:#94a3b8;padding:40px 0;">데이터 연결 예정</div>

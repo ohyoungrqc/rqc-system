@@ -763,14 +763,29 @@ function savePw(pw) { try { localStorage.setItem(PW_KEY, pw); localStorage.setIt
 function clearPw() { try { localStorage.removeItem(PW_KEY); localStorage.removeItem(PW_TS_KEY); } catch(e) {} }
 
 // ===== API =====
+// 서버가 너무 오래 응답이 없으면(네트워크 문제, 서버 지연 등) 무한정 기다리지 않고
+// 25초 후 에러로 처리해서, 버튼이 "저장 중..."에 영원히 멈춰있지 않게 함
+async function fetchWithTimeout(url, options, timeoutMs = 25000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (e) {
+    if (e.name === 'AbortError') throw new Error('요청 시간이 초과됐어요. 인터넷 연결을 확인해주세요.');
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function apiGet(params) {
   const url = API + '?' + new URLSearchParams({ ...params, pw: getSavedPw() });
-  const res = await fetch(url);
+  const res = await fetchWithTimeout(url);
   return res.json();
 }
 
 async function apiPost(data) {
-  const res = await fetch(API, {
+  const res = await fetchWithTimeout(API, {
     method: 'POST',
     body: JSON.stringify({ ...data, pw: getSavedPw() })
   });
@@ -1400,22 +1415,27 @@ async function saveEquipment() {
     photo: document.getElementById('f-photo').value.trim(),
     manualLink: db.equipment.find(e=>e.id===editingEqId)?.manualLink||'',
   };
-  if (editingEqId) {
-    data.action = 'editEquipment'; data.id = editingEqId;
-    await apiPost(data);
-    const idx = db.equipment.findIndex(e => e.id === editingEqId);
-    db.equipment[idx] = { ...db.equipment[idx], ...data };
-  } else {
-    data.action = 'addEquipment';
-    const res = await apiPost(data);
-    db.equipment.push({ id: res.id, ...data });
+  try {
+    if (editingEqId) {
+      data.action = 'editEquipment'; data.id = editingEqId;
+      await apiPost(data);
+      const idx = db.equipment.findIndex(e => e.id === editingEqId);
+      db.equipment[idx] = { ...db.equipment[idx], ...data };
+    } else {
+      data.action = 'addEquipment';
+      const res = await apiPost(data);
+      db.equipment.push({ id: res.id, ...data });
+    }
+    closeModal('modal-eq');
+    if (editingEqId) {
+      if (eqEditReturnView === 'qr') { showView('qr'); renderQR(); }
+      else openDetail(editingEqId);
+    } else { renderStats(); renderList(); }
+  } catch (e) {
+    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.');
+  } finally {
+    btn.textContent = '저장'; btn.disabled = false;
   }
-  btn.textContent = '저장'; btn.disabled = false;
-  closeModal('modal-eq');
-  if (editingEqId) {
-    if (eqEditReturnView === 'qr') { showView('qr'); renderQR(); }
-    else openDetail(editingEqId);
-  } else { renderStats(); renderList(); }
 }
 
 function openCheckModal() {
@@ -1441,12 +1461,17 @@ async function saveCheck() {
     clean: document.getElementById('c-clean').value,
     memo: document.getElementById('c-memo').value.trim()
   };
-  const res = await apiPost(data);
-  db.checks.push({ id: res.id || ('c'+Date.now()), ...data });
-  btn.textContent = '저장'; btn.disabled = false;
-  closeModal('modal-check');
-  renderCheckLog();
-  renderStats();
+  try {
+    const res = await apiPost(data);
+    db.checks.push({ id: res.id || ('c'+Date.now()), ...data });
+    closeModal('modal-check');
+    renderCheckLog();
+    renderStats();
+  } catch (e) {
+    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.');
+  } finally {
+    btn.textContent = '저장'; btn.disabled = false;
+  }
 }
 
 let editingCheckId = null;
@@ -1476,13 +1501,18 @@ async function saveCheckEdit() {
     clean: document.getElementById('ce-clean').value,
     memo: document.getElementById('ce-memo').value.trim()
   };
-  await apiPost(data);
-  const idx = db.checks.findIndex(c => c.id === editingCheckId);
-  db.checks[idx] = { ...db.checks[idx], ...data };
-  btn.textContent = '저장'; btn.disabled = false;
-  closeModal('modal-check-edit');
-  renderCheckLog();
-  renderStats();
+  try {
+    await apiPost(data);
+    const idx = db.checks.findIndex(c => c.id === editingCheckId);
+    db.checks[idx] = { ...db.checks[idx], ...data };
+    closeModal('modal-check-edit');
+    renderCheckLog();
+    renderStats();
+  } catch (e) {
+    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.');
+  } finally {
+    btn.textContent = '저장'; btn.disabled = false;
+  }
 }
 
 async function deleteCheck(id) {
@@ -1789,19 +1819,24 @@ async function saveCalib() {
     memo: document.getElementById('cal-memo').value.trim()
   };
   if (!db.calibs) db.calibs = [];
-  if (editingCalibId) {
-    payload.action = 'editCalib'; payload.id = editingCalibId;
-    await apiPost(payload);
-    const idx = db.calibs.findIndex(c => c.id === editingCalibId);
-    db.calibs[idx] = { ...db.calibs[idx], ...payload };
-  } else {
-    payload.action = 'addCalib';
-    const res = await apiPost(payload);
-    db.calibs.push({ id: res.id || ('cal'+Date.now()), ...payload });
+  try {
+    if (editingCalibId) {
+      payload.action = 'editCalib'; payload.id = editingCalibId;
+      await apiPost(payload);
+      const idx = db.calibs.findIndex(c => c.id === editingCalibId);
+      db.calibs[idx] = { ...db.calibs[idx], ...payload };
+    } else {
+      payload.action = 'addCalib';
+      const res = await apiPost(payload);
+      db.calibs.push({ id: res.id || ('cal'+Date.now()), ...payload });
+    }
+    closeModal('modal-calib');
+    renderCalibLog();
+  } catch (e) {
+    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.');
+  } finally {
+    btn.textContent = '저장'; btn.disabled = false;
   }
-  btn.textContent = '저장'; btn.disabled = false;
-  closeModal('modal-calib');
-  renderCalibLog();
 }
 
 async function deleteCalib(id) {
@@ -1828,15 +1863,20 @@ async function saveManual() {
   const manualLink = document.getElementById('m-filelink').value.trim();
   const manualLink2 = document.getElementById('m-filelink2').value.trim();
   const videoLink = document.getElementById('m-videolink').value.trim();
-  await apiPost({ action: 'editManual', ...eq, manual, manualLink, manualLink2, videoLink });
-  const idx = db.equipment.findIndex(e => e.id === currentEqId);
-  db.equipment[idx].manual = manual;
-  db.equipment[idx].manualLink = manualLink;
-  db.equipment[idx].manualLink2 = manualLink2;
-  db.equipment[idx].videoLink = videoLink;
-  renderManualContent();
-  btn.textContent = '저장'; btn.disabled = false;
-  closeModal('modal-manual');
+  try {
+    await apiPost({ action: 'editManual', ...eq, manual, manualLink, manualLink2, videoLink });
+    const idx = db.equipment.findIndex(e => e.id === currentEqId);
+    db.equipment[idx].manual = manual;
+    db.equipment[idx].manualLink = manualLink;
+    db.equipment[idx].manualLink2 = manualLink2;
+    db.equipment[idx].videoLink = videoLink;
+    renderManualContent();
+    closeModal('modal-manual');
+  } catch (e) {
+    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.');
+  } finally {
+    btn.textContent = '저장'; btn.disabled = false;
+  }
 }
 
 function renderManualContent() {
