@@ -1453,6 +1453,9 @@ async function saveCheck() {
   const date = document.getElementById('c-date').value.trim();
   const person = document.getElementById('c-person').value.trim();
   if (!date || !person) { alert('날짜와 담당자를 입력해주세요.'); return; }
+  // 같은 설비에 같은 날짜로 이미 점검 기록이 있으면, 저장 전에 한 번 물어봄 (중복 방지)
+  const isDupCheck = (db.checks||[]).some(c => c.eqId === currentEqId && c.date === date);
+  if (isDupCheck && !confirm(`${date} 날짜로 이미 점검 기록이 있어요.\n그래도 추가로 저장할까요?`)) return;
   const btn = document.getElementById('btn-save-check');
   btn.textContent = '저장 중...'; btn.disabled = true;
   const data = {
@@ -1492,6 +1495,9 @@ async function saveCheckEdit() {
   const date = document.getElementById('ce-date').value.trim();
   const person = document.getElementById('ce-person').value.trim();
   if (!date || !person) { alert('날짜와 담당자를 입력해주세요.'); return; }
+  // 이 기록 말고 다른 기록 중에, 같은 설비에 같은 날짜가 이미 있으면 저장 전에 한 번 물어봄
+  const isDupCheck = (db.checks||[]).some(c => c.eqId === currentEqId && c.date === date && c.id !== editingCheckId);
+  if (isDupCheck && !confirm(`${date} 날짜로 이미 다른 점검 기록이 있어요.\n그래도 저장할까요?`)) return;
   const btn = document.getElementById('btn-save-check-edit');
   btn.textContent = '저장 중...'; btn.disabled = true;
   const data = {
