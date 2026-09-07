@@ -1432,7 +1432,7 @@ async function saveEquipment() {
       else openDetail(editingEqId);
     } else { renderStats(); renderList(); }
   } catch (e) {
-    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.');
+    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.\n\n(문제 파악용 상세정보: ' + (e && e.message ? e.message : e) + ')');
   } finally {
     btn.textContent = '저장'; btn.disabled = false;
   }
@@ -1468,7 +1468,7 @@ async function saveCheck() {
     renderCheckLog();
     renderStats();
   } catch (e) {
-    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.');
+    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.\n\n(문제 파악용 상세정보: ' + (e && e.message ? e.message : e) + ')');
   } finally {
     btn.textContent = '저장'; btn.disabled = false;
   }
@@ -1509,7 +1509,7 @@ async function saveCheckEdit() {
     renderCheckLog();
     renderStats();
   } catch (e) {
-    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.');
+    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.\n\n(문제 파악용 상세정보: ' + (e && e.message ? e.message : e) + ')');
   } finally {
     btn.textContent = '저장'; btn.disabled = false;
   }
@@ -1696,7 +1696,7 @@ async function saveBatchCheck() {
     res = await apiPost({ action: 'addCheckBatch', date, person, items });
   } catch (e) {
     btn.textContent = '💾 전체 저장'; btn.disabled = false;
-    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.');
+    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.\n\n(문제 파악용 상세정보: ' + (e && e.message ? e.message : e) + ')');
     return;
   }
 
@@ -1833,7 +1833,7 @@ async function saveCalib() {
     closeModal('modal-calib');
     renderCalibLog();
   } catch (e) {
-    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.');
+    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.\n\n(문제 파악용 상세정보: ' + (e && e.message ? e.message : e) + ')');
   } finally {
     btn.textContent = '저장'; btn.disabled = false;
   }
@@ -1873,7 +1873,7 @@ async function saveManual() {
     renderManualContent();
     closeModal('modal-manual');
   } catch (e) {
-    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.');
+    alert('저장에 실패했어요. 인터넷 연결을 확인하고 다시 시도해주세요.\n\n(문제 파악용 상세정보: ' + (e && e.message ? e.message : e) + ')');
   } finally {
     btn.textContent = '저장'; btn.disabled = false;
   }
