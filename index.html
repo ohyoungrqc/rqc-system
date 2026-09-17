@@ -224,6 +224,56 @@
   table.ot-stat-table td { padding:10px 12px; border-bottom:1px solid #eef2f7; }
   table.ot-stat-table td.ot-hours { font-weight:700; color:#2a5298; text-align:right; }
   .ot-stat-section-title { font-size:13px; font-weight:800; color:#1e293b; margin:22px 0 10px; }
+  .ot-stat-note { font-size:11.5px; color:#94a3b8; margin:-4px 0 10px; line-height:1.6; }
+
+  /* ===== 잔업 현황판 (주간 표, 2026-09-17 추가) - 우리 사이트 기존 색(파랑 #2a5298,
+     빨강 #dc2626, 주황/야간 #b45309, 초록 #15803d)을 그대로 재사용해서 디자인 통일 ===== */
+  table.otb-table { width:100%; border-collapse:collapse; font-size:12.5px; min-width:760px; }
+  table.otb-table th, table.otb-table td { border:1px solid #eef2f7; padding:6px; text-align:center; vertical-align:top; }
+  table.otb-table th { background:#f7f9fc; color:#64748b; font-weight:700; font-size:11.5px; }
+  table.otb-table th.otb-namecol, table.otb-table td.otb-namecol { text-align:left; min-width:120px; font-weight:700; color:#1e293b; font-size:12px; }
+  table.otb-table th.otb-satcol { background:#eaf1f8; }
+  table.otb-table th.otb-holcol, table.otb-table td.otb-holcol { background:#fee2e2; }
+  table.otb-table .otb-daydate { display:block; font-weight:400; color:#94a3b8; font-size:10px; }
+  table.otb-table td.otb-cell { cursor:pointer; min-width:78px; height:56px; }
+  table.otb-table td.otb-cell:hover { background:#f7f9fc; }
+  table.otb-table td.otb-exempt { cursor:default; background:#fafafa; color:#cbd5e1; }
+  table.otb-table td.otb-exempt:hover { background:#fafafa; }
+  .otb-emp-tag { font-size:9.5px; color:#94a3b8; font-weight:600; margin-left:4px; }
+  .otb-badge { display:inline-flex; flex-direction:column; align-items:center; border-radius:8px; padding:4px 6px; font-weight:700; line-height:1.25; min-width:56px; }
+  .otb-badge .tt { font-size:11px; }
+  .otb-badge .hh { font-size:9.5px; font-weight:600; opacity:.85; }
+  .otb-badge.b-weekday { background:#eaf1f8; color:#2a5298; }
+  .otb-badge.b-sat { background:#eaf1f8; color:#2a5298; }
+  .otb-badge.b-night { background:#fff3d6; color:#8a5a00; }
+  .otb-badge.b-x2 { background:#fee2e2; color:#dc2626; }
+  .otb-badge.b-confirmed { outline:1.5px solid #15803d; }
+  .otb-holiday-toggle { font-size:9.5px; border:1px solid #e2e8f0; background:#fff; color:#94a3b8; border-radius:6px; padding:2px 5px; cursor:pointer; font-family:inherit; margin-top:2px; }
+  .otb-holiday-toggle.on { background:#dc2626; color:#fff; border-color:#dc2626; }
+  .otb-confirm-mark { display:block; font-size:9.5px; color:#15803d; font-weight:700; margin-top:2px; }
+  .otb-satbulk-row { display:flex; gap:3px; justify-content:center; margin-top:2px; }
+  .otb-sumcell { min-width:88px; }
+  .otb-weeksum { font-size:13.5px; font-weight:800; color:#1e293b; }
+  .otb-weeksum.warn { color:#dc2626; }
+  .otb-weeksum-sub { font-size:9.5px; color:#94a3b8; }
+  .otb-warn-pill { font-size:9px; font-weight:700; color:#fff; background:#dc2626; border-radius:10px; padding:1px 6px; margin-top:2px; display:inline-block; }
+  .otb-confirm-btn { font-size:11px; font-weight:700; border:1.5px solid #cbd8ee; background:#fff; color:#2a5298; border-radius:8px; padding:5px 10px; cursor:pointer; font-family:inherit; }
+  .otb-confirm-btn.on { background:#15803d; border-color:#15803d; color:#fff; }
+  .otb-opt-btn { border:1.5px solid #e2e8f0; background:#fff; border-radius:10px; padding:12px 10px; cursor:pointer; text-align:center; font-family:inherit; }
+  .otb-opt-btn:hover { border-color:#2a5298; }
+  .otb-opt-btn.selected { border-color:#2a5298; background:#eaf1f8; }
+  .otb-opt-btn.wide { grid-column:1/3; }
+  .otb-opt-btn .t { font-size:13px; font-weight:700; color:#1e293b; }
+  .otb-opt-btn .h { font-size:11px; color:#64748b; margin-top:2px; }
+  #section-overtime .print-header { display:none; }
+  @media print {
+    #section-overtime .portal-header, #section-overtime .ot-tabs, #section-overtime .page-sub,
+    #section-overtime .ot-stat-controls button, #section-overtime .badge-soon { display:none !important; }
+    #section-overtime .page-title { display:none; }
+    #section-overtime .page-wrap { max-width:100%; padding:0; }
+    #section-overtime .print-header { display:flex !important; }
+    #section-overtime .card { box-shadow:none; border:1px solid #d7dce2; }
+  }
 
   /* ===== 온습도관리 ===== */
   .hum-chart-wrap { padding:16px 6px 6px; overflow-x:auto; }
@@ -706,96 +756,105 @@
   </div>
 </div>
 
-<!-- 잔업관리 -->
+<!-- 잔업관리 (2026-09-17: 유철님 업무포털의 "잔업 현황판" 방식으로 전면 교체 -
+     예전처럼 각자 본인 잔업만 신청하는 방식이 아니라, 팀 전체 표를 한 화면에서 보고
+     아무나(로그인만 하면) 채워 넣는 공용 현황판이에요. 예전 잔업신청 데이터는
+     구조가 완전히 달라서 새 표로 옮겨오지 않았어요 - 필요하면 예전 통계는
+     따로 뽑아드릴 수 있어요.) -->
 <div class="content-section" id="section-overtime">
   <div class="page-wrap">
+    <div class="print-header">
+      <img class="print-badge" src="https://drive.google.com/thumbnail?id=1z6L5wiLkMBe6KH6GBW1UmvgHipi-vWEw&sz=w96" alt="OHYOUNG">
+      <div><div class="print-brand">OHYOUNG</div><div class="print-dept">품질관리부 반응QC · 잔업 현황판</div></div>
+      <div class="print-date" id="ot-print-date"></div>
+    </div>
     <div class="page-title">잔업관리</div>
-    <div class="page-sub">잔업을 신청하고, 다음날 실제로 했는지 확인하고, 월별로 통계도 볼 수 있어요.</div>
+    <div class="page-sub">팀 전체 잔업 현황을 한 표에서 보고 기록해요. 칸을 클릭하면 퇴근시간을 고를 수 있어요.</div>
 
     <div class="ot-tabs">
-      <button class="ot-tab-btn active" id="ot-tab-apply-btn" onclick="showOtView('apply')">
-        <div class="icon">📝</div>
-        <div class="label">잔업신청</div>
-        <div class="sub">신청 · 수정 · 확인체크</div>
+      <button class="ot-tab-btn active" id="ot-tab-board-btn" onclick="showOtView('board')">
+        <div class="icon">📋</div>
+        <div class="label">잔업 현황판</div>
+        <div class="sub">주간 표 · 클릭해서 입력</div>
       </button>
-      <button class="ot-tab-btn" id="ot-tab-stats-btn" onclick="showOtView('stats')">
+      <button class="ot-tab-btn" id="ot-tab-personal-btn" onclick="showOtView('personal')">
         <div class="icon">📊</div>
-        <div class="label">잔업통계</div>
-        <div class="sub">월별 누적시간 보기</div>
+        <div class="label">개인별 고과</div>
+        <div class="sub">월별 달력 · 예상 수당</div>
+      </button>
+      <button class="ot-tab-btn" id="ot-tab-summary-btn" onclick="showOtView('summary')">
+        <div class="icon">🖨️</div>
+        <div class="label">월간 집계표</div>
+        <div class="sub">인쇄용</div>
       </button>
     </div>
 
-    <!-- 잔업신청 화면 -->
-    <div id="ot-view-apply">
-      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
-        <button class="btn-primary" onclick="openOtForm()">＋ 잔업 신청</button>
-      </div>
-      <div class="card" style="padding:6px 20px;">
-        <div id="ot-list"></div>
-        <div id="ot-list-empty">아직 신청한 잔업이 없어요</div>
-      </div>
-    </div>
-
-    <!-- 잔업통계 화면 -->
-    <div id="ot-view-stats" style="display:none;">
+    <!-- 잔업 현황판 -->
+    <div id="ot-view-board">
       <div class="card">
         <div class="ot-stat-controls">
-          <button onclick="otStatShift(-1)">‹</button>
-          <div class="title" id="ot-stat-title" style="font-size:15px;font-weight:800;"></div>
-          <button onclick="otStatShift(1)">›</button>
+          <button onclick="otbShiftWeek(-1)">‹</button>
+          <div style="text-align:center;">
+            <div id="otb-week-label" style="font-size:15px;font-weight:800;"></div>
+            <div id="otb-week-sub" style="font-size:11.5px;color:#94a3b8;"></div>
+          </div>
+          <button onclick="otbShiftWeek(1)">›</button>
         </div>
-        <div class="ot-stat-section-title" style="margin-top:0;">사람별 이번 달 누적 시간</div>
-        <table class="ot-stat-table" id="ot-stat-person-table">
-          <thead><tr><th>이름</th><th style="text-align:right;">누적 시간</th><th style="text-align:right;">신청 건수</th></tr></thead>
-          <tbody id="ot-stat-person-tbody"></tbody>
-        </table>
-        <div id="ot-stat-person-empty" style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0;display:none;">이번 달 잔업 기록이 없어요</div>
+        <div style="overflow-x:auto;">
+          <table class="otb-table" id="otb-table"></table>
+        </div>
+        <div style="margin-top:12px;">
+          <button class="mes-toggle-btn" onclick="otbGoThisWeek()">이번 주로 이동</button>
+        </div>
+      </div>
+    </div>
 
-        <div class="ot-stat-section-title">날짜별 상세</div>
-        <table class="ot-stat-table" id="ot-stat-date-table">
-          <thead><tr><th>날짜</th><th>이름</th><th>시간</th><th style="text-align:right;">확인여부</th></tr></thead>
-          <tbody id="ot-stat-date-tbody"></tbody>
-        </table>
+    <!-- 개인별 고과 (다음 단계에서 채울 예정) -->
+    <div id="ot-view-personal" style="display:none;">
+      <div class="card">
+        <div class="badge-soon">다음 단계에서 추가돼요</div>
+        <div class="page-sub" style="margin-bottom:0;">개인별 월간 달력 보기랑 예상 잔업수당 계산기는 다음 업데이트에서 이 새 표 기준으로 다시 넣어드릴게요.</div>
+      </div>
+    </div>
+
+    <!-- 월간 집계표 (다음 단계에서 채울 예정) -->
+    <div id="ot-view-summary" style="display:none;">
+      <div class="card">
+        <div class="badge-soon">다음 단계에서 추가돼요</div>
+        <div class="page-sub" style="margin-bottom:0;">인쇄용 월간 집계표(공식 서식)도 다음 업데이트에서 넣어드릴게요.</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- 잔업 신청/수정 모달 -->
-<div id="ot-modal-backdrop" class="app-modal-backdrop" onclick="if(event.target===this) closeOtForm()">
-  <div class="card">
+<!-- 잔업 현황판: 칸 클릭 시 시간 선택 모달 -->
+<div id="otb-cell-modal-backdrop" class="app-modal-backdrop" onclick="if(event.target===this) otbCloseCellModal()">
+  <div class="card wide">
     <div class="cal-modal-head">
-      <div class="title" id="ot-form-title-label">잔업 신청</div>
-      <button onclick="closeOtForm()">×</button>
+      <div class="title" id="otb-cell-title">-</div>
+      <button onclick="otbCloseCellModal()">×</button>
     </div>
-    <div class="ot-form" style="grid-template-columns:1fr 1fr;">
-      <div><label>날짜</label><input id="ot-f-date" type="date"></div>
-      <div><label>신청자</label><input id="ot-f-name" type="text" list="ot-name-list" placeholder="이름을 입력하거나 골라주세요" autocomplete="off"></div>
-      <div><label>시작 시간</label><div class="time-sel-group"><select id="ot-f-start-h"></select><span>:</span><select id="ot-f-start-m"><option value="00">00</option><option value="30">30</option></select></div></div>
-      <div><label>종료 시간</label><div class="time-sel-group"><select id="ot-f-end-h"></select><span>:</span><select id="ot-f-end-m"><option value="00">00</option><option value="30">30</option></select></div></div>
-    </div>
-    <datalist id="ot-name-list"></datalist>
+    <div style="font-size:12.5px;color:#64748b;margin-bottom:12px;" id="otb-cell-meta"></div>
+    <div id="otb-cell-extra"></div>
+    <div id="otb-cell-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
     <div class="cal-form-actions">
-      <button class="btn-cancel" onclick="closeOtForm()">취소</button>
-      <button class="btn-primary" id="ot-form-save-btn" onclick="saveOvertime()">저장</button>
+      <button class="btn-cancel" onclick="otbClearCell()">기록 삭제</button>
+      <button class="btn-cancel" onclick="otbCloseCellModal()">닫기</button>
     </div>
   </div>
 </div>
 
-<!-- 잔업 확인(다음날 체크) 모달: 실제로 다른 시간에 끝났으면 여기서 실제 종료시간을 입력 -->
-<div id="ot-confirm-modal-backdrop" class="app-modal-backdrop" onclick="if(event.target===this) closeOtConfirmModal()">
+<!-- 잔업 현황판: 확인 처리 재확인 모달 -->
+<div id="otb-confirm-modal-backdrop" class="app-modal-backdrop" onclick="if(event.target===this) otbCancelConfirmGate()">
   <div class="card">
     <div class="cal-modal-head">
-      <div class="title">잔업 확인</div>
-      <button onclick="closeOtConfirmModal()">×</button>
+      <div class="title">확인 처리</div>
+      <button onclick="otbCancelConfirmGate()">×</button>
     </div>
-    <div style="font-size:13px;color:#64748b;margin-bottom:14px;">신청한 시간만큼 실제로 잔업하셨나요? 만약 실제로 다른 시간에 끝나셨으면 아래에 실제 종료시간을 고쳐서 입력해주세요.</div>
-    <div class="ot-form" style="grid-template-columns:1fr;">
-      <div><label>실제 종료시간</label><div class="time-sel-group"><select id="ot-confirm-actual-end-h"></select><span>:</span><select id="ot-confirm-actual-end-m"><option value="00">00</option><option value="30">30</option></select></div></div>
-    </div>
+    <div style="font-size:13px;color:#64748b;margin-bottom:14px;" id="otb-confirm-meta">이 날짜 잔업을 확인 처리할까요?</div>
     <div class="cal-form-actions">
-      <button class="btn-cancel" onclick="closeOtConfirmModal()">취소</button>
-      <button class="btn-primary" onclick="submitOtConfirm()">확인 완료</button>
+      <button class="btn-cancel" onclick="otbCancelConfirmGate()">취소</button>
+      <button class="btn-primary" onclick="otbDoConfirmGate()">예, 확인합니다</button>
     </div>
   </div>
 </div>
@@ -1029,8 +1088,8 @@ function switchTab(key) {
     if (shipmentsLoaded) renderShipments(); else { shipmentsLoaded = true; loadShipments(); }
   }
   if (key === 'overtime') {
-    if (isReclick) resetOvertimeView();
-    if (overtimesLoaded) renderOtList(); else { overtimesLoaded = true; loadOvertimes(); }
+    if (isReclick) showOtView('board');
+    if (otbLoaded) otbRenderBoard(); else { otbLoaded = true; otbInit(); }
   }
   if (key === 'humidity') {
     if (isReclick) resetHumidityView();
@@ -1567,316 +1626,379 @@ async function deleteShipment(id) {
   }
 }
 
-// ===== 잔업관리 (구글시트에 저장됨) =====
-const TEAM_NAMES = ['이희표','박정근','방은희','장유철','권혁찬','전한울','서재원','양희진','최정환','브로스','파이렛','라집'];
-let overtimeList = [];
-let editingOtId = null;
-let overtimesLoaded = false; // 잔업관리 탭을 처음 열 때만 데이터를 불러오기 위한 표시
+// ===== 잔업관리: 잔업 현황판 (2026-09-17, 유철님 업무포털 방식으로 전면 교체) =====
+// 예전엔 각자 본인 잔업만 신청하는 방식이었는데, 이제 팀 전체를 한 표에서 보고
+// 로그인한 사람 아무나 채워 넣는 공용 현황판으로 바뀌었어요. 데이터 구조가 완전히
+// 달라서 예전 신청 기록은 이 표로 옮겨오지 않았어요(예전 통계가 필요하면 말씀해주세요).
+// 야간조 표시는 새로 안 만들고, 업무일정 탭에 이미 있는 야간조 데이터(nightShiftMap)를
+// 그대로 가져다 써요 - 이 표에서 따로 또 관리 안 해도 되게요.
+// (다음 단계 예정: 개인별 고과 달력 + 예상 잔업수당 계산기, 인쇄용 월간 집계표, 확인 처리 시 메일 발송)
 
-// 시작/종료 시간을 시(0~23) · 분(00/30) 두 개 드롭다운으로 고르게 함
-// - 30분 단위로만 고를 수 있고, 골라서 클릭하면 바로 닫혀서(네이티브 시간 선택창의 불편함 해소)
-function initTimeSelects() {
-  const hourOptions = Array.from({ length: 24 }, (_, h) => `<option value="${pad2(h)}">${pad2(h)}</option>`).join('');
-  ['ot-f-start-h', 'ot-f-end-h', 'ot-confirm-actual-end-h'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = hourOptions;
-  });
-}
-function getTimeSelectValue(prefix) {
-  const h = document.getElementById(prefix + '-h')?.value;
-  const m = document.getElementById(prefix + '-m')?.value;
-  if (h === undefined || m === undefined) return '';
-  return h + ':' + m;
-}
-function setTimeSelectValue(prefix, value) {
-  const hEl = document.getElementById(prefix + '-h');
-  const mEl = document.getElementById(prefix + '-m');
-  if (!hEl || !mEl) return;
-  const parts = String(value || '17:30').split(':');
-  hEl.value = pad2(Number(parts[0]) || 0);
-  // 예전에 저장된 값이 30분 단위가 아니면(예: 21:48), 가까운 00/30 중 하나로 맞춰서 보여줌
-  mEl.value = (Number(parts[1]) || 0) < 30 ? '00' : '30';
-}
-initTimeSelects();
-let otConfirmId = null;
-let otStatDate = new Date();
-otStatDate = new Date(otStatDate.getFullYear(), otStatDate.getMonth(), 1);
+const OTB_EMPLOYEES = [
+  { id: 'e0', name: '이희표 차장', shortName: '이희표', noWeekdayOT: true },
+  { id: 'e1', name: '박정근 과장', shortName: '박정근', noWeekdayOT: true },
+  { id: 'e2', name: '방은희 대리', shortName: '방은희' },
+  { id: 'e3', name: '장유철 대리', shortName: '장유철' },
+  { id: 'e4', name: '권혁찬 대리', shortName: '권혁찬' },
+  { id: 'e5', name: '전한울 주임', shortName: '전한울' },
+  { id: 'e6', name: '서재원 주임', shortName: '서재원' },
+  { id: 'e7', name: '양희진 주임', shortName: '양희진' },
+  { id: 'e8', name: '최정환 사원', shortName: '최정환' },
+  { id: 'e9', name: '신재화 사원', shortName: '신재화' },
+];
 
-// 구글시트가 날짜/시간을 "진짜 날짜·시간" 타입으로 자동 변환해버리면, 업무일정 때와 똑같이
-// "2026-08-27T15:00:00.000Z" 같은 형태로 넘어올 수 있어서, 불러올 때 항상 깔끔하게 정리해줌
-function shortTime(v) {
-  if (!v) return '';
-  const s = String(v);
-  const m = s.match(/^\d{4}-\d{2}-\d{2}T/);
-  if (!m) return s;
-  const kst = new Date(new Date(s).getTime() + 9 * 60 * 60 * 1000);
-  return kst.toISOString().slice(11, 16);
+const OTB_OT_OPTIONS = [
+  { time: '18:30', hours: 1 }, { time: '19:00', hours: 1.5 }, { time: '19:30', hours: 2 },
+  { time: '20:00', hours: 2.5 }, { time: '20:30', hours: 3 }, { time: '21:00', hours: 3.5 },
+];
+const OTB_PARTIAL_OPTIONS = [
+  { time: '09:00', hours: 1 }, { time: '09:30', hours: 1.5 }, { time: '10:00', hours: 2 }, { time: '10:30', hours: 2.5 },
+  { time: '11:00', hours: 3 }, { time: '11:30', hours: 3.5 }, { time: '12:00', hours: 4 }, { time: '12:30', hours: 4 },
+  { time: '13:00', hours: 4 }, { time: '13:30', hours: 4.5 }, { time: '14:00', hours: 5 }, { time: '14:30', hours: 5.5 },
+  { time: '15:00', hours: 6 }, { time: '15:30', hours: 6.5 }, { time: '16:00', hours: 7 }, { time: '16:30', hours: 7.5 }, { time: '17:00', hours: 8 },
+];
+const OTB_DAY_NAMES = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+const OTB_DAY_NAMES_FULL = ['일', '월', '화', '수', '목', '금', '토'];
+
+// 2026년 대한민국 법정공휴일 + 대체공휴일
+const OTB_HOLIDAYS_2026 = {
+  '2026-01-01': '신정',
+  '2026-02-16': '설날 연휴', '2026-02-17': '설날', '2026-02-18': '설날 연휴',
+  '2026-03-01': '삼일절', '2026-03-02': '삼일절 대체공휴일',
+  '2026-05-01': '근로자의날', '2026-05-05': '어린이날',
+  '2026-05-24': '부처님오신날', '2026-05-25': '부처님오신날 대체공휴일',
+  '2026-06-03': '전국동시지방선거(임시공휴일)', '2026-06-06': '현충일',
+  '2026-07-17': '제헌절',
+  '2026-08-15': '광복절', '2026-08-17': '광복절 대체공휴일',
+  '2026-09-24': '추석 연휴', '2026-09-25': '추석', '2026-09-26': '추석 연휴',
+  '2026-10-03': '개천절', '2026-10-05': '개천절 대체공휴일', '2026-10-09': '한글날',
+  '2026-12-25': '크리스마스',
+};
+
+let otbState = { employees: OTB_EMPLOYEES, records: {}, saturdays: {}, holidays: {}, confirmed: {} };
+let otbCurrentMonday = otbGetMonday(new Date());
+let otbLoaded = false;
+let otbActiveCell = null;
+let otbPendingConfirmDate = null;
+
+function otbGetMonday(d) {
+  const date = new Date(d);
+  const day = date.getDay();
+  const diff = (day === 0 ? -6 : 1) - day;
+  date.setDate(date.getDate() + diff);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+function otbAddDays(d, n) { const nd = new Date(d); nd.setDate(nd.getDate() + n); return nd; }
+function otbFmtDate(d) { return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; }
+function otbFmtShort(d) { return `${d.getMonth() + 1}/${d.getDate()}`; }
+function otbWeekDates6(monday) { return [0, 1, 2, 3, 4, 5].map(i => otbAddDays(monday, i)); }
+function otbTimeLabel(t) {
+  const parts = t.split(':'); const h = parseInt(parts[0], 10);
+  return parts[1] === '00' ? h + '시' : h + '시' + parts[1] + '분';
+}
+function otbIsHoliday(ds) {
+  if (Object.prototype.hasOwnProperty.call(otbState.holidays, ds)) return !!otbState.holidays[ds];
+  return !!OTB_HOLIDAYS_2026[ds];
+}
+function otbHolidayLabel(ds) { return otbIsHoliday(ds) ? (OTB_HOLIDAYS_2026[ds] || '휴일') : null; }
+function otbToggleHoliday(ds) { otbState.holidays[ds] = !otbIsHoliday(ds); }
+function otbHoursFor(empId, ds) { const r = otbState.records[empId]; return r && r[ds] ? r[ds] : 0; }
+function otbTimeForCell(empId, ds) { const r = otbState.records[empId]; return r && r['t_' + ds] ? r['t_' + ds] : null; }
+function otbEditedInfo(empId, ds) {
+  const r = otbState.records[empId];
+  if (!r) return null;
+  const orig = r['orig_' + ds], cur = r['t_' + ds];
+  return (orig && cur && orig !== cur) ? { orig, cur } : null;
+}
+function otbSatHours(empId, ds) {
+  const r = otbState.saturdays[empId];
+  if (!r) return 0;
+  const v = r[ds];
+  return typeof v === 'number' ? v : 0;
+}
+function otbSatTime(empId, ds) { const r = otbState.saturdays[empId]; return r && r['t_' + ds] ? r['t_' + ds] : null; }
+function otbSatIsContinued(empId, ds) { return !!(otbState.saturdays[empId] && otbState.saturdays[empId]['x2_' + ds]); }
+function otbIsConfirmed(ds) { return !!otbState.confirmed[ds]; }
+function otbWeeklyOtTotal(empId, monday) {
+  return otbWeekDates6(monday).slice(0, 5).reduce((sum, d) => sum + otbHoursFor(empId, otbFmtDate(d)), 0);
+}
+function otbRegularBase(empId, monday) {
+  const satDs = otbFmtDate(otbAddDays(monday, 5));
+  return 40 + otbSatHours(empId, satDs);
+}
+// 이번 주(월요일 기준) 이 사람이 야간조인지 - 업무일정 탭의 야간조 데이터(nightShiftMap)를 그대로 재사용
+function otbIsNightWeek(shortName, monday) {
+  const key = otbFmtDate(monday);
+  const names = (typeof nightShiftMap !== 'undefined' && nightShiftMap[key]) || '';
+  return names.indexOf(shortName) !== -1;
 }
 
-async function loadOvertimes() {
-  try {
-    const res = await apiGet({ action: 'getOvertimes' });
-    overtimeList = (Array.isArray(res) ? res : []).map(o => ({
-      ...o,
-      date: shortDate(o.date) || o.date,
-      startTime: shortTime(o.startTime) || o.startTime,
-      endTime: shortTime(o.endTime) || o.endTime,
-      actualEndTime: o.actualEndTime ? (shortTime(o.actualEndTime) || o.actualEndTime) : o.actualEndTime,
-    }));
-  } catch (e) {
-    overtimeList = [];
+async function otbInit() {
+  if (typeof nightShiftMap !== 'undefined' && Object.keys(nightShiftMap).length === 0 && !nightShiftsLoaded) {
+    nightShiftsLoaded = true;
+    try { await loadNightShifts(); } catch (e) { /* 실패해도 현황판은 계속 진행 */ }
   }
-  renderOtList();
+  try {
+    const res = await apiGet({ action: 'getOtBoardState' });
+    otbState = {
+      employees: (res && res.employees && res.employees.length) ? res.employees : OTB_EMPLOYEES,
+      records: (res && res.records) || {},
+      saturdays: (res && res.saturdays) || {},
+      holidays: (res && res.holidays) || {},
+      confirmed: (res && res.confirmed) || {},
+    };
+  } catch (e) {
+    otbState = { employees: OTB_EMPLOYEES, records: {}, saturdays: {}, holidays: {}, confirmed: {} };
+  }
+  otbRenderBoard();
+}
+
+async function otbSaveState() {
+  try {
+    await apiPost({ action: 'saveOtBoardState', state: otbState });
+  } catch (e) {
+    alert('저장에 실패했어요 - 인터넷 연결을 확인해주세요.');
+  }
+}
+
+function otbShiftWeek(delta) {
+  otbCurrentMonday = otbGetMonday(otbAddDays(otbCurrentMonday, delta * 7));
+  otbRenderBoard();
+}
+function otbGoThisWeek() {
+  otbCurrentMonday = otbGetMonday(new Date());
+  otbRenderBoard();
+}
+
+function otbRenderBoard() {
+  const dates = otbWeekDates6(otbCurrentMonday);
+  document.getElementById('otb-week-label').textContent =
+    `${otbCurrentMonday.getFullYear()}년 ${otbCurrentMonday.getMonth() + 1}월 ${Math.ceil(otbCurrentMonday.getDate() / 7)}주차`;
+  document.getElementById('otb-week-sub').textContent = `${otbFmtShort(dates[0])} ~ ${otbFmtShort(dates[5])} (월~토)`;
+
+  let html = '<thead><tr><th class="otb-namecol">이름</th>';
+  dates.forEach((d, i) => {
+    const ds = otbFmtDate(d);
+    const isSat = i === 5;
+    const hol = otbIsHoliday(ds);
+    const conf = otbIsConfirmed(ds);
+    html += `<th class="${isSat ? 'otb-satcol' : ''} ${hol ? 'otb-holcol' : ''}">
+      ${OTB_DAY_NAMES[i]}<span class="otb-daydate">${otbFmtShort(d)}</span>
+      ${!isSat
+        ? `<button class="otb-holiday-toggle ${hol ? 'on' : ''}" onclick="otbToggleHolidayClick('${ds}')">${hol ? '🔴 ' + escapeHtml(otbHolidayLabel(ds)) : '휴일지정'}</button>`
+        : `<div class="otb-satbulk-row">
+            <button class="otb-holiday-toggle" onclick="otbSatBulk('${ds}','full')">전체근무</button>
+            <button class="otb-holiday-toggle" onclick="otbSatBulk('${ds}','off')">휴무</button>
+          </div>`}
+      ${conf ? '<span class="otb-confirm-mark">✓ 확인됨</span>' : ''}
+    </th>`;
+  });
+  html += '<th class="otb-sumcell">주간 합계</th></tr></thead><tbody>';
+
+  otbState.employees.forEach(emp => {
+    const nightThisWeek = otbIsNightWeek(emp.shortName || emp.name, otbCurrentMonday);
+    html += `<tr><td class="otb-namecol">${escapeHtml(emp.name)}${emp.noWeekdayOT ? '<span class="otb-emp-tag">특근전용</span>' : ''}${nightThisWeek ? '<span class="otb-emp-tag" style="color:#8a5a00;background:#fff3d6;padding:1px 7px;border-radius:10px;">🌙 이번주 야간조</span>' : ''}</td>`;
+    dates.forEach((d, i) => {
+      const ds = otbFmtDate(d);
+      const isSat = i === 5;
+      const hol = otbIsHoliday(ds);
+      const conf = otbIsConfirmed(ds);
+      const exempt = (emp.noWeekdayOT && !isSat) || (nightThisWeek && !isSat);
+      html += `<td class="otb-cell ${exempt ? 'otb-exempt' : ''}" ${exempt ? '' : `onclick="otbOpenCellModal('${emp.id}','${ds}',${isSat})"`}>`;
+      if (nightThisWeek && !isSat) {
+        html += `<span class="otb-badge b-night"><span class="tt">🌙 야간</span><span class="hh">업무일정 참고</span></span>`;
+      } else if (exempt) {
+        // 특근전용 - 평일엔 클릭 비활성
+      } else if (isSat) {
+        const sh = otbSatHours(emp.id, ds);
+        const carry = otbSatIsContinued(emp.id, ds);
+        if (sh > 0) {
+          const st = otbSatTime(emp.id, ds);
+          if (st) {
+            html += `<span class="otb-badge b-sat ${carry ? 'b-x2' : ''} ${conf ? 'b-confirmed' : ''}"><span class="tt">${otbTimeLabel(st)}</span><span class="hh">${sh >= 8 ? '특근' : '부분'} · ${sh}h</span></span>`;
+          } else {
+            html += `<span class="otb-badge b-sat ${carry ? 'b-x2' : ''} ${conf ? 'b-confirmed' : ''}"><span class="tt">출근</span><span class="hh">+8h</span></span>`;
+          }
+        }
+      } else {
+        const h = otbHoursFor(emp.id, ds);
+        if (h > 0) {
+          const t = otbTimeForCell(emp.id, ds);
+          const edit = otbEditedInfo(emp.id, ds);
+          const titleAttr = edit ? `title="원래 ${otbTimeLabel(edit.orig)} → ${otbTimeLabel(edit.cur)}로 수정됨"` : '';
+          html += `<span class="otb-badge ${hol ? 'b-x2' : 'b-weekday'} ${conf ? 'b-confirmed' : ''}" ${titleAttr}><span class="tt">${t ? otbTimeLabel(t) : h + 'h'}</span><span class="hh">${h}h${hol ? ' ·2배' : ''}</span></span>`;
+          if (edit) html += `<div style="font-size:8.5px;color:#c0334a;margin-top:2px;">⚠ 수정됨</div>`;
+        }
+      }
+      html += '</td>';
+    });
+    const ot = otbWeeklyOtTotal(emp.id, otbCurrentMonday);
+    const base = otbRegularBase(emp.id, otbCurrentMonday);
+    const total = base + ot;
+    const warn = total > 52;
+    html += `<td class="otb-sumcell">
+      <div class="otb-weeksum ${warn ? 'warn' : ''}">${total}h</div>
+      <div class="otb-weeksum-sub">${base}h 정규 + ${ot}h 잔업</div>
+      ${warn ? '<div class="otb-warn-pill">52h 초과</div>' : ''}
+    </td>`;
+    html += '</tr>';
+  });
+
+  html += '<tr><td class="otb-namecol">✅ 전체 확인</td>';
+  dates.forEach((d) => {
+    const ds = otbFmtDate(d);
+    const conf = otbIsConfirmed(ds);
+    html += `<td class="otb-cell" style="cursor:default;"><button class="otb-confirm-btn ${conf ? 'on' : ''}" onclick="otbConfirmClick('${ds}')">${conf ? '완료' : '확인'}</button></td>`;
+  });
+  html += '<td class="otb-sumcell"></td></tr>';
+  html += '</tbody>';
+  document.getElementById('otb-table').innerHTML = html;
+}
+
+function otbToggleHolidayClick(ds) {
+  otbToggleHoliday(ds);
+  otbSaveState();
+  otbRenderBoard();
+}
+function otbSatBulk(ds, mode) {
+  otbState.employees.forEach(emp => {
+    if (!otbState.saturdays[emp.id]) otbState.saturdays[emp.id] = {};
+    if (mode === 'full') {
+      otbState.saturdays[emp.id][ds] = 8;
+      delete otbState.saturdays[emp.id]['t_' + ds];
+    } else {
+      delete otbState.saturdays[emp.id][ds];
+      delete otbState.saturdays[emp.id]['t_' + ds];
+      delete otbState.saturdays[emp.id]['x2_' + ds];
+    }
+  });
+  otbSaveState();
+  otbRenderBoard();
+}
+function otbConfirmClick(ds) {
+  if (otbIsConfirmed(ds)) {
+    delete otbState.confirmed[ds];
+    otbSaveState();
+    otbRenderBoard();
+    return;
+  }
+  otbPendingConfirmDate = ds;
+  document.getElementById('otb-confirm-meta').textContent = `${ds} 잔업을 확인 처리할까요?`;
+  document.getElementById('otb-confirm-modal-backdrop').style.display = 'flex';
+}
+function otbCancelConfirmGate() {
+  otbPendingConfirmDate = null;
+  document.getElementById('otb-confirm-modal-backdrop').style.display = 'none';
+}
+function otbDoConfirmGate() {
+  if (otbPendingConfirmDate) {
+    otbState.confirmed[otbPendingConfirmDate] = true;
+    otbSaveState();
+    otbRenderBoard();
+  }
+  otbCancelConfirmGate();
+}
+
+/* ---- 칸 클릭 시 시간 선택 모달 ---- */
+function otbOpenCellModal(empId, ds, isSat) {
+  otbActiveCell = { empId, ds, isSat };
+  const emp = otbState.employees.find(e => e.id === empId);
+  if (!emp) return;
+  const d = new Date(ds + 'T00:00:00');
+  const hol = otbIsHoliday(ds);
+  document.getElementById('otb-cell-title').textContent = emp.name;
+  document.getElementById('otb-cell-meta').textContent =
+    `${ds} (${OTB_DAY_NAMES_FULL[d.getDay()]})` + (hol ? ` · 🔴 ${otbHolidayLabel(ds)} - 잔업 시 2배 지급` : '') + (isSat ? ' · 토요일 출근 여부를 선택하세요' : ' · 퇴근 시간을 선택하세요');
+  document.getElementById('otb-cell-extra').innerHTML = '';
+
+  let grid = '';
+  if (isSat) {
+    const sh = otbSatHours(empId, ds);
+    const st = otbSatTime(empId, ds);
+    const isFull = sh > 0 && !st;
+    grid += `<button class="otb-opt-btn wide ${isFull ? 'selected' : ''}" onclick="otbPickSat('full')"><div class="t">🏢 전체 출근 (+8h)</div></button>`;
+    grid += `<div style="grid-column:1/3;font-size:11px;color:#94a3b8;font-weight:700;margin:6px 0 2px;">일부 출근 — 퇴근시간 선택 (08시 출근 기준)</div>`;
+    OTB_PARTIAL_OPTIONS.forEach(opt => {
+      const sel = st === opt.time ? 'selected' : '';
+      grid += `<button class="otb-opt-btn ${sel}" onclick="otbPickSat('partial',${opt.hours},'${opt.time}')"><div class="t">${otbTimeLabel(opt.time)}</div><div class="h">${opt.hours}h</div></button>`;
+    });
+    grid += `<button class="otb-opt-btn wide ${sh === 0 ? 'selected' : ''}" onclick="otbPickSat('off')"><div class="t">🏠 휴무</div></button>`;
+  } else {
+    const current = otbHoursFor(empId, ds);
+    OTB_OT_OPTIONS.forEach(opt => {
+      const sel = current === opt.hours ? 'selected' : '';
+      const payTxt = hol ? `×2 = ${opt.hours * 2}h 지급` : `+${opt.hours}h 수당`;
+      grid += `<button class="otb-opt-btn ${sel}" onclick="otbPickWeekday(${opt.hours},'${opt.time}')"><div class="t">${otbTimeLabel(opt.time)} 퇴근</div><div class="h">${payTxt}</div></button>`;
+    });
+  }
+  document.getElementById('otb-cell-grid').innerHTML = grid;
+  document.getElementById('otb-cell-modal-backdrop').style.display = 'flex';
+}
+function otbCloseCellModal() {
+  document.getElementById('otb-cell-modal-backdrop').style.display = 'none';
+  otbActiveCell = null;
+}
+function otbPickWeekday(hours, time) {
+  if (!otbActiveCell) return;
+  const { empId, ds } = otbActiveCell;
+  if (!otbState.records[empId]) otbState.records[empId] = {};
+  const prevTime = otbState.records[empId]['t_' + ds];
+  if (prevTime && prevTime !== time && !otbState.records[empId]['orig_' + ds]) {
+    otbState.records[empId]['orig_' + ds] = prevTime;
+  }
+  otbState.records[empId][ds] = hours;
+  otbState.records[empId]['t_' + ds] = time;
+  otbSaveState();
+  otbCloseCellModal();
+  otbRenderBoard();
+}
+function otbPickSat(mode, hours, time) {
+  if (!otbActiveCell) return;
+  const { empId, ds } = otbActiveCell;
+  if (!otbState.saturdays[empId]) otbState.saturdays[empId] = {};
+  if (mode === 'full') {
+    otbState.saturdays[empId][ds] = 8;
+    delete otbState.saturdays[empId]['t_' + ds];
+  } else if (mode === 'partial') {
+    otbState.saturdays[empId][ds] = hours;
+    otbState.saturdays[empId]['t_' + ds] = time;
+  } else {
+    delete otbState.saturdays[empId][ds];
+    delete otbState.saturdays[empId]['t_' + ds];
+    delete otbState.saturdays[empId]['x2_' + ds];
+  }
+  otbSaveState();
+  otbCloseCellModal();
+  otbRenderBoard();
+}
+function otbClearCell() {
+  if (!otbActiveCell) return;
+  const { empId, ds, isSat } = otbActiveCell;
+  if (isSat) {
+    if (otbState.saturdays[empId]) { delete otbState.saturdays[empId][ds]; delete otbState.saturdays[empId]['t_' + ds]; delete otbState.saturdays[empId]['x2_' + ds]; }
+  } else {
+    if (otbState.records[empId]) { delete otbState.records[empId][ds]; delete otbState.records[empId]['t_' + ds]; delete otbState.records[empId]['orig_' + ds]; }
+  }
+  otbSaveState();
+  otbCloseCellModal();
+  otbRenderBoard();
 }
 
 function showOtView(view) {
-  document.getElementById('ot-view-apply').style.display = view === 'apply' ? 'block' : 'none';
-  document.getElementById('ot-view-stats').style.display = view === 'stats' ? 'block' : 'none';
-  document.getElementById('ot-tab-apply-btn').classList.toggle('active', view === 'apply');
-  document.getElementById('ot-tab-stats-btn').classList.toggle('active', view === 'stats');
-  if (view === 'stats') renderOtStats();
+  document.getElementById('ot-view-board').style.display = view === 'board' ? 'block' : 'none';
+  document.getElementById('ot-view-personal').style.display = view === 'personal' ? 'block' : 'none';
+  document.getElementById('ot-view-summary').style.display = view === 'summary' ? 'block' : 'none';
+  document.getElementById('ot-tab-board-btn').classList.toggle('active', view === 'board');
+  document.getElementById('ot-tab-personal-btn').classList.toggle('active', view === 'personal');
+  document.getElementById('ot-tab-summary-btn').classList.toggle('active', view === 'summary');
 }
 
-// 잔업관리 탭을 다시 누르면 신청 화면으로 돌아가고, 열려있던 창들도 닫음
-function resetOvertimeView() {
-  showOtView('apply');
-  closeOtForm();
-  closeOtConfirmModal();
-}
-
-function fillOtNameList() {
-  const list = document.getElementById('ot-name-list');
-  if (list) list.innerHTML = TEAM_NAMES.map(n => `<option value="${escapeHtml(n)}"></option>`).join('');
-}
-
-function openOtForm(id) {
-  editingOtId = id || null;
-  fillOtNameList();
-  const label = document.getElementById('ot-form-title-label');
-  if (editingOtId) {
-    const ot = overtimeList.find(o => String(o.id) === String(editingOtId));
-    if (!ot) return;
-    label.textContent = '잔업 수정';
-    document.getElementById('ot-f-date').value = ot.date || '';
-    document.getElementById('ot-f-name').value = ot.name || '';
-    setTimeSelectValue('ot-f-start', ot.startTime || '17:30');
-    setTimeSelectValue('ot-f-end', ot.endTime || '');
-  } else {
-    label.textContent = '잔업 신청';
-    const today = new Date();
-    document.getElementById('ot-f-date').value = `${today.getFullYear()}-${pad2(today.getMonth()+1)}-${pad2(today.getDate())}`;
-    document.getElementById('ot-f-name').value = '';
-    setTimeSelectValue('ot-f-start', '17:30'); // 우리 잔업 시작시간은 항상 17:30 (필요하면 수정 가능)
-    setTimeSelectValue('ot-f-end', '18:00');
-  }
-  document.getElementById('ot-modal-backdrop').style.display = 'flex';
-}
-function closeOtForm() {
-  editingOtId = null;
-  document.getElementById('ot-modal-backdrop').style.display = 'none';
-}
-
-async function saveOvertime() {
-  const date = document.getElementById('ot-f-date').value;
-  const name = document.getElementById('ot-f-name').value.trim();
-  const startTime = getTimeSelectValue('ot-f-start');
-  const endTime = getTimeSelectValue('ot-f-end');
-  if (!date || !name || !startTime || !endTime) { alert('날짜·신청자·시작시간·종료시간을 모두 입력해주세요.'); return; }
-
-  const btn = document.getElementById('ot-form-save-btn');
-  btn.disabled = true; btn.textContent = '저장 중...';
-  try {
-    const payload = { date, name, startTime, endTime };
-    if (editingOtId) {
-      payload.action = 'updateOvertime';
-      payload.id = editingOtId;
-    } else {
-      payload.action = 'addOvertime';
-    }
-    const res = await apiPost(payload);
-    if (res && res.error) { alert('저장에 실패했어요: ' + res.error); return; }
-
-    if (editingOtId) {
-      const idx = overtimeList.findIndex(o => String(o.id) === String(editingOtId));
-      if (idx !== -1) overtimeList[idx] = { ...overtimeList[idx], date, name, startTime, endTime };
-    } else {
-      overtimeList.unshift({ id: res.id, date, name, startTime, endTime, actualEndTime: '', confirmed: false });
-    }
-    closeOtForm();
-    renderOtList();
-  } catch (e) {
-    alert('저장 중 오류가 발생했어요. 다시 시도해주세요.');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '저장';
-  }
-}
-
-async function deleteOvertime(id) {
-  if (!confirm('이 잔업 신청을 삭제할까요?')) return;
-  try {
-    await apiPost({ action: 'deleteOvertime', id });
-    const idx = overtimeList.findIndex(o => String(o.id) === String(id));
-    if (idx !== -1) overtimeList.splice(idx, 1);
-    renderOtList();
-  } catch (e) {
-    alert('삭제 중 오류가 발생했어요. 다시 시도해주세요.');
-  }
-}
-
-// 체크박스를 누르면: 켜는 경우엔 실제 종료시간을 확인하는 작은 창을 띄우고,
-// 끄는 경우엔(잘못 눌렀을 때) 바로 확인 취소 처리함
-function onOtCheckToggle(id, checked) {
-  if (checked) {
-    openOtConfirmModal(id);
-  } else {
-    submitOtUnconfirm(id);
-  }
-}
-function openOtConfirmModal(id) {
-  otConfirmId = id;
-  const ot = overtimeList.find(o => String(o.id) === String(id));
-  if (!ot) return;
-  setTimeSelectValue('ot-confirm-actual-end', ot.actualEndTime || ot.endTime || '17:30');
-  document.getElementById('ot-confirm-modal-backdrop').style.display = 'flex';
-}
-function closeOtConfirmModal() {
-  otConfirmId = null;
-  document.getElementById('ot-confirm-modal-backdrop').style.display = 'none';
-  renderOtList(); // 체크박스를 껐다 켰다만 하고 취소한 경우, 화면 체크 표시를 원래대로 되돌림
-}
-async function submitOtConfirm() {
-  const actualEndTime = getTimeSelectValue('ot-confirm-actual-end');
-  const id = otConfirmId;
-  if (!id) return;
-  try {
-    const res = await apiPost({ action: 'confirmOvertime', id, confirmed: true, actualEndTime });
-    if (res && res.error) { alert('저장에 실패했어요: ' + res.error); return; }
-    const idx = overtimeList.findIndex(o => String(o.id) === String(id));
-    if (idx !== -1) { overtimeList[idx].confirmed = true; overtimeList[idx].actualEndTime = actualEndTime; }
-    otConfirmId = null;
-    document.getElementById('ot-confirm-modal-backdrop').style.display = 'none';
-    renderOtList();
-  } catch (e) {
-    alert('저장 중 오류가 발생했어요. 다시 시도해주세요.');
-  }
-}
-async function submitOtUnconfirm(id) {
-  try {
-    await apiPost({ action: 'confirmOvertime', id, confirmed: false, actualEndTime: '' });
-    const idx = overtimeList.findIndex(o => String(o.id) === String(id));
-    if (idx !== -1) { overtimeList[idx].confirmed = false; overtimeList[idx].actualEndTime = ''; }
-    renderOtList();
-  } catch (e) {
-    renderOtList();
-  }
-}
-
-// 신청한 순서가 아니라, 날짜는 최근 날짜가 위로(전날 것도 아래에서 계속 볼 수 있음),
-// 같은 날짜 안에서는 항상 우리팀 이름 순서(TEAM_NAMES)대로 정렬함
-function renderOtList() {
-  const wrap = document.getElementById('ot-list');
-  const empty = document.getElementById('ot-list-empty');
-  if (!wrap) return;
-  const nameOrder = (name) => { const i = TEAM_NAMES.indexOf(name); return i === -1 ? 999 : i; };
-  const sorted = [...overtimeList].sort((a, b) => {
-    const byDate = (b.date || '').localeCompare(a.date || '');
-    if (byDate !== 0) return byDate;
-    return nameOrder(a.name) - nameOrder(b.name);
-  });
-  if (sorted.length === 0) {
-    wrap.innerHTML = '';
-    empty.style.display = 'block';
-    return;
-  }
-  empty.style.display = 'none';
-  const today = new Date();
-  const todayStr = toDateStr(today.getFullYear(), today.getMonth(), today.getDate());
-  wrap.innerHTML = sorted.map(o => {
-    const timeStr = o.startTime + ' ~ ' + o.endTime + (o.actualEndTime && o.actualEndTime !== o.endTime ? ` (실제 ${o.actualEndTime})` : '');
-    const tag = o.confirmed ? '<span class="ot-confirmed-tag">✓ 확인완료</span>' : '<span class="ot-unconfirmed-tag">확인 대기</span>';
-    const isToday = o.date === todayStr;
-    const [, moStr, daStr] = String(o.date || '').split('-');
-    const dateBoxHtml = moStr && daStr
-      ? `<div class="ot-datebox${isToday ? ' today' : ''}"><div class="ot-datebox-m">${Number(moStr)}월</div><div class="ot-datebox-d">${Number(daStr)}</div></div>`
-      : `<div class="ot-datebox"><div class="ot-datebox-d">-</div></div>`;
-    return `<div class="ot-row">
-      ${dateBoxHtml}
-      <input type="checkbox" class="ot-check" ${o.confirmed ? 'checked' : ''} onchange="onOtCheckToggle('${o.id}', this.checked)" title="실제로 그만큼 잔업했으면 체크해주세요">
-      <div class="ot-info">
-        <div class="ot-name-time">
-          <span class="ot-name">${escapeHtml(o.name)}</span>
-          <span class="ot-time">${escapeHtml(timeStr)}</span>
-        </div>
-      </div>
-      ${tag}
-      <div class="et-actions">
-        <button onclick="openOtForm('${o.id}')">수정</button>
-        <button onclick="deleteOvertime('${o.id}')">삭제</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ===== 잔업통계 =====
-function timeToMinutes(t) {
-  if (!t) return null;
-  const [h, m] = t.split(':').map(Number);
-  if (Number.isNaN(h) || Number.isNaN(m)) return null;
-  return h * 60 + m;
-}
-function otDurationMinutes(o) {
-  const start = timeToMinutes(o.startTime);
-  let end = timeToMinutes(o.actualEndTime || o.endTime);
-  if (start === null || end === null) return 0;
-  if (end <= start) end += 24 * 60; // 자정을 넘겨서 끝난 경우
-  return end - start;
-}
-function formatMinutes(mins) {
-  const h = Math.floor(mins / 60), m = Math.round(mins % 60);
-  return m ? `${h}시간 ${m}분` : `${h}시간`;
-}
-function otStatShift(delta) {
-  otStatDate = new Date(otStatDate.getFullYear(), otStatDate.getMonth() + delta, 1);
-  renderOtStats();
-}
-function renderOtStats() {
-  const y = otStatDate.getFullYear(), m = otStatDate.getMonth();
-  document.getElementById('ot-stat-title').textContent = `${y}년 ${m + 1}월`;
-  const ym = `${y}-${pad2(m + 1)}`;
-  const monthList = overtimeList.filter(o => (o.date || '').startsWith(ym));
-
-  // 사람별 누적
-  const byPerson = {};
-  monthList.forEach(o => {
-    if (!byPerson[o.name]) byPerson[o.name] = { mins: 0, count: 0 };
-    byPerson[o.name].mins += otDurationMinutes(o);
-    byPerson[o.name].count += 1;
-  });
-  const personRows = Object.keys(byPerson).sort((a, b) => byPerson[b].mins - byPerson[a].mins);
-  const personTbody = document.getElementById('ot-stat-person-tbody');
-  const personEmpty = document.getElementById('ot-stat-person-empty');
-  if (personRows.length === 0) {
-    personTbody.innerHTML = '';
-    personEmpty.style.display = 'block';
-  } else {
-    personEmpty.style.display = 'none';
-    personTbody.innerHTML = personRows.map(name => `<tr>
-      <td>${escapeHtml(name)}</td>
-      <td class="ot-hours">${formatMinutes(byPerson[name].mins)}</td>
-      <td style="text-align:right;">${byPerson[name].count}건</td>
-    </tr>`).join('');
-  }
-
-  // 날짜별 상세
-  const dateSorted = [...monthList].sort((a, b) => (a.date || '').localeCompare(b.date || '') || String(a.name).localeCompare(String(b.name)));
-  const dateTbody = document.getElementById('ot-stat-date-tbody');
-  dateTbody.innerHTML = dateSorted.map(o => `<tr>
-    <td>${escapeHtml(o.date)}</td>
-    <td>${escapeHtml(o.name)}</td>
-    <td>${formatMinutes(otDurationMinutes(o))}</td>
-    <td style="text-align:right;">${o.confirmed ? '✓ 완료' : '대기'}</td>
-  </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:16px 0;">이번 달 잔업 기록이 없어요</td></tr>';
+function printOtSummary() {
+  const now = new Date();
+  const el = document.getElementById('ot-print-date');
+  if (el) el.textContent = `${now.getFullYear()}.${pad2(now.getMonth() + 1)}.${pad2(now.getDate())} 출력`;
+  window.print();
 }
 
 // ===== 온습도관리 (샘플실, 구글시트에 저장됨) =====
