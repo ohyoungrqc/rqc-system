@@ -177,7 +177,7 @@
   .ot-form { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
   .ot-form .full { grid-column:1 / -1; }
   .ot-form label { display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px; }
-  .ot-form input, .ot-form textarea { width:100%; box-sizing:border-box; padding:9px 11px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; font-family:inherit; }
+  .ot-form input, .ot-form textarea, .ot-form select { width:100%; box-sizing:border-box; padding:9px 11px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; font-family:inherit; background:#fff; }
   .btn-primary { background:#2a5298; color:#fff; border:none; border-radius:8px; padding:10px 18px; font-size:13px; font-weight:700; cursor:pointer; }
 
   /* ===== 샘플발송현황: 등록 화면에서 제품 여러 개 추가 ===== */
@@ -265,10 +265,36 @@
   .otb-opt-btn.wide { grid-column:1/3; }
   .otb-opt-btn .t { font-size:13px; font-weight:700; color:#1e293b; }
   .otb-opt-btn .h { font-size:11px; color:#64748b; margin-top:2px; }
+
+  /* ===== 잔업 월간 집계표 (공식 서식, 인쇄용, 2026-09-17 추가) - 현황판과 같은 색 재사용 ===== */
+  table.otbsum-table { width:100%; border-collapse:collapse; font-size:10.5px; min-width:1100px; }
+  table.otbsum-table th, table.otbsum-table td { border:1px solid #eef2f7; padding:3px 4px; text-align:center; }
+  table.otbsum-table th { background:#f7f9fc; color:#64748b; font-weight:700; font-size:9.5px; }
+  table.otbsum-table th.otbsum-namecol, table.otbsum-table td.otbsum-namecol { text-align:left; min-width:82px; font-weight:700; color:#1e293b; font-size:11px; }
+  table.otbsum-table td.otbsum-tierlabelcol { min-width:32px; color:#94a3b8; font-weight:700; }
+  table.otbsum-table th.otbsum-satcol, table.otbsum-table td.otbsum-satcol { background:#eaf1f8; }
+  table.otbsum-table th.otbsum-suncol, table.otbsum-table td.otbsum-suncol,
+  table.otbsum-table th.otbsum-holcol, table.otbsum-table td.otbsum-holcol { background:#fee2e2; }
+  table.otbsum-table td.otbsum-outside { background:#fafafa; }
+  table.otbsum-table .otbsum-dow { display:block; font-weight:400; color:#94a3b8; font-size:8.5px; }
+  table.otbsum-table td.otbsum-wksumcol, table.otbsum-table td.otbsum-monthsumcol { font-weight:800; color:#2a5298; background:#f7f9fc; }
+  table.otbsum-table tr.otbsum-emp-divider td { border-top:2px solid #cbd8ee; }
+  table.otbsum-table td.otbsum-jeong-cell { cursor:pointer; }
+  table.otbsum-table td.otbsum-jeong-cell:hover { background:#eaf1f8; }
+  table.otbsum-table td.otbsum-adjusted { color:#dc2626; font-weight:800; }
+
+  /* ===== 조퇴/외출/연차/무급휴가 조정 모달 + 인원관리 모달 (2026-09-17 추가) ===== */
+  .otb-adjust-type-btn { flex:1; font-size:12px; font-weight:700; border:1.5px solid #e2e8f0; background:#fff; color:#64748b; border-radius:8px; padding:9px 4px; cursor:pointer; font-family:inherit; }
+  .otb-adjust-type-btn.selected { border-color:#2a5298; background:#eaf1f8; color:#2a5298; }
+  .otb-emp-row { display:grid; grid-template-columns:1.3fr 1.3fr auto auto; gap:8px; align-items:center; margin-bottom:8px; }
+  .otb-emp-row input[type="text"] { width:100%; box-sizing:border-box; padding:8px 10px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:12.5px; font-family:inherit; }
+  .otb-emp-check { font-size:11.5px; color:#64748b; display:flex; align-items:center; gap:4px; white-space:nowrap; }
+
   #section-overtime .print-header { display:none; }
   @media print {
     #section-overtime .portal-header, #section-overtime .ot-tabs, #section-overtime .page-sub,
-    #section-overtime .ot-stat-controls button, #section-overtime .badge-soon { display:none !important; }
+    #section-overtime .ot-stat-controls button, #section-overtime .badge-soon,
+    #section-overtime .otb-noprint { display:none !important; }
     #section-overtime .page-title { display:none; }
     #section-overtime .page-wrap { max-width:100%; padding:0; }
     #section-overtime .print-header { display:flex !important; }
@@ -777,11 +803,6 @@
         <div class="label">잔업 현황판</div>
         <div class="sub">주간 표 · 클릭해서 입력</div>
       </button>
-      <button class="ot-tab-btn" id="ot-tab-personal-btn" onclick="showOtView('personal')">
-        <div class="icon">📊</div>
-        <div class="label">개인별 고과</div>
-        <div class="sub">월별 달력 · 예상 수당</div>
-      </button>
       <button class="ot-tab-btn" id="ot-tab-summary-btn" onclick="showOtView('summary')">
         <div class="icon">🖨️</div>
         <div class="label">월간 집계표</div>
@@ -803,25 +824,31 @@
         <div style="overflow-x:auto;">
           <table class="otb-table" id="otb-table"></table>
         </div>
-        <div style="margin-top:12px;">
+        <div class="otb-noprint" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
           <button class="mes-toggle-btn" onclick="otbGoThisWeek()">이번 주로 이동</button>
+          <button class="mes-toggle-btn" onclick="otbOpenEmpModal()">👥 인원관리</button>
         </div>
       </div>
     </div>
 
-    <!-- 개인별 고과 (다음 단계에서 채울 예정) -->
-    <div id="ot-view-personal" style="display:none;">
-      <div class="card">
-        <div class="badge-soon">다음 단계에서 추가돼요</div>
-        <div class="page-sub" style="margin-bottom:0;">개인별 월간 달력 보기랑 예상 잔업수당 계산기는 다음 업데이트에서 이 새 표 기준으로 다시 넣어드릴게요.</div>
-      </div>
-    </div>
-
-    <!-- 월간 집계표 (다음 단계에서 채울 예정) -->
+    <!-- 월간 집계표 (공식 서식, 인쇄용) -->
     <div id="ot-view-summary" style="display:none;">
       <div class="card">
-        <div class="badge-soon">다음 단계에서 추가돼요</div>
-        <div class="page-sub" style="margin-bottom:0;">인쇄용 월간 집계표(공식 서식)도 다음 업데이트에서 넣어드릴게요.</div>
+        <div class="ot-stat-controls">
+          <button onclick="otbShiftSummaryMonth(-1)">‹</button>
+          <div style="text-align:center;">
+            <div id="otb-summary-month-label" style="font-size:15px;font-weight:800;"></div>
+          </div>
+          <button onclick="otbShiftSummaryMonth(1)">›</button>
+        </div>
+        <div class="otb-noprint" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="mes-toggle-btn" onclick="otbGoThisSummaryMonth()">이번 달로 이동</button>
+          <button class="mes-toggle-btn" onclick="printOtSummary()">🖨️ 인쇄하기</button>
+        </div>
+        <div class="ot-stat-note">0.5=야간 근무 가산 · 1.5=평일/토요일 잔업 · 2.0=휴일·연장 잔업 · 소정=기본 근로시간(참고용 집계 · 실제 급여와 다를 수 있음)</div>
+        <div style="overflow-x:auto;">
+          <table class="otbsum-table" id="otb-summary-table"></table>
+        </div>
       </div>
     </div>
   </div>
@@ -855,6 +882,45 @@
     <div class="cal-form-actions">
       <button class="btn-cancel" onclick="otbCancelConfirmGate()">취소</button>
       <button class="btn-primary" onclick="otbDoConfirmGate()">예, 확인합니다</button>
+    </div>
+  </div>
+</div>
+
+<!-- 월간 집계표: 조퇴/외출/연차/무급휴가 조정 모달 -->
+<div id="otb-adjust-modal-backdrop" class="app-modal-backdrop" onclick="if(event.target===this) otbCloseAdjustModal()">
+  <div class="card">
+    <div class="cal-modal-head">
+      <div class="title" id="otb-adjust-title">-</div>
+      <button onclick="otbCloseAdjustModal()">×</button>
+    </div>
+    <div style="font-size:12.5px;color:#64748b;margin-bottom:12px;" id="otb-adjust-meta"></div>
+    <div id="otb-adjust-type-row" style="display:flex;gap:6px;margin-bottom:12px;">
+      <button type="button" class="otb-adjust-type-btn" data-adjtype="out" onclick="otbSetAdjustType('out')">외출</button>
+      <button type="button" class="otb-adjust-type-btn" data-adjtype="early" onclick="otbSetAdjustType('early')">조퇴</button>
+      <button type="button" class="otb-adjust-type-btn" data-adjtype="annual" onclick="otbSetAdjustType('annual')">연차</button>
+      <button type="button" class="otb-adjust-type-btn" data-adjtype="unpaid" onclick="otbSetAdjustType('unpaid')">무급휴가</button>
+    </div>
+    <div id="otb-adjust-body"></div>
+    <div class="cal-form-actions">
+      <button class="btn-cancel" onclick="otbClearAdjust()">기록 삭제</button>
+      <button class="btn-primary" onclick="otbSaveAdjust()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 잔업 현황판: 인원관리 모달 -->
+<div id="otb-emp-modal-backdrop" class="app-modal-backdrop" onclick="if(event.target===this) otbCloseEmpModal()">
+  <div class="card wide">
+    <div class="cal-modal-head">
+      <div class="title">인원관리</div>
+      <button onclick="otbCloseEmpModal()">×</button>
+    </div>
+    <div style="font-size:11.5px;color:#94a3b8;margin-bottom:12px;line-height:1.6;">이름을 바꾸거나 사람을 추가·삭제할 수 있어요. "짧은이름"은 업무일정 탭의 야간조 이름이랑 똑같이 맞춰야 야간조 표시가 정확히 연동돼요.</div>
+    <div id="otb-emp-list"></div>
+    <button class="mes-toggle-btn" style="margin-top:4px;" onclick="otbAddEmpRow()">＋ 직원 추가</button>
+    <div class="cal-form-actions">
+      <button class="btn-cancel" onclick="otbCloseEmpModal()">취소</button>
+      <button class="btn-primary" onclick="otbSaveEmpList()">저장</button>
     </div>
   </div>
 </div>
@@ -1632,7 +1698,8 @@ async function deleteShipment(id) {
 // 달라서 예전 신청 기록은 이 표로 옮겨오지 않았어요(예전 통계가 필요하면 말씀해주세요).
 // 야간조 표시는 새로 안 만들고, 업무일정 탭에 이미 있는 야간조 데이터(nightShiftMap)를
 // 그대로 가져다 써요 - 이 표에서 따로 또 관리 안 해도 되게요.
-// (다음 단계 예정: 개인별 고과 달력 + 예상 잔업수당 계산기, 인쇄용 월간 집계표, 확인 처리 시 메일 발송)
+// 월간 집계표(공식 서식)는 아래 otbRenderSummaryTable()에서 계산해요.
+// (다음 단계 예정: 확인 처리 시 메일 발송, 직원 명단 관리 화면 - 지금은 OTB_EMPLOYEES 배열을 직접 수정)
 
 const OTB_EMPLOYEES = [
   { id: 'e0', name: '이희표 차장', shortName: '이희표', noWeekdayOT: true },
@@ -1645,6 +1712,9 @@ const OTB_EMPLOYEES = [
   { id: 'e7', name: '양희진 주임', shortName: '양희진' },
   { id: 'e8', name: '최정환 사원', shortName: '최정환' },
   { id: 'e9', name: '신재화 사원', shortName: '신재화' },
+  { id: 'e10', name: '브로스 사원', shortName: '브로스' },
+  { id: 'e11', name: '파이렛 사원', shortName: '파이렛' },
+  { id: 'e12', name: '라집 사원', shortName: '라집' },
 ];
 
 const OTB_OT_OPTIONS = [
@@ -1675,7 +1745,7 @@ const OTB_HOLIDAYS_2026 = {
   '2026-12-25': '크리스마스',
 };
 
-let otbState = { employees: OTB_EMPLOYEES, records: {}, saturdays: {}, holidays: {}, confirmed: {} };
+let otbState = { employees: OTB_EMPLOYEES, records: {}, saturdays: {}, holidays: {}, confirmed: {}, dayAdjust: {} };
 let otbCurrentMonday = otbGetMonday(new Date());
 let otbLoaded = false;
 let otbActiveCell = null;
@@ -1720,6 +1790,10 @@ function otbSatHours(empId, ds) {
 function otbSatTime(empId, ds) { const r = otbState.saturdays[empId]; return r && r['t_' + ds] ? r['t_' + ds] : null; }
 function otbSatIsContinued(empId, ds) { return !!(otbState.saturdays[empId] && otbState.saturdays[empId]['x2_' + ds]); }
 function otbIsConfirmed(ds) { return !!otbState.confirmed[ds]; }
+// 조퇴/외출/연차/무급휴가 기록 조회 (월간집계표 '소정' 칸 전용)
+function otbGetDayAdjust(empId, ds) {
+  return (otbState.dayAdjust && otbState.dayAdjust[empId] && otbState.dayAdjust[empId][ds]) || null;
+}
 function otbWeeklyOtTotal(empId, monday) {
   return otbWeekDates6(monday).slice(0, 5).reduce((sum, d) => sum + otbHoursFor(empId, otbFmtDate(d)), 0);
 }
@@ -1747,9 +1821,10 @@ async function otbInit() {
       saturdays: (res && res.saturdays) || {},
       holidays: (res && res.holidays) || {},
       confirmed: (res && res.confirmed) || {},
+      dayAdjust: (res && res.dayAdjust) || {},
     };
   } catch (e) {
-    otbState = { employees: OTB_EMPLOYEES, records: {}, saturdays: {}, holidays: {}, confirmed: {} };
+    otbState = { employees: OTB_EMPLOYEES, records: {}, saturdays: {}, holidays: {}, confirmed: {}, dayAdjust: {} };
   }
   otbRenderBoard();
 }
@@ -1893,11 +1968,41 @@ function otbCancelConfirmGate() {
 }
 function otbDoConfirmGate() {
   if (otbPendingConfirmDate) {
-    otbState.confirmed[otbPendingConfirmDate] = true;
+    const ds = otbPendingConfirmDate;
+    otbState.confirmed[ds] = true;
     otbSaveState();
     otbRenderBoard();
+    otbSendConfirmEmail(ds);
   }
   otbCancelConfirmGate();
+}
+
+// 확인 처리된 날짜의 잔업 내용을 이메일로 발송 (받는사람은 Code.gs의 OTB_NOTIFY_EMAILS에서 설정 -
+// 비어있으면 백엔드에서 조용히 건너뜀. 실패해도 확인 처리 자체는 이미 저장됐으니 화면엔 표시 안 함)
+function otbGatherDayRows(ds) {
+  const d = new Date(ds + 'T00:00:00');
+  const dow = d.getDay();
+  const isSat = dow === 6;
+  const hol = otbIsHoliday(ds);
+  const rows = [];
+  otbState.employees.forEach(emp => {
+    const nightThisWeek = otbIsNightWeek(emp.shortName || emp.name, otbGetMonday(d));
+    if (isSat) {
+      const sh = otbSatHours(emp.id, ds);
+      if (sh > 0) rows.push({ name: emp.name, text: `토요일 근무 ${sh}h` });
+    } else if (nightThisWeek) {
+      rows.push({ name: emp.name, text: '야간조 (업무일정 탭 참고)' });
+    } else {
+      const h = otbHoursFor(emp.id, ds);
+      if (h > 0) rows.push({ name: emp.name, text: `잔업 ${h}h${hol ? ' (휴일 ×2 지급)' : ''}` });
+    }
+  });
+  return { dayName: OTB_DAY_NAMES_FULL[dow], hol, holidayName: hol ? otbHolidayLabel(ds) : null, rows };
+}
+function otbSendConfirmEmail(ds) {
+  const info = otbGatherDayRows(ds);
+  apiPost({ action: 'sendOtConfirmEmail', date: ds, dayName: info.dayName, holiday: info.hol, holidayName: info.holidayName, rows: info.rows })
+    .catch(() => { /* 네트워크 오류 등으로 실패해도 확인 처리 자체엔 영향 없음 */ });
 }
 
 /* ---- 칸 클릭 시 시간 선택 모달 ---- */
@@ -1987,11 +2092,10 @@ function otbClearCell() {
 
 function showOtView(view) {
   document.getElementById('ot-view-board').style.display = view === 'board' ? 'block' : 'none';
-  document.getElementById('ot-view-personal').style.display = view === 'personal' ? 'block' : 'none';
   document.getElementById('ot-view-summary').style.display = view === 'summary' ? 'block' : 'none';
   document.getElementById('ot-tab-board-btn').classList.toggle('active', view === 'board');
-  document.getElementById('ot-tab-personal-btn').classList.toggle('active', view === 'personal');
   document.getElementById('ot-tab-summary-btn').classList.toggle('active', view === 'summary');
+  if (view === 'summary') otbRenderSummaryTable();
 }
 
 function printOtSummary() {
@@ -1999,6 +2103,313 @@ function printOtSummary() {
   const el = document.getElementById('ot-print-date');
   if (el) el.textContent = `${now.getFullYear()}.${pad2(now.getMonth() + 1)}.${pad2(now.getDate())} 출력`;
   window.print();
+}
+
+/* ---- 월간 집계표 (공식 서식) - 유철님 원본의 지급배율(0.5/1.5/2.0/소정) 집계 방식을
+   우리 표(otbState) 데이터 기준으로 다시 계산해요. 조퇴/외출/연차 차감은 이 시스템에
+   아직 없어서 "소정"은 평일 8시간 고정으로 계산돼요(참고용 · 실제 급여와 다를 수 있음). ---- */
+let otbCurrentSummaryMonth = new Date();
+
+function otbShiftSummaryMonth(delta) {
+  otbCurrentSummaryMonth = new Date(otbCurrentSummaryMonth.getFullYear(), otbCurrentSummaryMonth.getMonth() + delta, 1);
+  otbRenderSummaryTable();
+}
+function otbGoThisSummaryMonth() {
+  otbCurrentSummaryMonth = new Date();
+  otbRenderSummaryTable();
+}
+
+// 해당 날짜 하루치 지급배율 값 (tier: '05'=야간가산·'15'=평일1.5배·'20'=휴일2배·'jeong'=소정)
+function otbTierValueForDay(emp, ds, dow, tier, nightThisWeek) {
+  if (dow === 0) return 0; // 일요일 근무 없음(이 표는 일요일 근무를 다루지 않음)
+  if (dow === 6) {
+    const sh = otbSatHours(emp.id, ds);
+    if (sh <= 0) return 0;
+    return tier === 'jeong' ? sh : 0;
+  }
+  const hol = otbIsHoliday(ds);
+  if (nightThisWeek) {
+    if (tier === 'jeong') return hol ? 0 : 8;
+    if (tier === '05') return 6;
+    if (tier === '20') return hol ? 10 : 2;
+    return 0;
+  }
+  if (tier === 'jeong') {
+    const adj = otbGetDayAdjust(emp.id, ds);
+    if (adj) return Math.max(0, 8 - (adj.deduct || 0));
+    return 8;
+  }
+  const h = otbHoursFor(emp.id, ds);
+  if (h <= 0) return 0;
+  if (tier === '20') return hol ? h : 0;
+  if (tier === '15') return hol ? 0 : h;
+  return 0;
+}
+function otbMonthTierTotals(emp, y, m) {
+  const daysInMonth = new Date(y, m, 0).getDate();
+  let jeong = 0, t20 = 0, t15 = 0, t05 = 0;
+  for (let dnum = 1; dnum <= daysInMonth; dnum++) {
+    const d = new Date(y, m - 1, dnum);
+    const dow = d.getDay();
+    const ds = otbFmtDate(d);
+    const nightThisWeek = otbIsNightWeek(emp.shortName || emp.name, otbGetMonday(d));
+    jeong += otbTierValueForDay(emp, ds, dow, 'jeong', nightThisWeek);
+    t05 += otbTierValueForDay(emp, ds, dow, '05', nightThisWeek);
+    t15 += otbTierValueForDay(emp, ds, dow, '15', nightThisWeek);
+    t20 += otbTierValueForDay(emp, ds, dow, '20', nightThisWeek);
+  }
+  return { jeong, t20, t15, t05 };
+}
+
+function otbRenderSummaryTable() {
+  const y = otbCurrentSummaryMonth.getFullYear();
+  const m = otbCurrentSummaryMonth.getMonth() + 1;
+  document.getElementById('otb-summary-month-label').textContent = `${y}년 ${m}월 시간외근무 집계`;
+
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const dateList = [];
+  for (let dnum = 1; dnum <= daysInMonth; dnum++) dateList.push(new Date(y, m - 1, dnum));
+
+  const weeks = [];
+  {
+    let monday = otbGetMonday(dateList[0]);
+    const lastDay = dateList[dateList.length - 1];
+    while (monday <= lastDay) {
+      weeks.push([0, 1, 2, 3, 4, 5, 6].map(i => otbAddDays(monday, i)));
+      monday = otbAddDays(monday, 7);
+    }
+  }
+
+  const TIERS = [
+    { key: '05', label: '0.5' },
+    { key: '15', label: '1.5' },
+    { key: '20', label: '2.0' },
+    { key: 'jeong', label: '소정', noTotal: true },
+  ];
+
+  let html = '<thead><tr><th class="otbsum-namecol">이름</th><th class="otbsum-tierlabelcol">구분</th>';
+  weeks.forEach(days => {
+    days.forEach(d => {
+      const inMonth = (d.getMonth() + 1 === m && d.getFullYear() === y);
+      const dow = d.getDay();
+      const ds = otbFmtDate(d);
+      const hol = inMonth && otbIsHoliday(ds);
+      const cls = hol ? 'otbsum-holcol' : (dow === 6 ? 'otbsum-satcol' : (dow === 0 ? 'otbsum-suncol' : ''));
+      html += `<th class="${cls}">${d.getDate()}<span class="otbsum-dow">${OTB_DAY_NAMES_FULL[dow]}</span></th>`;
+    });
+    html += '<th>주합계</th>';
+  });
+  html += '<th>월합계</th></tr></thead><tbody>';
+
+  otbState.employees.forEach((emp, empIdx) => {
+    const monthTotals = otbMonthTierTotals(emp, y, m);
+    TIERS.forEach((tier, tierIdx) => {
+      html += `<tr class="${(empIdx > 0 && tierIdx === 0) ? 'otbsum-emp-divider' : ''}">`;
+      if (tierIdx === 0) html += `<td class="otbsum-namecol" rowspan="${TIERS.length}">${escapeHtml(emp.name)}</td>`;
+      html += `<td class="otbsum-tierlabelcol">${tier.label}</td>`;
+      weeks.forEach(days => {
+        let weekSum = 0;
+        days.forEach(d => {
+          const inMonth = (d.getMonth() + 1 === m && d.getFullYear() === y);
+          const ds = otbFmtDate(d);
+          const dow = d.getDay();
+          const hol = inMonth && otbIsHoliday(ds);
+          const cls = (inMonth ? '' : 'otbsum-outside ') + (hol ? 'otbsum-holcol' : (dow === 6 ? 'otbsum-satcol' : (dow === 0 ? 'otbsum-suncol' : '')));
+          if (!inMonth) { html += `<td class="${cls}"></td>`; return; }
+          const nightThisWeek = otbIsNightWeek(emp.shortName || emp.name, otbGetMonday(d));
+          const v = otbTierValueForDay(emp, ds, dow, tier.key, nightThisWeek);
+          weekSum += v;
+          const isJeongWeekday = tier.key === 'jeong' && dow >= 1 && dow <= 5 && !nightThisWeek;
+          if (isJeongWeekday) {
+            const adj = otbGetDayAdjust(emp.id, ds);
+            const label = adj && adj.type === 'annual' ? '연차' : adj && adj.type === 'unpaid' ? '무급' : (v || '');
+            const title = adj ? (adj.type === 'out' ? `외출 ${otbTimeLabel(adj.outTime)}~${otbTimeLabel(adj.backTime)} (${adj.deduct}h 차감)`
+              : adj.type === 'early' ? `조퇴 ${otbTimeLabel(adj.leaveTime)} (${adj.deduct}h 차감)`
+              : adj.type === 'annual' ? '연차 (소정 8시간 인정)'
+              : adj.type === 'unpaid' ? '무급휴가 (급여 미지급)' : '') : '클릭하면 조퇴/외출/연차/무급휴가를 기록할 수 있어요';
+            html += `<td class="${cls} otbsum-jeong-cell${adj ? ' otbsum-adjusted' : ''}" title="${title}" onclick="otbOpenAdjustModal('${emp.id}','${ds}')">${label}</td>`;
+          } else {
+            html += `<td class="${cls}">${v || ''}</td>`;
+          }
+        });
+        html += `<td class="otbsum-wksumcol">${tier.noTotal ? '' : (weekSum || '')}</td>`;
+      });
+      const monthVal = tier.noTotal ? '' : (tier.key === '05' ? monthTotals.t05 : tier.key === '15' ? monthTotals.t15 : tier.key === '20' ? monthTotals.t20 : monthTotals.jeong);
+      html += `<td class="otbsum-monthsumcol">${monthVal || ''}</td>`;
+      html += '</tr>';
+    });
+  });
+  html += '</tbody>';
+  document.getElementById('otb-summary-table').innerHTML = html;
+}
+
+/* ---- 조퇴/외출/연차/무급휴가 조정 모달 (월간집계표 '소정' 칸 클릭 시) ---- */
+const OTB_ADJ_TIME_OPTIONS = (() => {
+  const arr = [];
+  for (let h = 8; h <= 17; h++) {
+    for (const mm of [0, 30]) {
+      if (h === 8 && mm === 0) continue;   // 08:00은 정상 출근시각이라 제외
+      if (h === 17 && mm === 30) continue; // 17:30 이후는 잔업 영역
+      arr.push(pad2(h) + ':' + pad2(mm));
+    }
+  }
+  return arr;
+})();
+const OTB_ADJ_TYPE_LABEL = { out: '외출', early: '조퇴', annual: '연차', unpaid: '무급휴가' };
+let otbActiveAdjust = null;
+
+function otbTimeToMinutes(t) { const [h, mm] = t.split(':').map(Number); return h * 60 + mm; }
+function otbMinutesToHoursRound(mn) { return Math.round((mn / 60) * 10) / 10; }
+
+function otbOpenAdjustModal(empId, ds) {
+  otbActiveAdjust = { empId, ds };
+  const emp = otbState.employees.find(e => e.id === empId);
+  if (!emp) return;
+  const d = new Date(ds + 'T00:00:00');
+  document.getElementById('otb-adjust-title').textContent = emp.name;
+  document.getElementById('otb-adjust-meta').textContent = `${ds} (${OTB_DAY_NAMES_FULL[d.getDay()]}) · 조퇴/외출/연차/무급휴가 중 선택하세요`;
+  const adj = otbGetDayAdjust(empId, ds);
+  otbSetAdjustType(adj ? adj.type : 'out', adj);
+  document.getElementById('otb-adjust-modal-backdrop').style.display = 'flex';
+}
+function otbCloseAdjustModal() {
+  document.getElementById('otb-adjust-modal-backdrop').style.display = 'none';
+  otbActiveAdjust = null;
+}
+function otbSetAdjustType(type, adj) {
+  document.querySelectorAll('#otb-adjust-type-row .otb-adjust-type-btn').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.adjtype === type);
+  });
+  otbRenderAdjustBody(type, adj);
+}
+function otbRenderAdjustBody(type, adj) {
+  const box = document.getElementById('otb-adjust-body');
+  if (type === 'out') {
+    const outDefault = (adj && adj.type === 'out') ? adj.outTime : '10:00';
+    const backDefault = (adj && adj.type === 'out') ? adj.backTime : '11:00';
+    box.innerHTML = `<div class="ot-form" style="margin-bottom:8px;">
+      <div><label>나간 시각</label><select id="otb-adj-out-time">${OTB_ADJ_TIME_OPTIONS.map(t => `<option value="${t}" ${t === outDefault ? 'selected' : ''}>${otbTimeLabel(t)}</option>`).join('')}</select></div>
+      <div><label>복귀 시각</label><select id="otb-adj-back-time">${OTB_ADJ_TIME_OPTIONS.map(t => `<option value="${t}" ${t === backDefault ? 'selected' : ''}>${otbTimeLabel(t)}</option>`).join('')}</select></div>
+    </div>
+    <div id="otb-adjust-preview" style="font-size:12.5px;color:#64748b;background:#f7f9fc;border-radius:8px;padding:9px 11px;"></div>`;
+    document.getElementById('otb-adj-out-time').addEventListener('change', otbUpdateAdjustPreview);
+    document.getElementById('otb-adj-back-time').addEventListener('change', otbUpdateAdjustPreview);
+  } else if (type === 'early') {
+    const leaveDefault = (adj && adj.type === 'early') ? adj.leaveTime : '15:30';
+    box.innerHTML = `<div class="ot-form" style="margin-bottom:8px;">
+      <div class="full"><label>조퇴 시각</label><select id="otb-adj-leave-time">${OTB_ADJ_TIME_OPTIONS.map(t => `<option value="${t}" ${t === leaveDefault ? 'selected' : ''}>${otbTimeLabel(t)}</option>`).join('')}</select></div>
+    </div>
+    <div id="otb-adjust-preview" style="font-size:12.5px;color:#64748b;background:#f7f9fc;border-radius:8px;padding:9px 11px;"></div>`;
+    document.getElementById('otb-adj-leave-time').addEventListener('change', otbUpdateAdjustPreview);
+  } else {
+    box.innerHTML = `<div id="otb-adjust-preview" style="font-size:12.5px;color:#64748b;background:#f7f9fc;border-radius:8px;padding:9px 11px;"></div>`;
+  }
+  otbUpdateAdjustPreview();
+}
+function otbCurrentAdjustType() {
+  const sel = document.querySelector('#otb-adjust-type-row .otb-adjust-type-btn.selected');
+  return sel ? sel.dataset.adjtype : 'out';
+}
+function otbComputeAdjustDeduct(type) {
+  if (type === 'out') {
+    const out = document.getElementById('otb-adj-out-time').value;
+    const back = document.getElementById('otb-adj-back-time').value;
+    return otbMinutesToHoursRound(Math.max(0, otbTimeToMinutes(back) - otbTimeToMinutes(out)));
+  }
+  if (type === 'early') {
+    const leave = document.getElementById('otb-adj-leave-time').value;
+    return otbMinutesToHoursRound(Math.max(0, otbTimeToMinutes('17:00') - otbTimeToMinutes(leave)));
+  }
+  if (type === 'annual') return 0;   // 연차: 소정 8시간 그대로 인정
+  if (type === 'unpaid') return 8;   // 무급휴가: 소정 0시간(급여 미지급)
+  return 0;
+}
+function otbUpdateAdjustPreview() {
+  const type = otbCurrentAdjustType();
+  const deduct = otbComputeAdjustDeduct(type);
+  const result = Math.max(0, 8 - deduct);
+  const el = document.getElementById('otb-adjust-preview');
+  if (!el) return;
+  if (type === 'annual') {
+    el.innerHTML = `연차 처리 → 소정 8시간 그대로 인정 → <b style="color:#1e293b;">${result}시간</b>`;
+  } else if (type === 'unpaid') {
+    el.innerHTML = `무급휴가 처리 → 급여 미지급이라 소정 0시간 → <b style="color:#1e293b;">${result}시간</b>`;
+  } else {
+    el.innerHTML = `${OTB_ADJ_TYPE_LABEL[type]}로 ${deduct}h 차감 → 소정 8 → <b style="color:#1e293b;">${result}시간</b>`;
+  }
+}
+function otbSaveAdjust() {
+  if (!otbActiveAdjust) return;
+  const { empId, ds } = otbActiveAdjust;
+  const type = otbCurrentAdjustType();
+  const deduct = otbComputeAdjustDeduct(type);
+  const rec = { type, deduct };
+  if (type === 'out') {
+    rec.outTime = document.getElementById('otb-adj-out-time').value;
+    rec.backTime = document.getElementById('otb-adj-back-time').value;
+  } else if (type === 'early') {
+    rec.leaveTime = document.getElementById('otb-adj-leave-time').value;
+  }
+  if (!otbState.dayAdjust[empId]) otbState.dayAdjust[empId] = {};
+  otbState.dayAdjust[empId][ds] = rec;
+  otbSaveState();
+  otbCloseAdjustModal();
+  otbRenderSummaryTable();
+}
+function otbClearAdjust() {
+  if (!otbActiveAdjust) return;
+  const { empId, ds } = otbActiveAdjust;
+  if (otbState.dayAdjust[empId]) delete otbState.dayAdjust[empId][ds];
+  otbSaveState();
+  otbCloseAdjustModal();
+  otbRenderSummaryTable();
+}
+
+/* ---- 인원관리 (직원 추가/삭제/이름수정) ---- */
+function otbOpenEmpModal() {
+  otbRenderEmpModalList();
+  document.getElementById('otb-emp-modal-backdrop').style.display = 'flex';
+}
+function otbCloseEmpModal() {
+  document.getElementById('otb-emp-modal-backdrop').style.display = 'none';
+}
+function otbRenderEmpModalList() {
+  const box = document.getElementById('otb-emp-list');
+  let html = '';
+  otbState.employees.forEach((emp, i) => {
+    html += `<div class="otb-emp-row">
+      <input type="text" value="${escapeHtml(emp.name || '')}" placeholder="이름 (예: 홍길동 사원)" oninput="otbEmpFieldChange(${i},'name',this.value)">
+      <input type="text" value="${escapeHtml(emp.shortName || '')}" placeholder="짧은이름(야간조 탭과 동일해야 연동됨)" oninput="otbEmpFieldChange(${i},'shortName',this.value)">
+      <label class="otb-emp-check"><input type="checkbox" ${emp.noWeekdayOT ? 'checked' : ''} onchange="otbEmpFieldChange(${i},'noWeekdayOT',this.checked)">특근전용</label>
+      <button class="btn-cancel" onclick="otbRemoveEmpRow(${i})">삭제</button>
+    </div>`;
+  });
+  box.innerHTML = html;
+}
+function otbEmpFieldChange(i, field, val) {
+  if (!otbState.employees[i]) return;
+  otbState.employees[i][field] = val;
+}
+function otbRemoveEmpRow(i) {
+  const emp = otbState.employees[i];
+  if (!emp) return;
+  if (!confirm(`${emp.name || '이 사람'}을(를) 명단에서 삭제할까요? (이미 기록된 잔업 데이터 자체는 지워지지 않지만 표에는 더 이상 안 보여요)`)) return;
+  otbState.employees.splice(i, 1);
+  otbRenderEmpModalList();
+}
+function otbAddEmpRow() {
+  const maxNum = otbState.employees.reduce((mx, e) => {
+    const n = parseInt(String(e.id).replace('e', ''), 10);
+    return isNaN(n) ? mx : Math.max(mx, n);
+  }, -1);
+  otbState.employees.push({ id: 'e' + (maxNum + 1), name: '', shortName: '' });
+  otbRenderEmpModalList();
+}
+function otbSaveEmpList() {
+  otbState.employees = otbState.employees.filter(e => e.name && e.name.trim());
+  otbSaveState();
+  otbCloseEmpModal();
+  otbRenderBoard();
 }
 
 // ===== 온습도관리 (샘플실, 구글시트에 저장됨) =====
