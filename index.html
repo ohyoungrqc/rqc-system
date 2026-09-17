@@ -56,6 +56,7 @@
 
   .page-wrap { max-width:1000px; margin:0 auto; padding:32px 24px 60px; }
   #section-shipping .page-wrap { max-width:1360px; }
+  #section-monitor .page-wrap { max-width:1600px; }
   .page-title { font-size:20px; font-weight:800; margin-bottom:4px; }
   .page-sub { font-size:13px; color:#64748b; margin-bottom:24px; }
 
@@ -78,6 +79,14 @@
   .mes-panel-title .count { font-weight:500; color:#94a3b8; font-size:12.5px; }
   .mes-error { color:#b23b3b; font-size:13px; padding:16px 0; }
   .mes-loading { color:#94a3b8; font-size:13px; padding:16px 0; }
+  .mes-toggle-btn { font-size:12px; font-weight:600; color:#2a5298; background:#fff; border:1.5px solid #cbd8ee; border-radius:8px; padding:5px 11px; cursor:pointer; font-family:inherit; }
+  .mes-toggle-btn:hover { background:#f0f5ff; }
+  .mes-panel-details { margin-bottom:26px; }
+  .mes-panel-details > summary { list-style:none; cursor:pointer; }
+  .mes-panel-details > summary::-webkit-details-marker { display:none; }
+  .mes-panel-details > summary .mes-panel-title { display:flex; align-items:center; gap:6px; }
+  .mes-panel-details > summary .mes-panel-title::before { content:'▶'; font-size:10px; color:#94a3b8; transition:.15s; }
+  .mes-panel-details[open] > summary .mes-panel-title::before { content:'▼'; }
 
   /* 유철님 원본(업무포털)의 탱크 카드 애니메이션을 그대로 가져온 부분 */
   @keyframes mesripple{0%,100%{opacity:.5}50%{opacity:.28}}
@@ -538,12 +547,41 @@
       <div class="stat-tile"><div class="label">품질 이슈</div><div class="value">—</div></div>
     </div>
 
+    <div id="pd1-alert-box" style="display:none;margin-bottom:18px"></div>
+
     <div class="mes-section">
       <div class="mes-section-head">
         <div class="page-title" style="margin-bottom:0;font-size:16px;">생산설비 현황</div>
-        <span class="mes-updated" id="mes-updated"></span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="mes-updated" id="mes-updated"></span>
+          <button type="button" class="mes-toggle-btn" id="mes-toggle-all-btn" onclick="mesToggleAllPanels()">⬇ 모두 펼치기</button>
+        </div>
       </div>
       <div id="mes-monitor-body">
+        <div class="mes-loading">불러오는 중...</div>
+      </div>
+    </div>
+
+    <div class="mes-section" style="margin-top:34px;padding-top:22px;border-top:1px solid #e2e8f0;">
+      <div class="mes-section-head">
+        <div class="page-title" style="margin-bottom:0;font-size:16px;">SEM 품질관리 현황 (오늘)</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="mes-updated" id="sem-updated"></span>
+          <button type="button" class="mes-toggle-btn" id="sem-alerts-toggle-btn" onclick="semToggleAlerts()">📋 요약</button>
+        </div>
+      </div>
+      <div id="sem-alerts-grid" style="display:none;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:16px"></div>
+      <div id="sem-today-summary" style="display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:#3a4250;margin-bottom:14px;padding:7px 14px;background:#f5f7fa;border-radius:8px;width:fit-content"></div>
+      <div id="sem-sample-alerts" style="display:none;margin-bottom:14px"></div>
+      <details style="margin-bottom:14px">
+        <summary style="cursor:pointer;font-size:12px;font-weight:700;padding:4px 0;color:#3a4250">🔬 작업점검항목 실측값 조회 (n_WR_ID 직접 입력, 아직 수동)</summary>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+          <input type="text" id="ppd-wr-id-input" placeholder="예: 349089" style="width:140px;padding:6px 10px;border:1px solid #cbd5e1;border-radius:8px;font-family:inherit">
+          <button type="button" class="mes-toggle-btn" onclick="checkPpd()">조회</button>
+        </div>
+        <div id="ppd-result-box" style="display:none;margin-top:8px;font-size:12.5px;background:#f5f7fa;border-radius:8px;padding:10px 12px"></div>
+      </details>
+      <div id="sem-monitor-body">
         <div class="mes-loading">불러오는 중...</div>
       </div>
     </div>
@@ -999,7 +1037,7 @@ function switchTab(key) {
     if (!humidityLoaded) { humidityLoaded = true; loadHumidity(); }
   }
   if (key === 'monitor') {
-    if (!monitorLoaded) { monitorLoaded = true; loadMesMonitoring(); }
+    if (!monitorLoaded) { monitorLoaded = true; loadMesMonitoring(); loadSemMonitoring(); loadPd1Alert(); }
   }
   if ((key === 'equipment' || key === 'products') && isReclick) reloadEmbeddedFrame(key);
 }
@@ -1872,6 +1910,9 @@ const MES_PANEL_LABELS = {
   liquid: '액체혼합', storage: '저장소',
 };
 const MES_PANEL_ORDER = ['nauta', 'concent', 'dry', 'liquid', 'storage'];
+// 나우다믹서는 항상 전체 표시(접기 없음). 나머지는 접고 펼 수 있음 - 유철님 원본과 같은 기본값
+// (액체혼합만 기본 펼침, R·O농축/S·D건조/저장소는 기본 접힘).
+window.mesDetailsOpen = window.mesDetailsOpen || { concent: false, dry: false, liquid: true, storage: false };
 
 async function loadMesMonitoring() {
   const body = document.getElementById('mes-monitor-body');
@@ -1899,12 +1940,41 @@ function renderMesMonitoring(res) {
     const list = panels[key] || [];
     if (!list.length) return;
     const busyCount = list.filter(t => (t.arrWR && t.arrWR.length) || (t.arrWRS && t.arrWRS.length) || (t.arrSTL && t.arrSTL.length)).length;
-    html += '<div class="mes-panel-block">';
-    html += '<div class="mes-panel-title">' + MES_PANEL_LABELS[key] + ' <span class="count">(' + busyCount + '/' + list.length + ' 가동중)</span></div>';
-    html += mesRenderByBuilding(list, key);
-    html += '</div>';
+    const titleHtml = '<div class="mes-panel-title">' + MES_PANEL_LABELS[key] + ' <span class="count">(' + busyCount + '/' + list.length + ' 가동중' + (key === 'nauta' ? ' · 항상 전체 표시' : '') + ')</span></div>';
+    const bodyHtml = mesRenderByBuilding(list, key);
+    if (key === 'nauta') {
+      // 나우다믹서는 접기 기능 없이 항상 펼쳐서 보여줌 (유철님 원본과 동일)
+      html += '<div class="mes-panel-block">' + titleHtml + bodyHtml + '</div>';
+    } else {
+      const isOpen = !!window.mesDetailsOpen[key];
+      html += '<details class="mes-panel-details" id="mes-details-' + key + '"' + (isOpen ? ' open' : '')
+        + ' ontoggle="window.mesDetailsOpen.' + key + ' = this.open">'
+        + '<summary>' + titleHtml + '</summary>' + bodyHtml + '</details>';
+    }
   });
   body.innerHTML = html || '<div class="mes-loading">표시할 설비가 없어요.</div>';
+  mesSyncToggleAllBtn();
+}
+
+// "모두 펼치기/접기" 버튼 - 지금 하나라도 열려있으면 전부 접고, 다 닫혀있으면 전부 폄
+function mesToggleAllPanels() {
+  const ids = ['concent', 'dry', 'liquid', 'storage'];
+  const anyOpen = ids.some(k => window.mesDetailsOpen[k]);
+  const nextOpen = !anyOpen;
+  ids.forEach(k => {
+    window.mesDetailsOpen[k] = nextOpen;
+    const el = document.getElementById('mes-details-' + k);
+    if (el) el.open = nextOpen;
+  });
+  mesSyncToggleAllBtn();
+}
+
+function mesSyncToggleAllBtn() {
+  const btn = document.getElementById('mes-toggle-all-btn');
+  if (!btn) return;
+  const ids = ['concent', 'dry', 'liquid', 'storage'];
+  const anyOpen = ids.some(k => window.mesDetailsOpen[k]);
+  btn.textContent = anyOpen ? '⬆ 모두 접기' : '⬇ 모두 펼치기';
 }
 
 // 건물(R1동/R2동/R3동/기타)별로 묶어서 나란히 보여줌 (유철님 원본과 동일한 방식)
@@ -2118,6 +2188,418 @@ function mesShowTankDetail(cardId) {
 }
 
 // (escapeHtml은 아래 공지사항 쪽에 이미 정의되어 있어 그대로 재사용함)
+
+// ===== QC모니터링: SEM 품질관리 현황 (2026-09-17 추가, 유철님 업무포털의 SEM 품질관리
+// 모니터링(공정검사내역/추가의뢰현황)을 그대로 이식함) =====
+// 참고: SEM 쪽 데이터는 위 생산설비 현황(나우다믹서 등)과 달리 깔끔한 JSON이 아니라
+// 서버에서 만들어진 HTML 표를 그대로 받아서 우리 쪽 Code.gs가 표를 직접 해석(파싱)한
+// 값이라, 필드 이름이 화면 문구 그대로예요('품명','검사결과' 등). 그래서 아래 semField()
+// 처럼 "이 이름 중에 있는 걸 써라" 하는 보정 함수를 유철님 원본과 동일하게 씁니다.
+function semField(row, keys) {
+  for (const k of keys) { if (row[k]) return row[k]; }
+  return '';
+}
+function semNormMachine(name) {
+  return String(name || '').replace(/\s+/g, ' ').trim();
+}
+
+// 오늘 데이터(공정검사내역)를 설비별로 묶고, 설비 마스터에 있는데 오늘 데이터가 없는
+// (=오늘 작업 없이 대기 중인) 설비도 "대기" 카드로 채워 넣음 - 그다음 설비 이름으로
+// 공정(혼합/기타)을 나눔 (원본 로직 그대로: 그날그날 바뀌는 '공정' 값이 아니라 설비
+// 이름 종류로 고정해서 묶어야 나우다믹서가 포장중이어도 같은 그룹에 남음)
+function semBuildTankSections(rows, machineMaster) {
+  const byMachine = {};
+  (rows || []).forEach(r => {
+    const m = semNormMachine(semField(r, ['설비', 'machine']));
+    if (!m) return;
+    const existing = byMachine[m];
+    if (!existing) { byMachine[m] = r; return; }
+    const existingHasResult = !!semField(existing, ['검사결과', 'PROCESS_INSPECTION_RESULT_']);
+    const newHasResult = !!semField(r, ['검사결과', 'PROCESS_INSPECTION_RESULT_']);
+    if (!existingHasResult && newHasResult) byMachine[m] = r;
+  });
+  (machineMaster || []).forEach(rawName => {
+    const name = semNormMachine(rawName);
+    if (!name || byMachine[name]) return;
+    byMachine[name] = { '설비': name, '공정': '혼합', '종료시각': '', '검사결과': '', '검사자': '' };
+  });
+  const sections = {};
+  Object.keys(byMachine).sort().forEach(m => {
+    const row = byMachine[m];
+    const proc = (/나우다믹서|사각믹서|콘믹서/.test(m) ? '혼합' : null)
+      || semField(row, ['공정', 'process']) || '기타';
+    if (!sections[proc]) sections[proc] = [];
+    sections[proc].push(row);
+  });
+  return sections;
+}
+
+function semPackagingMachines(requestRows) {
+  const set = new Set();
+  (requestRows || []).forEach(r => {
+    const note = r['비고'] || '';
+    const m = semField(r, ['설비', 'machine']);
+    if (note.indexOf('포장') !== -1 && m) set.add(m);
+  });
+  return set;
+}
+
+function semBuildNameLookup(requestRows) {
+  const map = {};
+  (requestRows || []).forEach(r => {
+    const m = semField(r, ['설비', 'machine']);
+    if (!m || map[m]) return;
+    const name = r['품명'] || '';
+    const lot = r['배치번호'] || '';
+    if (name || lot) map[m] = { name, lot };
+  });
+  return map;
+}
+
+// 탱크 카드 하나 (위 생산설비 현황의 mesTankHtml과 같은 모양 - mestank-cell/mestank-body
+// 클래스와 애니메이션을 그대로 재사용해서 디자인이 통일되게 함)
+function semTankHtml(row, cardId, packaging, nameInfo) {
+  const machine = semField(row, ['설비', 'machine']);
+  const endVal = row['종료시각'] || '';
+  const working = endVal === '작업중';
+  const done = !!endVal && !working;
+  const active = working || done;
+  const result = semField(row, ['검사결과', 'PROCESS_INSPECTION_RESULT_']);
+  const inspector = semField(row, ['검사자', '의뢰자', 'user']);
+  const state = packaging ? ['포장중', '#7b2fbe', '#f1e6fb']
+    : working ? ['작업중', '#2e9e44', '#E5F6EA']
+    : done ? ['완료', '#3976cf', '#e7f0ff']
+    : ['대기', '#3D4FC4', '#E8EAFB'];
+
+  const productName = (nameInfo && nameInfo.name) || row['품명'] || (row['투입품목'] && row['투입품목'] !== '미등록' ? row['투입품목'] : '');
+  const lotNo = (nameInfo && nameInfo.lot) || row['배치번호'] || row['LOT No.'] || row['작업지시번호'] || '';
+  const prodColor = mesColorFor(productName);
+
+  let fillColor;
+  if (prodColor) fillColor = prodColor;
+  else if (packaging) fillColor = '#7b2fbe';
+  else if (result === '불합격') fillColor = '#c94740';
+  else if (result === '합격') fillColor = '#2e9e44';
+  else if (working) fillColor = '#3976cf';
+  else fillColor = '#98a1ac';
+
+  const resultColor = result === '불합격' ? '#c94740' : (result ? '#2e9e44' : '#8993a2');
+  const fillH = working ? 92 : (done ? 45 : 0);
+  const gauge = [0.2, 0.4, 0.6, 0.8].map(p => `<div style="position:absolute;left:2px;right:2px;bottom:${p * 100}%;height:1px;background:#e3e6ea"></div>`).join('');
+  const motor = (working && !packaging) ? `
+      <div style="position:absolute;z-index:3;left:50%;top:5px;transform:translateX(-50%);width:16px;height:6px;background:#707b8877;border-radius:3px"></div>
+      <div style="position:absolute;z-index:3;left:50%;top:9px;width:2px;height:38px;transform:translateX(-50%);background:#2a2f36;border-radius:1px"></div>
+      <div style="position:absolute;z-index:3;left:50%;top:45px;width:13px;height:13px;margin-left:-6.5px;animation:messblade .5s linear infinite">
+        <div style="position:absolute;left:0;top:5.5px;width:13px;height:2px;background:#5b6773;border-radius:1px"></div>
+        <div style="position:absolute;left:5.5px;top:0;width:2px;height:13px;background:#5b6773;border-radius:1px"></div>
+      </div>` : '';
+  const borderColor = active ? state[1] : '#d5d9de';
+
+  const packagingAnim = packaging ? `
+    <div style="position:relative;height:20px;margin-top:1px">
+      ${[0, 1, 2].map(i => `<div style="position:absolute;left:${47 + i * 2}%;top:0;width:3px;height:3px;border-radius:1px;background:${fillColor};animation:mesfalldrop 1s ease-in ${i * 0.25}s infinite"></div>`).join('')}
+      <div style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);font-size:13px;animation:mesboxbounce 1.3s ease-in-out infinite">📦</div>
+    </div>
+    <div style="font-size:8.5px;color:#7b2fbe;font-weight:700">포장중</div>` : '';
+
+  const tooltip = [machine, productName, lotNo ? ('배치: ' + lotNo) : '', row['시작시각'] ? ('시작: ' + row['시작시각']) : '', result ? ('검사결과: ' + result) : '', inspector ? ('검사자: ' + inspector) : '']
+    .filter(Boolean).join('\n');
+  window.semTankData = window.semTankData || {};
+  window.semTankData[cardId] = { row, machine, productName, lotNo };
+  return `
+    <div class="mestank-cell" title="${escapeHtml(tooltip)}" onclick="semShowTankDetail('${cardId}')" style="display:flex;flex-direction:column;align-items:center;gap:3px;width:100px;padding:8px 4px 10px;border-radius:10px;cursor:pointer" id="cell_${cardId}">
+      <div style="font-size:10.5px;font-weight:700;text-align:center;color:#17202a">${escapeHtml(machine)}</div>
+      <div style="font-size:9.5px;font-weight:700;border-radius:20px;padding:2px 7px;background:${state[2]};color:${state[1]};letter-spacing:.2px">${state[0]}</div>
+      <div style="width:15px;height:9px;border:1.6px solid ${borderColor};border-bottom:0;border-radius:6px 6px 0 0;background:#f2f4f7;margin-bottom:-1px"></div>
+      <div class="mestank-body" style="width:58px;height:66px;border:2.2px solid ${borderColor};border-style:${active ? 'solid' : 'dashed'};border-radius:9px 9px 17px 17px;position:relative;overflow:hidden;background:linear-gradient(180deg,#fff,#f7f8fa);box-shadow:inset 0 -6px 12px rgba(20,35,50,.05)">
+        ${gauge}${fillH ? `<div style="position:absolute;left:0;right:0;bottom:0;height:${fillH}%;background:linear-gradient(180deg,${fillColor}cc,${fillColor})">
+          <div style="position:absolute;top:-4px;left:-5%;width:110%;height:9px;border-radius:50%;border-top:2px solid rgba(255,255,255,.75)"></div>
+        </div>` : ''}${motor}
+      </div>
+      <div style="width:11px;height:7px;border:1.6px solid ${borderColor};border-top:0;border-radius:0 0 5px 5px;background:#fff;margin-top:-1px"></div>
+      ${packagingAnim}
+      <div style="font-size:11.5px;color:#3a4250;text-align:center;line-height:1.35;max-width:96px;min-height:34px">
+        ${productName ? `<b style="display:block;color:#17202a;font-size:13px;font-weight:800">${escapeHtml(productName)}</b>` : ''}
+        <span style="font-size:12px;font-weight:700;color:#5b6572">${escapeHtml(lotNo)}</span>
+      </div>
+      <div style="font-size:11px;text-align:center">
+        ${result ? `<b style="color:${resultColor};font-size:11.5px">${escapeHtml(result)}</b>` : '<span style="color:#c3c9cf">미검사</span>'}
+        ${inspector ? `<div style="font-size:9.5px;color:#8993a2">${escapeHtml(inspector)}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+function semShowTankDetail(cardId) {
+  const d = (window.semTankData || {})[cardId];
+  if (!d) return;
+  const row = d.row;
+  const keyFields = ['품명', '배치번호', '투입품목', '실량', '검사결과', '검사자', '시작시각', '종료시각', '비고'];
+  const keyRows = keyFields.map(k => [k, row[k]]).filter(([k, v]) => v && String(v).trim());
+  const skip = new Set(['nScrollTop', 'n_page', 'col_0']);
+  const restRows = Object.entries(row).filter(([k, v]) =>
+    v && String(v).trim() && !skip.has(k) && !/^col_\d+$/.test(k) && !keyFields.includes(k));
+  const rowHtml = (arr) => arr.map(([k, v]) => `<tr>
+        <td style="padding:6px 10px;border-bottom:1px solid #f0f2f5;color:#94a3b8;white-space:nowrap;vertical-align:top">${escapeHtml(k)}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #f0f2f5;font-weight:600">${escapeHtml(String(v))}</td>
+      </tr>`).join('');
+  const body = keyRows.length ? `<table style="width:100%;border-collapse:collapse;font-size:12.5px">
+      <tbody>${rowHtml(keyRows)}</tbody></table>` : '<div style="font-size:12.5px;color:#94a3b8">핵심 정보가 없어요.</div>';
+  const rest = restRows.length ? `<details style="margin-top:10px">
+      <summary style="cursor:pointer;font-size:12px;color:#94a3b8">전체 필드 더보기 (${restRows.length}개)</summary>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:6px"><tbody>${rowHtml(restRows)}</tbody></table>
+    </details>` : '';
+  const overlay = document.createElement('div');
+  overlay.className = 'mestank-modal-overlay';
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  overlay.innerHTML = `<div style="background:#fff;border-radius:12px;padding:20px;max-width:560px;width:90%;max-height:75vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="font-weight:800;font-size:14.5px">${escapeHtml(d.machine || '')}</div>
+        <button onclick="document.querySelector('.mestank-modal-overlay')?.remove()" style="border:none;background:none;font-size:18px;cursor:pointer;color:#8993a2;line-height:1">✕</button>
+      </div>
+      ${d.productName ? `<div style="font-size:12.5px;color:#3a4250;margin-bottom:12px"><b>${escapeHtml(d.productName)}</b> <span style="color:#8993a2">${escapeHtml(d.lotNo || '')}</span></div>` : ''}
+      ${body}${rest}
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+async function loadSemMonitoring() {
+  const body = document.getElementById('sem-monitor-body');
+  try {
+    const res = await apiGet({ action: 'getSemMonitoring' });
+    if (!res || res.ok === false) throw new Error((res && res.error) || '알 수 없는 오류');
+    renderSemMonitoring(res);
+  } catch (e) {
+    body.innerHTML = '<div class="mes-error">SEM 품질관리 현황을 불러오지 못했어요 (' + (e.message || e) + ').</div>';
+  }
+}
+
+function renderSemMonitoring(res) {
+  const body = document.getElementById('sem-monitor-body');
+  const updatedEl = document.getElementById('sem-updated');
+  if (updatedEl && res.updatedAt) {
+    const d = new Date(res.updatedAt);
+    updatedEl.textContent = '업데이트 ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+  }
+  const inspection = res.inspection || [];
+  const request = res.request || [];
+  const machineMaster = res.machineMaster || [];
+  const packagingSet = semPackagingMachines(request);
+  const nameLookup = semBuildNameLookup(request);
+  const sections = semBuildTankSections(inspection, machineMaster);
+  const procNames = Object.keys(sections);
+  const totalTanks = procNames.reduce((sum, p) => sum + sections[p].length, 0);
+  const activeNames = new Set();
+  inspection.forEach(r => { const m = semField(r, ['설비', 'machine']); if (m) activeNames.add(m); });
+  const idleCount = machineMaster.filter(n => !activeNames.has(n)).length;
+
+  body.innerHTML = procNames.length
+    ? procNames.map(p => `
+        <div style="font-size:12px;font-weight:700;margin:10px 0 8px">${escapeHtml(p)} <span style="font-weight:400;color:#94a3b8">(${sections[p].length}대)</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">${sections[p].map((r, i) => {
+          const m = semField(r, ['설비', 'machine']);
+          return semTankHtml(r, 'sem_' + p + '_' + i, packagingSet.has(m), nameLookup[m]);
+        }).join('')}</div>
+      `).join('')
+    : '<div style="font-size:12.5px;color:#94a3b8">오늘 데이터가 없어요.</div>';
+
+  const countEl = document.createElement('div');
+  // (설비 대수/대기 안내는 섹션 제목 옆에 넣지 않고 body 맨 위에 한 줄로 추가)
+  body.insertAdjacentHTML('afterbegin', `<div style="font-size:11.5px;color:#94a3b8;margin-bottom:6px">전체 ${totalTanks}대 · 대기 ${idleCount}대 · 오늘 ${inspection.length}건</div>`);
+
+  let pass = 0, fail = 0, pack = 0, uninsp = 0;
+  inspection.forEach(r => {
+    const m = semField(r, ['설비', 'machine']);
+    const rslt = semField(r, ['검사결과', 'PROCESS_INSPECTION_RESULT_']);
+    if (packagingSet.has(m)) pack++;
+    if (rslt === '합격') pass++;
+    else if (rslt === '불합격') fail++;
+    else uninsp++;
+  });
+  const summaryEl = document.getElementById('sem-today-summary');
+  if (summaryEl) {
+    summaryEl.innerHTML =
+      `<span>오늘 <b>${inspection.length}</b>건</span>` +
+      `<span style="color:#2e9e44">합격 <b>${pass}</b></span>` +
+      `<span style="color:#c94740">불합격 <b>${fail}</b></span>` +
+      `<span style="color:#7b2fbe">포장중 <b>${pack}</b></span>` +
+      `<span style="color:#8993a2">미검사 <b>${uninsp}</b></span>`;
+  }
+  semRenderAlerts(inspection);
+  semRenderSampleAlerts(request, inspection);
+}
+
+// [비고 문구 자동 계산] 추가의뢰현황 비고에 "추가 N시간 후" / "N분 후" 같은 표현이 있으면
+// - 이건 유철님이 실제로 확인한 내용인데, "샘플이 온다"는 뜻이 아니라 반대로 "QC 검사는
+// 이미 끝났고, 그 시각에 마지막 원료를 넣고 포장을 진행하라"는 사인이래요. 그래서 이미
+// 검사결과(합격/불합격)가 나온 설비는 오래된 문구로 보고 알림에서 제외합니다.
+function semRenderSampleAlerts(requestRows, inspectionRows) {
+  const box = document.getElementById('sem-sample-alerts');
+  if (!box) return;
+  const now = new Date();
+  const doneMachines = new Set();
+  (inspectionRows || []).forEach(r => {
+    const rslt = semField(r, ['검사결과', 'PROCESS_INSPECTION_RESULT_']);
+    const m = semField(r, ['설비', 'machine']);
+    if (rslt && m) doneMachines.add(m);
+  });
+  const alerts = [];
+  (requestRows || []).forEach(r => {
+    const note = r['비고'] || '';
+    const m = semField(r, ['설비', 'machine']);
+    if (!note || !m) return;
+    if (doneMachines.has(m)) return;
+    let addMin = 0;
+    const h = note.match(/(\d+)\s*시간/);
+    const mi = note.match(/(\d+)\s*분/);
+    if (h) addMin += parseInt(h[1], 10) * 60;
+    if (mi) addMin += parseInt(mi[1], 10);
+    if (addMin === 0) return;
+
+    let base = new Date(now);
+    const timeStr = (r['의뢰일'] || '') + ' ' + (r['시작시각'] || '');
+    const tm = timeStr.match(/(\d{1,2}):(\d{2})/);
+    if (tm) { base.setHours(parseInt(tm[1], 10), parseInt(tm[2], 10), 0, 0); }
+    const eta = new Date(base.getTime() + addMin * 60000);
+    const diffMin = Math.round((eta - now) / 60000);
+    const name = r['품명'] || '';
+    alerts.push({ machine: m, name, note, eta, diffMin });
+  });
+
+  if (!alerts.length) { box.style.display = 'none'; return; }
+  alerts.sort((a, b) => a.eta - b.eta);
+  const fmt = (d) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  box.style.display = 'block';
+  box.innerHTML = `
+    <div style="font-size:12px;font-weight:800;color:#7b2fbe;margin-bottom:6px">📦 QC 완료 · 포장 진행 예정 (샘플 재전송 없음)</div>
+    <div style="display:flex;flex-direction:column;gap:5px">
+      ${alerts.map(a => {
+        const soon = a.diffMin <= 10;
+        const passed = a.diffMin < 0;
+        const badge = passed ? '<b style="color:#7b2fbe">포장 진행 시각 지남</b>'
+          : soon ? `<b style="color:#7b2fbe">${a.diffMin}분 후</b>`
+          : `<b>${a.diffMin}분 후</b>`;
+        return `<div style="font-size:12px;background:${soon ? '#f1e6fb' : '#F5F0FC'};border:1px solid ${soon ? '#d9bdf0' : '#e6d5f5'};border-radius:8px;padding:6px 10px;display:flex;justify-content:space-between;gap:12px">
+          <span><b>${escapeHtml(a.machine)}</b> ${a.name ? ('· ' + escapeHtml(a.name)) : ''}</span>
+          <span>${fmt(a.eta)} 포장 예정 · ${badge}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// [작업점검항목 실측값 수동 조회] n_WR_ID를 직접 입력해서 pH/온도 실측값만 보여줌
+// (기준범위를 못 찾아서 정상/이상 판정은 없어요 - 위 details 설명 참고)
+async function checkPpd() {
+  const wrId = document.getElementById('ppd-wr-id-input').value.trim();
+  const box = document.getElementById('ppd-result-box');
+  box.style.display = 'block';
+  if (!wrId) { box.textContent = 'n_WR_ID를 입력해주세요.'; return; }
+  box.textContent = '조회 중...';
+  try {
+    const res = await apiGet({ action: 'getPpdCheck', wrId: wrId });
+    if (!res || res.ok === false) { box.innerHTML = '❌ ' + escapeHtml((res && res.error) || '조회 실패'); return; }
+    const h = res.header || {};
+    const items = res.items || [];
+    box.innerHTML = `<b>${escapeHtml(h.product_name || '(품명 없음)')}</b> · ${escapeHtml(h.process_name || '')} · ${escapeHtml(h.wo_no || '')}<br>` +
+      (items.length
+        ? items.map(it => `${escapeHtml(it.label)}: <b>${escapeHtml(String(it.result))}</b>`).join(' &nbsp;|&nbsp; ')
+        : '점검항목 결과 없음');
+  } catch (e) {
+    box.innerHTML = '조회 실패: ' + e;
+  }
+}
+
+function semToggleAlerts() {
+  const box = document.getElementById('sem-alerts-grid');
+  const btn = document.getElementById('sem-alerts-toggle-btn');
+  if (!box) return;
+  const willShow = box.style.display === 'none';
+  box.style.display = willShow ? 'grid' : 'none';
+  if (btn) btn.style.background = willShow ? '#eef2ff' : '';
+}
+
+// 요약 패널: 품명별 처리 건수 / 검사자별 처리 건수 / 합격·불합격 상세
+function semRenderAlerts(inspectionRows) {
+  const box = document.getElementById('sem-alerts-grid');
+  if (!box) return;
+  const rows = inspectionRows || [];
+
+  const byProduct = {};
+  rows.forEach(r => { const key = r['품명'] || '(품명없음)'; byProduct[key] = (byProduct[key] || 0) + 1; });
+  const productList = Object.entries(byProduct).sort((a, b) => b[1] - a[1]);
+
+  const byInspector = {};
+  rows.forEach(r => {
+    const insp = semField(r, ['검사자', 'user']);
+    const rslt = semField(r, ['검사결과', 'PROCESS_INSPECTION_RESULT_']);
+    if (!insp || !rslt) return;
+    byInspector[insp] = (byInspector[insp] || 0) + 1;
+  });
+  const inspectorList = Object.entries(byInspector).sort((a, b) => b[1] - a[1]);
+
+  const passFail = rows.filter(r => {
+    const rslt = semField(r, ['검사결과', 'PROCESS_INSPECTION_RESULT_']);
+    return rslt === '합격' || rslt === '불합격';
+  });
+
+  function card(title, count, color, bodyHtml) {
+    return `<div style="background:#fff;border:1px solid #e4e8ee;border-radius:12px;padding:12px 14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:12px;font-weight:700">${title}</div>
+        <div style="font-size:11px;font-weight:700;color:${color};background:${color}18;border-radius:10px;padding:1px 8px">${count}</div>
+      </div>
+      <div style="font-size:11px;color:#5b6572;line-height:1.7;max-height:140px;overflow-y:auto">${bodyHtml || '<span style="color:#b0b7bf">해당 없음</span>'}</div>
+    </div>`;
+  }
+
+  box.innerHTML =
+    card('📊 오늘 품명별 처리', rows.length, '#7b8794',
+      productList.map(([name, c]) => `<div><b>${c}건</b> · ${escapeHtml(name)}</div>`).join('')) +
+    card('👤 검사자별 처리', inspectorList.reduce((s, [, c]) => s + c, 0), '#3976cf',
+      inspectorList.map(([name, c]) => `<div><b>${escapeHtml(name)}</b>: ${c}건</div>`).join('')) +
+    card('✅ 합격/불합격 상세', passFail.length, '#2e9e44',
+      passFail.map(r => {
+        const rslt = semField(r, ['검사결과', 'PROCESS_INSPECTION_RESULT_']);
+        const ok = rslt === '합격';
+        return `<div><b style="color:${ok ? '#2e9e44' : '#c94740'}">${escapeHtml(rslt)}</b> · ${escapeHtml(r['품명'] || '')} · ${escapeHtml(r['LOT No.'] || r['배치번호'] || '')}</div>`;
+      }).join(''));
+}
+
+// ===== 덤: 우리 부서(생산1부/반응QC) 오늘 불합격·특채 즉시 알림 =====
+// (SEM과 완전히 같은 화면을 부서코드만 바꿔서 보는 것 - 유철님 원본에 있던 기능이라
+// 같이 가져왔어요. 눈에 바로 띄어야 하는 용도라 화면 맨 위에 큼직하게 보여줌)
+async function loadPd1Alert() {
+  const box = document.getElementById('pd1-alert-box');
+  if (!box) return;
+  try {
+    const res = await apiGet({ action: 'getPd1Alert' });
+    if (!res || res.ok === false) { box.style.display = 'none'; return; }
+    const rows = res.inspection || [];
+    const flagged = rows.filter(r => {
+      const rslt = semField(r, ['검사결과', 'PROCESS_INSPECTION_RESULT_']);
+      return rslt === '불합격' || rslt === '특채';
+    });
+    if (!flagged.length) { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+    box.innerHTML = `<div style="background:#FFF1F0;border:1.5px solid #F3B4AE;border-radius:10px;padding:12px 14px">
+      <div style="font-weight:800;font-size:13px;color:#a61b2b;margin-bottom:8px">🚨 우리 부서 불합격·특채 ${flagged.length}건 (오늘)</div>
+      ${flagged.map(r => {
+        const name = semField(r, ['품명']);
+        const lot = semField(r, ['LOT No.', 'LOT NO', 'LOT']);
+        const rslt = semField(r, ['검사결과', 'PROCESS_INSPECTION_RESULT_']);
+        const insp = semField(r, ['검사자']);
+        const note = semField(r, ['비고']);
+        const color = rslt === '불합격' ? '#c94740' : '#b8860b';
+        return `<div style="font-size:12.5px;padding:5px 0;border-top:1px dashed #F3B4AE">
+          <b>${escapeHtml(name || '(품명없음)')}</b>${lot ? ' · ' + escapeHtml(lot) : ''}
+          <span style="color:${color};font-weight:700;margin-left:6px">${escapeHtml(rslt)}</span>
+          ${insp ? ' · 검사자: ' + escapeHtml(insp) : ''}${note ? ' · 비고: ' + escapeHtml(note) : ''}
+        </div>`;
+      }).join('')}
+    </div>`;
+  } catch (e) {
+    box.style.display = 'none';
+  }
+}
 
 // 온습도관리 탭을 다시 누르면 이번 달로 돌아가고 표는 다시 접어둠
 function resetHumidityView() {
