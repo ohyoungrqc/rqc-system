@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>제품 조회</title>
+<script>
+  // index.html 안의 iframe으로 열렸을 때는(=우리 통합관리시스템 안에서 탭으로 열었을 때)
+  // 바깥 화면에 이미 OHYOUNG 로고/이름이 있어서, 안쪽 화면의 로고 바를 겹쳐 보이지 않게
+  // 줄여줘요. products.html을 따로 열었을 때는 그대로 원래 모습 그대로 보여요.
+  if (window.self !== window.top) {
+    document.documentElement.classList.add('embedded');
+  }
+</script>
 <style>
   :root {
     --blue: #1f4e78;
@@ -53,6 +61,13 @@
     font-size: 11.5px; color: var(--blue-accent); font-weight: 700; letter-spacing: 0.3px;
     background: var(--blue-light); padding: 6px 14px; border-radius: 20px;
   }
+  .home-label { display: none; font-size: 13px; font-weight: 700; color: var(--blue-accent); }
+
+  /* ---- 통합관리시스템 안에 탭(iframe)으로 열렸을 때: 회사 로고/이름 중복 표시 방지 ---- */
+  html.embedded .navbar { height: 44px; padding: 0 20px; box-shadow: 0 1px 6px rgba(42,82,152,0.08); }
+  html.embedded .brand-badge,
+  html.embedded .navbar-brand-btn > div { display: none; }
+  html.embedded .home-label { display: inline; }
 
   .print-header { display: none; }
 
@@ -298,6 +313,7 @@
       <div class="brand-name">OHYOUNG</div>
       <div class="brand-sub">품질관리부 &middot; 반응QC</div>
     </div>
+    <span class="home-label">🏠 처음 화면으로</span>
   </button>
   <div class="navbar-label no-print">제품 LOT / QC 조회 시스템</div>
 </nav>
