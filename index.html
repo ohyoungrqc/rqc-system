@@ -89,6 +89,43 @@
   .mes-panel-details > summary .mes-panel-title::before { content:'▶'; font-size:10px; color:#94a3b8; transition:.15s; }
   .mes-panel-details[open] > summary .mes-panel-title::before { content:'▼'; }
 
+  /* ===== 전달사항/확인필요/최근변동사항/생산계획 (2026-09-18 추가) - 사이트 기존 팔레트 재사용 ===== */
+  .mes-side-panels { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px; align-items:flex-start; }
+  .mes-side-panel { flex:1 1 260px; min-width:240px; background:#f7f9fc; border:1px solid #eef2f7; border-radius:10px; padding:11px 13px; }
+  .mes-side-panel > summary { list-style:none; cursor:pointer; font-size:12.5px; font-weight:700; color:#1e293b; }
+  .mes-side-panel > summary::-webkit-details-marker { display:none; }
+  .mes-side-panel > summary .meta { font-weight:400; color:#94a3b8; margin-left:2px; }
+  .mes-side-panel-body { margin-top:8px; font-size:12px; color:#3a4250; line-height:1.6; }
+  .mes-anomaly-count { display:inline-block; background:#dc2626; color:#fff; border-radius:20px; padding:1px 8px; font-weight:800; font-size:11px; margin-left:4px; }
+  .mes-anomaly-row { display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:12px; padding:6px 0; border-bottom:1px solid #eef2f7; }
+  .mes-anomaly-row:last-child { border-bottom:none; }
+  .mes-anomaly-row .hh { color:#dc2626; font-weight:800; white-space:nowrap; }
+  .mes-recent-row { font-size:12px; padding:5px 0; border-bottom:1px solid #eef2f7; }
+  .mes-recent-row:last-child { border-bottom:none; }
+  .mes-recent-row b { color:#1e293b; }
+  .mes-plan-details { margin-bottom:16px; padding-bottom:14px; border-bottom:1px dashed #e2e8f0; }
+  .mes-plan-details > summary { list-style:none; cursor:pointer; font-size:12.5px; font-weight:700; color:#1e293b; margin-bottom:6px; }
+  .mes-plan-details > summary::-webkit-details-marker { display:none; }
+  .mes-plan-details > summary .meta { font-weight:400; color:#94a3b8; }
+  .mes-plan-day { margin-bottom:9px; padding-bottom:9px; border-bottom:1px dashed #eef2f7; }
+  .mes-plan-day:last-child { border:none; margin-bottom:0; padding-bottom:0; }
+  .mes-plan-day-label { font-size:12px; font-weight:700; margin-bottom:3px; }
+  .mes-plan-day-label .cnt { font-weight:400; color:#94a3b8; }
+  .mes-plan-line { display:flex; gap:8px; font-size:12.5px; line-height:1.9; }
+  .mes-plan-line .wp { flex:none; font-weight:700; color:#94a3b8; min-width:38px; }
+  .mes-plan-line .txt { color:#3a4250; }
+  .mestank-cell .mes-overdue-badge { font-size:8px; font-weight:800; border-radius:20px; padding:1px 6px; background:#fee2e2; color:#dc2626; margin-top:2px; }
+
+  /* 반제품 재고 조회 (2026-09-28 추가) - 유철님 파일의 반제품재고목록 실측 연동을 이식 */
+  .semistock-search { width:100%; max-width:320px; padding:7px 11px; border:1px solid #cbd5e1; border-radius:8px; font-family:inherit; font-size:12.5px; margin-bottom:10px; box-sizing:border-box; }
+  .semistock-table-wrap { max-height:420px; overflow:auto; border:1px solid #eef2f7; border-radius:8px; }
+  table.semistock-table { width:100%; min-width:760px; border-collapse:collapse; font-size:11.5px; }
+  table.semistock-table th, table.semistock-table td { padding:7px 10px; white-space:nowrap; border-bottom:1px solid #eef2f7; text-align:left; }
+  table.semistock-table th { position:sticky; top:0; background:#eaf1f8; color:#1e4884; font-weight:700; font-size:10.5px; z-index:1; }
+  table.semistock-table tbody tr:nth-child(even) td { background:#fafbfd; }
+  table.semistock-table td.semistock-bad { color:#dc2626; font-weight:700; }
+  table.semistock-table td.semistock-ok { color:#15803d; }
+
   /* 유철님 원본(업무포털)의 탱크 카드 애니메이션을 그대로 가져온 부분 */
   @keyframes mesripple{0%,100%{opacity:.5}50%{opacity:.28}}
   @keyframes messblade{to{transform:rotate(360deg)}}
@@ -500,10 +537,11 @@
 
     <div class="card home-monitor-card">
       <div class="card-head">
-        <div class="title">📊 QC모니터링</div>
+        <div class="title">📊 QC모니터링 · 오늘 현황</div>
         <a onclick="switchTab('monitor')">더보기 →</a>
       </div>
-      <div class="home-monitor-empty">아직 연결 전이에요. 준비되는 대로 이 카드에서 바로 확인하실 수 있어요.</div>
+      <div id="home-mes-today" class="home-hum-today" style="display:none;"></div>
+      <div id="home-mes-empty" class="home-monitor-empty">불러오는 중...</div>
     </div>
 
     <div class="card home-hum-card">
@@ -626,6 +664,39 @@
     </div>
 
     <div id="pd1-alert-box" style="display:none;margin-bottom:18px"></div>
+
+    <div class="mes-side-panels">
+      <details class="mes-side-panel" id="mes-transmittal-details" open>
+        <summary>📋 전달사항 <span class="meta" id="mes-transmittal-meta"></span></summary>
+        <div class="mes-side-panel-body" id="mes-transmittal-body">아직 안 불러왔어요.</div>
+      </details>
+      <details class="mes-side-panel" id="mes-anomaly-details">
+        <summary>⚠️ 확인이 필요한 항목<span class="mes-anomaly-count" id="mes-anomaly-count" style="display:none;"></span></summary>
+        <div class="mes-side-panel-body" id="mes-anomaly-body">지금 확인이 필요한 항목은 없어요.</div>
+      </details>
+      <details class="mes-side-panel" id="mes-recent-details">
+        <summary>🕐 최근 변동사항 <span class="meta">(직전 조회 이후)</span></summary>
+        <div class="mes-side-panel-body" id="mes-recent-body">아직 비교할 이전 기록이 없어요 (자동 갱신되면 여기 표시돼요).</div>
+      </details>
+      <details class="mes-side-panel" id="mes-flow-details">
+        <summary>🔄 이송이력 <span class="meta">(오늘, 탭을 열어둔 동안 누적)</span></summary>
+        <div class="mes-side-panel-body" id="mes-flow-body">아직 이동이 감지된 게 없어요.</div>
+      </details>
+    </div>
+
+    <details class="mes-plan-details" id="mes-plan-details">
+      <summary>📅 생산계획 (오늘/내일 예정) <span class="meta">- MES 생산계획스케줄 기준, 건물 단위</span></summary>
+      <div id="mes-plan-body"><div class="mes-loading">불러오는 중...</div></div>
+    </details>
+
+    <details class="mes-plan-details" id="mes-semistock-details">
+      <summary>📦 반제품 재고 조회 <span class="meta" id="mes-semistock-meta">- MES 반제품재고목록 기준, 열 때 한 번만 불러옴(첫 조회는 다소 느릴 수 있어요)</span></summary>
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="semistock-search-input" class="semistock-search" placeholder="품명 또는 LOT으로 찾기" oninput="renderSemiStock()">
+        <button type="button" class="mes-toggle-btn" onclick="loadSemiStock(true)">🔄 새로고침</button>
+      </div>
+      <div id="mes-semistock-body" style="margin-top:8px;"><div class="mes-loading">탭을 열면 불러와요.</div></div>
+    </details>
 
     <div class="mes-section">
       <div class="mes-section-head">
@@ -1137,6 +1208,7 @@ function switchTab(key) {
     if (!noticesLoaded) { noticesLoaded = true; loadNotices(); }
     if (!schedulesLoaded) { schedulesLoaded = true; loadSchedules(); }
     if (!humidityLoaded) { humidityLoaded = true; loadHumidity(); }
+    if (!homeMesLoaded) { homeMesLoaded = true; loadHomeMesSummary(); }
   }
   if (key === 'calendar') {
     if (isReclick) resetCalendarView();
@@ -1162,7 +1234,10 @@ function switchTab(key) {
     if (!humidityLoaded) { humidityLoaded = true; loadHumidity(); }
   }
   if (key === 'monitor') {
-    if (!monitorLoaded) { monitorLoaded = true; loadMesMonitoring(); loadSemMonitoring(); loadPd1Alert(); }
+    if (!monitorLoaded) { monitorLoaded = true; loadMesMonitoring(); loadSemMonitoring(); loadPd1Alert(); loadMesTransmittalNote(); loadMesPlanSchedule(); loadSemiStock(); }
+    mesStartPolling(); // 탭이 열려있는 동안만 자동 갱신 (60초마다)
+  } else {
+    mesStopPolling();
   }
   if ((key === 'equipment' || key === 'products') && isReclick) reloadEmbeddedFrame(key);
 }
@@ -2426,6 +2501,7 @@ humMonth = new Date(humMonth.getFullYear(), humMonth.getMonth(), 1);
 let humTableShown = false;
 let humidityLoaded = false; // 큐알로 바로 설비 상세화면으로 들어온 경우엔 홈 화면을 안 보므로, 나중에(홈/온습도관리 탭 열 때) 불러오기 위한 표시
 let monitorLoaded = false; // QC모니터링(MES 생산설비 현황)도 이 탭을 처음 열 때만 불러옴 (2026-09-16 추가)
+let homeMesLoaded = false; // 홈 화면 "오늘 현황 요약"도 홈을 처음 열 때만 불러옴 (2026-09-28 추가)
 
 async function loadHumidity() {
   try {
@@ -2454,15 +2530,339 @@ window.mesDetailsOpen = window.mesDetailsOpen || { concent: false, dry: false, l
 
 async function loadMesMonitoring() {
   const body = document.getElementById('mes-monitor-body');
-  body.innerHTML = '<div class="mes-loading">불러오는 중...</div>';
+  if (!window.mesMonitorEverLoaded) body.innerHTML = '<div class="mes-loading">불러오는 중...</div>';
   try {
     const res = await apiGet({ action: 'getMesMonitoring' });
     if (!res || res.ok === false) throw new Error((res && res.error) || '알 수 없는 오류');
+    window.mesMonitorEverLoaded = true;
+    // "이상 LOT 모아보기" - 카드 렌더링(mesTankHtml) 중에 지연 감지되는 항목을 여기 모아둔다.
+    // 매 조회(그리드 재생성)마다 비우고 새로 채움.
+    window.mesAnomalies = [];
     renderMesMonitoring(res);
+    mesUpdateRecentChanges(res.panels || {});
+    mesDetectFlowEvents(res.panels || {});
+    mesRenderAnomalies();
+    mesRenderRecentChanges();
+    mesRenderFlowLog();
   } catch (e) {
-    body.innerHTML = '<div class="mes-error">생산설비 현황을 불러오지 못했어요 (' + (e.message || e) + ').<br>잠시 후 다시 열어보시거나, 담당자에게 MES 연결 상태를 확인 요청해주세요.</div>';
+    if (!window.mesMonitorEverLoaded) {
+      body.innerHTML = '<div class="mes-error">생산설비 현황을 불러오지 못했어요 (' + (e.message || e) + ').<br>잠시 후 다시 열어보시거나, 담당자에게 MES 연결 상태를 확인 요청해주세요.</div>';
+    }
     monitorLoaded = false; // 실패했으니 다음에 탭을 다시 열면 재시도되도록
   }
+}
+
+// "최근 변동사항" - 직전 조회 스냅샷과 비교해서 신규/변경/종료만 뽑아둔다.
+function mesUpdateRecentChanges(panels) {
+  const allWh = [];
+  MES_PANEL_ORDER.forEach(key => { (panels[key] || []).forEach(wh => allWh.push(Object.assign({ _stage: key }, wh))); });
+  const snapNow = {};
+  allWh.forEach(wh => {
+    const item = (wh.arrWR && wh.arrWR[0]) || (wh.arrWRS && wh.arrWRS[0]) || (wh.arrSTL && wh.arrSTL[0]) || null;
+    const key = wh._stage + '|' + (wh.s_WH_Name || wh.n_WH_ID);
+    snapNow[key] = item ? { name: item.s_ITEM_Name || '', lot: item.s_PP_Batch || item.s_WRS_LotNo || item.s_STL_LotNo || '' } : null;
+  });
+  const snapPrev = window.mesPrevSnapshot || null;
+  window.mesRecentChanges = [];
+  if (snapPrev) {
+    Object.keys(snapNow).forEach(key => {
+      const now = snapNow[key], before = snapPrev[key];
+      const tank = key.split('|').slice(1).join('|');
+      if (now && !before) {
+        window.mesRecentChanges.push({ tank, text: `신규 투입 · ${now.name}${now.lot ? ' (LOT ' + now.lot + ')' : ''}` });
+      } else if (now && before && (now.name !== before.name || now.lot !== before.lot)) {
+        window.mesRecentChanges.push({ tank, text: `품목 변경 · ${before.name || '(없음)'} → ${now.name}${now.lot ? ' (LOT ' + now.lot + ')' : ''}` });
+      } else if (!now && before) {
+        window.mesRecentChanges.push({ tank, text: `종료/이동 · ${before.name} 처리 완료` });
+      }
+    });
+  }
+  window.mesPrevSnapshot = snapNow;
+}
+
+function mesRenderAnomalies() {
+  const box = document.getElementById('mes-anomaly-body');
+  const badge = document.getElementById('mes-anomaly-count');
+  if (!box) return;
+  const list = window.mesAnomalies || [];
+  if (badge) {
+    if (list.length) { badge.style.display = ''; badge.textContent = '! ' + list.length + '건'; }
+    else { badge.style.display = 'none'; }
+  }
+  box.innerHTML = list.length ? list.map(a => `
+    <div class="mes-anomaly-row">
+      <div><b>${escapeHtml(a.tank)}</b> <span style="color:#94a3b8;">· ${escapeHtml(a.name)}${a.lot ? ` (LOT ${escapeHtml(a.lot)})` : ''}</span></div>
+      <div class="hh">⏱ ${a.hours.toFixed(1)}h</div>
+    </div>`).join('') : '지금 확인이 필요한 항목은 없어요.';
+}
+
+function mesRenderRecentChanges() {
+  const box = document.getElementById('mes-recent-body');
+  if (!box) return;
+  const list = window.mesRecentChanges || [];
+  if (!window.mesPrevSnapshotShown) {
+    // 첫 조회는 비교 대상이 없으니 "아직 없음" 문구 그대로 두고, 두 번째 조회부터 실제 비교 결과를 보여줌
+    window.mesPrevSnapshotShown = true;
+    box.textContent = '아직 비교할 이전 기록이 없어요 (자동 갱신되면 여기 표시돼요).';
+    return;
+  }
+  box.innerHTML = list.length ? list.map(c => `
+    <div class="mes-recent-row"><b>${escapeHtml(c.tank)}</b> · ${escapeHtml(c.text)}</div>`).join('') : '직전 조회 이후 바뀐 게 없어요.';
+}
+
+// ===== 이송이력 (공정 단계 이동, 당일 누적) - 유철님 파일 2026-09-28 업데이트분 이식 =====
+// 저장소→R·O농축→S·D건조→나우다믹서로 넘어갈 때 LOT(또는 품명)이 겹치는 조합을 찾아서
+// 오늘 하루치를 계속 모아둠. [알려진 한계] 유철님 도구는 컴퓨터에 서버를 24시간 켜놔서
+// 탭을 닫아도 기록이 안 사라지지만, 우리는 이 탭을 열어둔 동안(60초 자동갱신)만 쌓이고
+// 새로고침하면 그날 것도 처음부터 다시 쌓여요 - "최근 변동사항"과 같은 한계입니다.
+const MES_FLOW_STAGES = [
+  ['storage', 'concent', '저장소', 'R·O 농축'],
+  ['concent', 'dry', 'R·O 농축', 'S·D 건조'],
+  ['dry', 'nauta', 'S·D 건조', '나우다믹서'],
+];
+const MES_FLOW_STAGE_RANK = { '저장소': 0, 'R·O 농축': 1, 'S·D 건조': 2, '나우다믹서': 3 };
+
+function mesFlowLotKey(lot) {
+  if (!lot) return null;
+  const m = String(lot).match(/^([A-Za-z0-9]+)-/);
+  return m ? m[1] : String(lot);
+}
+function mesFlowNameKey(name) {
+  if (!name) return null;
+  // [주의] JS의 \b는 한글을 "단어 문자"로 안 쳐줘서 파이썬처럼 \b를 그대로 쓰면 안 걸림 -
+  // 그 대신 뒤에 "_"가 더 있거나 문자열이 끝나는 자리인지로 경계를 확인함
+  let key = String(name).replace(/\([^)]*\)/g, '');
+  key = key.replace(/_(건조|혼합|추가용|혼합SEM|SEM|농축|여과)(?=_|$)/g, '');
+  key = key.replace(/\s+/g, '');
+  return key || null;
+}
+function mesFlowWhItem(wh) {
+  const arr = wh.arrWR || wh.arrSTL || wh.arrWRS;
+  if (!arr || !arr[0]) return { lot: '', name: '' };
+  const it = arr[0];
+  return {
+    lot: it.s_PP_Batch || it.s_WRS_LotNo || it.s_STL_LotNo || '',
+    name: it.s_ITEM_Name || '',
+  };
+}
+function mesDetectFlowEvents(panels) {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  if (window.mesFlowDate !== todayStr) {
+    window.mesFlowEntries = {};
+    window.mesFlowOrder = [];
+    window.mesFlowDate = todayStr;
+  }
+  const entries = window.mesFlowEntries = window.mesFlowEntries || {};
+  const order = window.mesFlowOrder = window.mesFlowOrder || [];
+  const nowStr = pad2(new Date().getHours()) + ':' + pad2(new Date().getMinutes());
+  MES_FLOW_STAGES.forEach(([fromKey, toKey, fromLabel, toLabel]) => {
+    (panels[fromKey] || []).forEach(whFrom => {
+      const from = mesFlowWhItem(whFrom);
+      if (!from.lot && !from.name) return;
+      const lotKeyF = mesFlowLotKey(from.lot), nameKeyF = mesFlowNameKey(from.name);
+      const tankF = whFrom.s_WH_Name || whFrom.n_WH_ID;
+      (panels[toKey] || []).forEach(whTo => {
+        const to = mesFlowWhItem(whTo);
+        const lotKeyT = mesFlowLotKey(to.lot), nameKeyT = mesFlowNameKey(to.name);
+        const lotMatch = !!(lotKeyF && lotKeyT && lotKeyF === lotKeyT);
+        const nameMatch = !lotMatch && !!(nameKeyF && nameKeyT && nameKeyF === nameKeyT);
+        if (!lotMatch && !nameMatch) return;
+        const tankT = whTo.s_WH_Name || whTo.n_WH_ID;
+        const itemDisp = from.name || to.name;
+        // LOT까지 일치하면 도착탱크가 하나로 확정되니 키에 tankT까지 포함해서 별도 줄로,
+        // 품명만 일치하면 tankT를 키에서 빼서 같은(출발탱크·품명) 후보를 한 줄에 모음
+        const key = lotMatch
+          ? (fromKey + '|' + toKey + '|' + tankF + '|' + tankT + '|' + lotKeyF)
+          : (fromKey + '|' + toKey + '|' + tankF + '|' + nameKeyF);
+        if (entries[key]) {
+          if (entries[key].toTanks.indexOf(tankT) === -1) entries[key].toTanks.push(tankT);
+          return;
+        }
+        entries[key] = {
+          fromStage: fromLabel, toStage: toLabel, fromTank: tankF, toTanks: [tankT],
+          item: itemDisp, lot: from.lot || to.lot, sure: lotMatch, time: nowStr,
+        };
+        order.push(key);
+      });
+    });
+  });
+}
+function mesRenderFlowLog() {
+  const box = document.getElementById('mes-flow-body');
+  if (!box) return;
+  const order = window.mesFlowOrder || [];
+  const entries = window.mesFlowEntries || {};
+  // 최신 시각이 위로, 같은 시각이면 공정단계 오름차순(저장소→...→나우다 순)으로 정렬
+  const list = order.map(k => entries[k]).filter(Boolean).sort((a, b) => {
+    if (a.time !== b.time) return a.time < b.time ? 1 : -1;
+    return (MES_FLOW_STAGE_RANK[a.fromStage] || 0) - (MES_FLOW_STAGE_RANK[b.fromStage] || 0);
+  });
+  box.innerHTML = list.length ? list.map(e => `
+    <div class="mes-recent-row"><b>${escapeHtml(e.time)}</b> · ${escapeHtml(e.fromStage)}(${escapeHtml(e.fromTank || '')}) → ${escapeHtml(e.toStage)}(${e.toTanks.map(escapeHtml).join(', ')}) · ${escapeHtml(e.item || '')}${e.lot ? ' (LOT ' + escapeHtml(e.lot) + ')' : ''}${e.sure ? '' : ' <span style="color:#94a3b8;">· 품명 추정</span>'}</div>
+  `).join('') : '아직 이동이 감지된 게 없어요.';
+}
+
+// ===== 반제품 재고 조회 - 유철님 파일 2026-09-28 업데이트분 이식 =====
+// MES "반제품재고목록" 화면(약 200행)을 그대로 가져와서 보여줌. 이 MES 리포트 자체가
+// 원래 느려서(유철님 실측 40초 안팎) 60초 자동갱신에는 끼워넣지 않고, QC모니터링 탭을
+// 열 때 한 번만 불러오거나 "새로고침" 버튼을 눌렀을 때만 다시 불러옵니다.
+window.mesSemiStockRows = window.mesSemiStockRows || [];
+window.mesSemiStockLoaded = false;
+async function loadSemiStock(force) {
+  if (window.mesSemiStockLoaded && !force) { renderSemiStock(); return; }
+  const box = document.getElementById('mes-semistock-body');
+  if (box) box.innerHTML = '<div class="mes-loading">불러오는 중... (MES 응답이 느려서 최대 1분 정도 걸릴 수 있어요)</div>';
+  try {
+    const res = await apiGet({ action: 'getSemiStock' });
+    if (!res || res.ok === false) throw new Error((res && res.error) || '알 수 없는 오류');
+    window.mesSemiStockRows = res.rows || [];
+    window.mesSemiStockLoaded = true;
+    renderSemiStock();
+  } catch (e) {
+    if (box) box.innerHTML = '<div class="mes-error">반제품 재고를 불러오지 못했어요 (' + (e.message || e) + ').</div>';
+  }
+}
+function renderSemiStock() {
+  const box = document.getElementById('mes-semistock-body');
+  if (!box) return;
+  if (!window.mesSemiStockLoaded) { box.innerHTML = '<div class="mes-loading">탭을 열면 불러와요.</div>'; return; }
+  const q = (document.getElementById('semistock-search-input')?.value || '').trim().toLowerCase();
+  let rows = window.mesSemiStockRows || [];
+  if (q) rows = rows.filter(r => (r.itemName || '').toLowerCase().includes(q) || (r.lot || '').toLowerCase().includes(q));
+  if (!rows.length) { box.innerHTML = '<div class="mes-loading">' + (q ? '검색 결과가 없어요.' : '재고 데이터가 없어요.') + '</div>'; return; }
+  box.innerHTML = `<div class="semistock-table-wrap"><table class="semistock-table">
+    <thead><tr><th>품명</th><th>LOT</th><th>재고</th><th>규격</th><th>상태</th><th>생산일</th><th>창고</th><th>비고</th></tr></thead>
+    <tbody>${rows.map(r => `<tr>
+      <td>${escapeHtml(r.itemName || '')}</td>
+      <td>${escapeHtml(r.lot || '')}</td>
+      <td>${escapeHtml(r.stock || '')} ${escapeHtml(r.unit || '')}</td>
+      <td>${escapeHtml(r.standard || '')}</td>
+      <td class="${r.statusCode === '2' ? 'semistock-bad' : (r.statusCode === '1' ? 'semistock-ok' : '')}">${escapeHtml(r.status || '')}</td>
+      <td>${escapeHtml(r.prodDate || '')}</td>
+      <td>${escapeHtml(r.whName || '')}</td>
+      <td>${escapeHtml(r.memo || '')}</td>
+    </tr>`).join('')}</tbody>
+  </table></div>
+  <div style="font-size:11px;color:#94a3b8;margin-top:6px;">전체 ${window.mesSemiStockRows.length}건 중 ${rows.length}건 표시</div>`;
+}
+
+// ===== 홈 화면 "오늘 현황 요약" - 유철님 파일 2026-09-28 업데이트분 이식 =====
+// QC모니터링 탭을 안 열어도 지금 각 공정 단계에 몇 개가 있는지 홈 화면에서 바로 보여줌.
+// 기존에 이미 불러오던 getMesMonitoring 데이터를 그대로 재활용함(추가 MES 호출 없음).
+async function loadHomeMesSummary() {
+  const box = document.getElementById('home-mes-today');
+  const empty = document.getElementById('home-mes-empty');
+  if (!box) return;
+  try {
+    const res = await apiGet({ action: 'getMesMonitoring' });
+    if (!res || res.ok === false) throw new Error((res && res.error) || '오류');
+    const panels = res.panels || {};
+    box.innerHTML = MES_PANEL_ORDER.map(key => `
+      <div class="tile"><div class="label">${escapeHtml(MES_PANEL_LABELS[key] || key)}</div><div class="value">${(panels[key] || []).length}</div></div>
+    `).join('');
+    box.style.display = 'flex';
+    if (empty) empty.style.display = 'none';
+  } catch (e) {
+    if (empty) { empty.style.display = 'block'; empty.textContent = '지금 현황을 불러오지 못했어요.'; }
+  }
+}
+
+function mesTimeAgo(iso) {
+  if (!iso) return '아직 데이터 없음';
+  const sec = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
+  if (sec < 60) return sec + '초 전 갱신';
+  return Math.floor(sec / 60) + '분 전 갱신';
+}
+
+async function loadMesTransmittalNote() {
+  try {
+    const res = await apiGet({ action: 'getMesTransmittalNote' });
+    if (!res || res.ok === false) throw new Error((res && res.error) || '알 수 없는 오류');
+    const body = document.getElementById('mes-transmittal-body');
+    const meta = document.getElementById('mes-transmittal-meta');
+    if (!body || !meta) return;
+    const raw = (res.text || '').trim();
+    const cleaned = raw.replace(/[ \t]+/g, ' ').replace(/\n{2,}/g, '\n');
+    body.textContent = cleaned || '(등록된 전달사항이 없어요)';
+    meta.textContent = res.user ? `(${res.user} · ${mesTimeAgo(res.time ? res.time.replace(' ', 'T') : null)})` : '';
+  } catch (e) {
+    // 전달사항만 실패해도 나머지 모니터링은 계속 보여줘야 하니 조용히 넘어감
+  }
+}
+
+async function loadMesPlanSchedule() {
+  const box = document.getElementById('mes-plan-body');
+  try {
+    const res = await apiGet({ action: 'getMesPlanSchedule' });
+    if (!res || res.ok === false) throw new Error((res && res.error) || '알 수 없는 오류');
+    mesRenderPlanSchedule(res.rows || []);
+  } catch (e) {
+    if (box) box.innerHTML = '<div class="mes-loading">생산계획을 불러오지 못했어요.</div>';
+  }
+}
+
+// "생산계획 (오늘/내일 예정)" - 오늘/내일을 1순위, 건물을 그 하위로 묶어서 표시.
+// 같은 품명이 배치만 다르게 여러 번 잡히는 경우(예: Blue C-R CF 100 641/642)는 배지를 따로 안
+// 늘리고 배치번호만 괄호 안에 합침.
+function mesRenderPlanSchedule(rows) {
+  const box = document.getElementById('mes-plan-body');
+  if (!box) return;
+  if (!rows || !rows.length) {
+    box.innerHTML = '<div class="mes-loading">조회된 생산계획이 없어요.</div>';
+    return;
+  }
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const buildingOrder = ['R1동', 'R2동', 'R3동', 'S1동', 'S2동', 'S3동', 'D1동'];
+  const sortBuildings = (keys) => keys.sort((a, b) => {
+    const ia = buildingOrder.indexOf(a), ib = buildingOrder.indexOf(b);
+    if (ia === -1 && ib === -1) return a.localeCompare(b);
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
+  const byDate = {};
+  rows.forEach(r => { const d = r.dStart || ''; (byDate[d] = byDate[d] || []).push(r); });
+  box.innerHTML = Object.keys(byDate).sort().map(d => {
+    const dayLabel = d === todayStr ? '오늘' : (d ? '내일' : '날짜미상');
+    const dayColor = d === todayStr ? '#2a5298' : '#94a3b8';
+    const items = byDate[d];
+    const byBuilding = {};
+    items.forEach(r => { const wp = r.s_PP_WP_Name || '기타'; (byBuilding[wp] = byBuilding[wp] || []).push(r); });
+    const buildingLines = sortBuildings(Object.keys(byBuilding)).map(wp => {
+      const mergedOrder = [];
+      const mergedBatches = {};
+      byBuilding[wp].forEach(r => {
+        const name = r.s_ITEM_Name || '';
+        if (!(name in mergedBatches)) { mergedBatches[name] = []; mergedOrder.push(name); }
+        if (r.s_PP_Batch) mergedBatches[name].push(r.s_PP_Batch);
+      });
+      const text = mergedOrder.map(name => {
+        const batches = mergedBatches[name];
+        return escapeHtml(name) + (batches.length ? ' (' + batches.map(escapeHtml).join(',') + ')' : '');
+      }).join(', ');
+      return `<div class="mes-plan-line"><span class="wp">${escapeHtml(wp)}</span><span class="txt">${text}</span></div>`;
+    }).join('');
+    return `<div class="mes-plan-day">
+      <div class="mes-plan-day-label" style="color:${dayColor}">${dayLabel} <span class="cnt">(${items.length}건)</span></div>
+      ${buildingLines}
+    </div>`;
+  }).join('');
+}
+
+// QC모니터링 탭이 열려있는 동안만 60초마다 자동으로 다시 불러옴(닫으면 멈춤 - 불필요한 MES
+// 호출을 막기 위해). "최근 변동사항"/"이상 LOT 모아보기"는 이 자동 갱신이 있어야 의미가 있어요.
+window.mesPollTimer = window.mesPollTimer || null;
+function mesStartPolling() {
+  if (window.mesPollTimer) return;
+  window.mesPollTimer = setInterval(() => {
+    loadMesMonitoring();
+    loadSemMonitoring();
+    loadMesTransmittalNote();
+    loadMesPlanSchedule();
+  }, 60000);
+}
+function mesStopPolling() {
+  if (window.mesPollTimer) { clearInterval(window.mesPollTimer); window.mesPollTimer = null; }
 }
 
 function renderMesMonitoring(res) {
@@ -2553,6 +2953,16 @@ const MES_SHADE_CARD = {
   'black dn co':'#23252A', 'sunzol black dn':'#1F2024', 'red spd conc':'#C3324B',
   'orange ss':'#E8792B', 'yellow ss':'#E4C63C', 'night s-r':'#5A5F6B',
   'red bb':'#C43A3A', 'orange p-2r_sem':'#E0642C', 'night s-r_혼합':'#5A5F6B',
+  // [2026-09-18 추가] 회사 쉐이드카드(Suncolours Ver.9.1) PDF에서 실제 원단 스와치를 픽셀
+  // 샘플링해서 얻은 정밀 색상 - 실제 MES 탱크 품명에 등장하는 코드(Sunfron C의 "C-R"/"C-2BL",
+  // Sunzol GRB의 "GRB")와 직접 일치함. 순서 중요: "navy blue c-r"가 "blue c-r"를 포함하므로
+  // 반드시 더 구체적인(긴) 키를 먼저 둬야 함(includes 매칭이라 먼저 걸리는 게 이김).
+  'navy blue c-r':'#1a1928', 'blue c-r':'#2a2e59',
+  'yellow c-4g':'#e8eb2f', 'yellow c-rg':'#ef7b22', 'orange c-r':'#ef5426',
+  'red c-2bl':'#961e41', 'red c-2g':'#c31c49',
+  'navy blue grb':'#1a1a2a', 'blue grb':'#2a2a4c',
+  'g/yellow grb':'#ee7a21', 'ultra yellow grbn':'#ea5c24',
+  'ultra red grb':'#a62037', 'red grb':'#bb1c4a',
 };
 const MES_COLOR_RULES = [
   ['navy blue','#1E3A8A'], ['turquoise','#00A9A5'], ['black','#0A0A0C'], ['yellow','#F0B400'],
@@ -2592,9 +3002,8 @@ function mesMemoOf(item) {
 }
 
 // 탱크 하나를 실제 탱크 모양(+애니메이션)으로 그려주는 함수. stage: nauta/concent/dry/liquid/storage
-// ※ 유철님 원본에 있던 "평소보다 오래 걸리는지" 경고 기능은, 그쪽은 프로그램을 계속 켜놓고
-// 60초마다 감시하는 방식이라 가능했던 거라 - 저희는 탭을 열 때만 한 번 불러오는 방식이라
-// 의미가 없어서 이 부분만 뺐어요.
+// ※ "평소보다 오래 걸리는지" 경고("이상 LOT 모아보기")는 2026-09-18부터 QC모니터링 탭이 열려있는
+// 동안 60초마다 자동 갱신되도록 바뀌어서(mesStartPolling 참고) 이제 의미가 있어져 같이 넣었어요.
 function mesTankHtml(wh, cardId, stage) {
   const hasWork = wh.arrWR && wh.arrWR.length > 0;
   const hasStock = wh.arrSTL && wh.arrSTL.length > 0;
@@ -2611,6 +3020,25 @@ function mesTankHtml(wh, cardId, stage) {
   const lot = item ? (item.s_PP_Batch || item.s_WRS_LotNo || item.s_STL_LotNo || '') : '';
   const sampleTime = item ? (item.dt_MRA_Sample || '') : '';
   const active = hasWork || hasFeed || hasStock;
+  // "이 설비, 평소보다 오래 걸리고 있다" 조짐 감지. 배치(LOT/품명)가 바뀌면 타이머 리셋,
+  // 같은 배치가 계속 작업중이면 경과시간을 추적해서 단계별 기준시간을 넘기면 배지로 경고.
+  // 기준시간은 실측 통계가 아니라 보수적인 기본값(추후 조정 가능) - 오탐 줄이려고 넉넉하게 잡음.
+  window.mesCellActiveSince = window.mesCellActiveSince || {};
+  let overdueHours = null;
+  if (hasWork && cardId) {
+    const key = cardId + '|' + (lot || name);
+    if (!window.mesCellActiveSince[key]) window.mesCellActiveSince[key] = Date.now();
+    Object.keys(window.mesCellActiveSince).forEach(k => {
+      if (k.indexOf(cardId + '|') === 0 && k !== key) delete window.mesCellActiveSince[k];
+    });
+    const elapsedH = (Date.now() - window.mesCellActiveSince[key]) / 3600000;
+    const warnHours = ({ concent: 6, dry: 5, nauta: 3 })[stage] || 6;
+    if (elapsedH > warnHours) {
+      overdueHours = elapsedH;
+      window.mesAnomalies = window.mesAnomalies || [];
+      window.mesAnomalies.push({ tank: wh.s_WH_Name || wh.n_WH_ID, name, lot, hours: overdueHours });
+    }
+  }
   const amt = mesAmountOf(item);
   const maxRef = 60000;
   let fillH;
@@ -2658,6 +3086,7 @@ function mesTankHtml(wh, cardId, stage) {
   if (amt) tooltipParts.push('투입량: ' + amt.toLocaleString() + ' kg');
   if (sampleTime) tooltipParts.push('샘플시간: ' + sampleTime);
   if (memo) tooltipParts.push('비고: ' + memo);
+  if (overdueHours) tooltipParts.push(`⏱ ${overdueHours.toFixed(1)}시간째 작업중 (평소보다 김)`);
   const tooltip = tooltipParts.length ? tooltipParts.join('\n') : (wh.s_WH_Name || '') + '\n대기중';
 
   window.mesTankData = window.mesTankData || {};
@@ -2667,6 +3096,7 @@ function mesTankHtml(wh, cardId, stage) {
     <div class="mestank-cell" title="${tooltip.replace(/"/g, '&quot;')}" onclick="mesShowTankDetail('${cardId}')" style="display:flex;flex-direction:column;align-items:center;gap:3px;width:96px;padding:8px 4px 10px;border-radius:10px;cursor:pointer" id="cell_${cardId}">
       <div style="font-size:10.5px;font-weight:700;text-align:center;color:#17202a">${wh.s_WH_Name || wh.n_WH_ID}</div>
       <div style="font-size:8.5px;font-weight:700;border-radius:20px;padding:2px 7px;background:${state[2]};color:${state[1]};letter-spacing:.2px">${state[0]}</div>
+      ${overdueHours ? `<div class="mes-overdue-badge">⏱ ${overdueHours.toFixed(1)}h 지연</div>` : ''}
       <div style="width:15px;height:9px;border:1.6px solid ${active ? baseState[1] : '#d5d9de'};border-bottom:0;border-radius:6px 6px 0 0;background:${hasFeed ? '#ffe3bf' : '#f2f4f7'};margin-bottom:-1px"></div>
       <div class="mestank-body" style="width:58px;height:66px;border:2.2px solid ${active ? baseState[1] : '#d5d9de'};border-style:${active ? 'solid' : 'dashed'};border-radius:9px 9px 17px 17px;position:relative;overflow:hidden;background:linear-gradient(180deg,#fff,#f7f8fa);box-shadow:inset 0 -6px 12px rgba(20,35,50,.05)">
         ${bodyInner}${motor}
