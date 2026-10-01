@@ -189,6 +189,8 @@
   table.ship-table td.sp-actions { display:flex; gap:6px; }
   table.ship-table td.sp-actions button { background:none; border:1px solid #e2e8f0; border-radius:7px; padding:4px 9px; font-size:11px; color:#64748b; cursor:pointer; font-family:inherit; }
   table.ship-table td.sp-actions button:hover { background:#fff; color:#2a5298; border-color:#c7d7ee; }
+  .ship-ocr-row { display:flex; align-items:center; gap:10px; margin-bottom:14px; padding-bottom:14px; border-bottom:1px dashed #e2e8f0; flex-wrap:wrap; }
+  .ship-ocr-row .ship-ocr-status { font-size:12px; color:#94a3b8; }
   .method-pill { display:inline-block; padding:3px 10px; border-radius:20px; font-weight:700; font-size:10.5px; white-space:nowrap; }
   #ship-list-empty { text-align:center; color:#94a3b8; font-size:13px; padding:30px 0; }
 
@@ -776,6 +778,13 @@
       <div class="title" id="ship-form-title-label">발송 등록</div>
       <button onclick="closeShipForm()">×</button>
     </div>
+
+    <div class="ship-ocr-row">
+      <input type="file" id="ship-ocr-file-input" accept="image/*" style="display:none;" onchange="handleShipOcrFile(this)">
+      <button type="button" class="mes-toggle-btn" onclick="document.getElementById('ship-ocr-file-input').click()">📷 사진으로 채우기</button>
+      <span class="ship-ocr-status" id="ship-ocr-status">팩스·메일 캡쳐 등을 올리면 AI가 읽어서 채워줘요 (확인은 꼭 해주세요)</span>
+    </div>
+
     <div class="ot-form">
       <div><label>신청일</label><input id="sf-requestDate" type="date"></div>
       <div><label>신청자</label><input id="sf-requester" type="text" placeholder="이름"></div>
@@ -1605,6 +1614,92 @@ function renumberShipProductRows() {
     const removeBtn = row.querySelector('.spr-remove');
     if (removeBtn) removeBtn.style.display = rows.length > 1 ? 'flex' : 'none';
   });
+}
+
+// ===== "사진으로 채우기" - 팩스/메일 캡쳐를 올리면 Gemini AI가 읽어서 자동으로 채워줌 (2026-10-01 추가) =====
+async function handleShipOcrFile(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById('ship-ocr-status');
+  statusEl.textContent = '사진을 읽는 중... (몇 초~수십 초 걸릴 수 있어요)';
+  statusEl.style.color = '#94a3b8';
+  try {
+    const { base64, mimeType } = await shipResizeImageToBase64(file);
+    const res = await apiPost({ action: 'ocrShipment', imageBase64: base64, mimeType });
+    if (!res || res.ok === false) throw new Error((res && res.error) || '인식 실패');
+    const filled = applyShipOcrResult(res);
+    statusEl.textContent = filled
+      ? '✓ 읽어왔어요. 틀린 부분 없나 꼭 확인해주세요!'
+      : '사진에서 알아볼 수 있는 내용을 못 찾았어요. 직접 입력해주세요.';
+    statusEl.style.color = filled ? '#15803d' : '#b45309';
+  } catch (e) {
+    statusEl.textContent = '불러오지 못했어요 (' + (e.message || e) + ')';
+    statusEl.style.color = '#dc2626';
+  } finally {
+    input.value = ''; // 같은 사진을 다시 선택해도 또 인식되도록 비워둠
+  }
+}
+
+// 사진을 가로 1600px 이하로 줄여서 base64로 변환 (크기가 너무 크면 느리고, 글자 인식엔 이 정도 해상도면 충분함)
+function shipResizeImageToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('파일을 읽지 못했어요'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('이미지를 열지 못했어요'));
+      img.onload = () => {
+        const maxW = 1600;
+        const scale = img.width > maxW ? maxW / img.width : 1;
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(img.width * scale));
+        canvas.height = Math.max(1, Math.round(img.height * scale));
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        resolve({ base64: dataUrl.split(',')[1], mimeType: 'image/jpeg' });
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// AI가 찾아준 내용을 등록창에 채워넣음 - 이미 뭔가 적혀있는 칸은 안 건드리고 빈 칸만 채움
+function applyShipOcrResult(res) {
+  let filled = false;
+  const setIfEmpty = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val && !el.value) { el.value = val; filled = true; }
+  };
+  setIfEmpty('sf-requester', res.requester);
+  setIfEmpty('sf-recipient', res.recipient);
+  setIfEmpty('sf-shipDate', res.shipDate);
+  setIfEmpty('sf-method', res.method);
+
+  const products = (res.products || []).filter(p => p && p.productName);
+  if (!products.length) return filled;
+  filled = true;
+  const rows = document.querySelectorAll('#ship-product-rows .ship-product-row');
+  const firstRow = rows[0];
+  const firstNameInput = firstRow ? firstRow.querySelector('.sf-productName') : null;
+  let startIdx = 0;
+  if (firstNameInput && !firstNameInput.value.trim()) {
+    const p = products[0];
+    firstNameInput.value = p.productName || '';
+    firstRow.querySelector('.sf-lotNo').value = p.lotNo || '';
+    firstRow.querySelector('.sf-container').value = p.container || '';
+    firstRow.querySelector('.sf-qty').value = p.quantity || '';
+    startIdx = 1;
+  }
+  for (let i = startIdx; i < products.length; i++) {
+    const p = products[i];
+    addShipProductRow({ productName: p.productName, lotNo: p.lotNo, container: p.container, qty: p.quantity });
+  }
+  // 여러 제품이 채워졌을 수 있으니, 수정 화면이라 숨겨뒀던 "제품 추가" 버튼도 다시 보이게 함
+  const addBtn = document.getElementById('ship-add-product-btn');
+  if (addBtn) addBtn.style.display = 'block';
+  return filled;
 }
 
 // 서버가 혹시 날짜를 "2026-08-25T15:00:00.000Z" 같은 형태로 잘못 보내줘도
