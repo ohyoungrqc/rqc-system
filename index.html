@@ -782,7 +782,7 @@
     <div class="ship-ocr-row">
       <input type="file" id="ship-ocr-file-input" accept="image/*" style="display:none;" onchange="handleShipOcrFile(this)">
       <button type="button" class="mes-toggle-btn" onclick="document.getElementById('ship-ocr-file-input').click()">📷 사진으로 채우기</button>
-      <span class="ship-ocr-status" id="ship-ocr-status">팩스·메일 캡쳐 등을 올리면 AI가 읽어서 채워줘요 (확인은 꼭 해주세요)</span>
+      <span class="ship-ocr-status" id="ship-ocr-status">팩스·메일 캡쳐 등을 올리면 AI가 읽어서 채워줘요 - 캡쳐 프로그램으로 캡쳐했다면 이 창에서 Ctrl+V만 눌러도 돼요 (확인은 꼭 해주세요)</span>
     </div>
 
     <div class="ot-form">
@@ -1617,9 +1617,34 @@ function renumberShipProductRows() {
 }
 
 // ===== "사진으로 채우기" - 팩스/메일 캡쳐를 올리면 Gemini AI가 읽어서 자동으로 채워줌 (2026-10-01 추가) =====
+// [2026-10-02 추가] 파일 선택 말고도, 캡쳐 프로그램으로 화면을 캡쳐한 다음 등록창에서
+// 바로 Ctrl+V(붙여넣기)만 해도 인식되게 함 - 캡쳐 → 저장 → 파일 선택, 이 과정을 줄여줌.
 async function handleShipOcrFile(input) {
   const file = input.files && input.files[0];
   if (!file) return;
+  try {
+    await runShipOcr(file);
+  } finally {
+    input.value = ''; // 같은 사진을 다시 선택해도 또 인식되도록 비워둠
+  }
+}
+
+// 발송 등록창이 열려있는 동안, 캡쳐 프로그램으로 캡쳐한 이미지를 Ctrl+V로 바로 붙여넣으면
+// 파일로 저장하는 과정 없이 바로 인식되도록 함
+document.addEventListener('paste', (e) => {
+  const backdrop = document.getElementById('ship-modal-backdrop');
+  if (!backdrop || backdrop.style.display !== 'flex') return; // 발송 등록창이 열려있을 때만 동작
+  const items = (e.clipboardData && e.clipboardData.items) || [];
+  for (const item of items) {
+    if (item.kind === 'file' && item.type && item.type.startsWith('image/')) {
+      const file = item.getAsFile();
+      if (file) { e.preventDefault(); runShipOcr(file); }
+      return;
+    }
+  }
+});
+
+async function runShipOcr(file) {
   const statusEl = document.getElementById('ship-ocr-status');
   statusEl.textContent = '사진을 읽는 중... (몇 초~수십 초 걸릴 수 있어요)';
   statusEl.style.color = '#94a3b8';
@@ -1635,8 +1660,6 @@ async function handleShipOcrFile(input) {
   } catch (e) {
     statusEl.textContent = '불러오지 못했어요 (' + (e.message || e) + ')';
     statusEl.style.color = '#dc2626';
-  } finally {
-    input.value = ''; // 같은 사진을 다시 선택해도 또 인식되도록 비워둠
   }
 }
 
