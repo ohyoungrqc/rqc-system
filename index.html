@@ -781,7 +781,9 @@
 
     <div class="ship-ocr-row">
       <input type="file" id="ship-ocr-file-input" accept="image/*" style="display:none;" onchange="handleShipOcrFile(this)">
-      <button type="button" class="mes-toggle-btn" onclick="document.getElementById('ship-ocr-file-input').click()">📷 사진으로 채우기</button>
+      <button type="button" class="mes-toggle-btn" onclick="document.getElementById('ship-ocr-file-input').click()">🖼️ 사진 선택</button>
+      <input type="file" id="ship-ocr-camera-input" accept="image/*" capture="environment" style="display:none;" onchange="handleShipOcrFile(this)">
+      <button type="button" class="mes-toggle-btn" onclick="document.getElementById('ship-ocr-camera-input').click()">📸 카메라로 촬영</button>
       <span class="ship-ocr-status" id="ship-ocr-status">팩스·메일 캡쳐 등을 올리면 AI가 읽어서 채워줘요 - 캡쳐 프로그램으로 캡쳐했다면 이 창에서 Ctrl+V만 눌러도 돼요 (확인은 꼭 해주세요)</span>
     </div>
 
