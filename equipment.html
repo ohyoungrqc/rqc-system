@@ -778,10 +778,21 @@ async function fetchWithTimeout(url, options, timeoutMs = 25000) {
   }
 }
 
+// 서버가 JSON이 아니라 구글 자체 에러화면(HTML) 등을 돌려줄 때,
+// "Unexpected token '<'" 같은 뭉뚱그려진 에러 대신 실제로 뭐가 왔는지 앞부분을 보여줌
+function _parseApiResponse_(text) {
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    throw new Error('서버 응답을 이해하지 못했어요 → ' + text.slice(0, 300));
+  }
+}
+
 async function apiGet(params, timeoutMs) {
   const url = API + '?' + new URLSearchParams({ ...params, pw: getSavedPw() });
   const res = await fetchWithTimeout(url, undefined, timeoutMs);
-  return res.json();
+  const text = await res.text();
+  return _parseApiResponse_(text);
 }
 
 async function apiPost(data) {
@@ -789,7 +800,8 @@ async function apiPost(data) {
     method: 'POST',
     body: JSON.stringify({ ...data, pw: getSavedPw() })
   });
-  return res.json();
+  const text = await res.text();
+  return _parseApiResponse_(text);
 }
 
 async function tryLogin() {
