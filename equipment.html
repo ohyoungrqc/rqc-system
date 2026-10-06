@@ -778,9 +778,9 @@ async function fetchWithTimeout(url, options, timeoutMs = 25000) {
   }
 }
 
-async function apiGet(params) {
+async function apiGet(params, timeoutMs) {
   const url = API + '?' + new URLSearchParams({ ...params, pw: getSavedPw() });
-  const res = await fetchWithTimeout(url);
+  const res = await fetchWithTimeout(url, undefined, timeoutMs);
   return res.json();
 }
 
@@ -891,7 +891,9 @@ async function init() {
   const eqId = params.get('eq');
 
   try {
-    const data = await apiGet({ action: 'getAll' });
+    // getAll은 설비+점검이력+검교정이력을 통째로 읽어오는 제일 무거운 호출이라
+    // 데이터가 쌓일수록 느려질 수 있어서, 다른 요청보다 더 넉넉하게(60초) 기다려줌
+    const data = await apiGet({ action: 'getAll' }, 60000);
     db = data;
     if (!db.calibs) db.calibs = [];
     // 구글시트 체크박스/문자 값("TRUE" 등)이 섞여 와도 항상 true/false로 정리해줌
@@ -906,6 +908,19 @@ async function init() {
     }
     showView('list');
     addClearButtons();
+  } catch (e) {
+    // 예전엔 여기서 실패해도 아무 표시가 없어서 "데이터 불러오는 중..." 스피너만 영원히 돌았음.
+    // 이제는 실패 이유를 보여주고 다시 시도할 수 있는 버튼을 띄움.
+    // (showView('list')를 쓰면 renderList()가 "설비가 없어요"로 덮어써버려서 에러가 안 보이게 되므로 직접 처리)
+    const grid = document.getElementById('eq-grid');
+    if (grid) {
+      grid.innerHTML = '<div style="text-align:center;padding:40px;color:#b91c1c;">'
+        + '데이터를 불러오지 못했어요.<br>'
+        + '<span style="font-size:13px;color:#94a3b8;">(' + ((e && e.message) || e) + ')</span><br><br>'
+        + '<button class="btn btn-primary" onclick="init()">🔄 다시 시도</button>'
+        + '</div>';
+    }
+    document.getElementById('view-list')?.classList.add('active');
   } finally {
     // 큐알로 들어왔을 때 띄워뒀던 로딩화면은, 성공하든 실패하든(네트워크 오류 등) 항상 닫아줌
     const overlay = document.getElementById('direct-loading');
